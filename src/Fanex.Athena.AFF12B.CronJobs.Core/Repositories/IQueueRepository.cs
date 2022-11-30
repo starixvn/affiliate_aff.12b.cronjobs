@@ -1,8 +1,8 @@
-﻿using Fanex.Athena.AFF12B.CronJobs.Core.Params;
+﻿using Fanex.Athena.AFF12B.CronJobs.Core.Models.MetaModels;
 
 namespace Fanex.Athena.AFF12B.CronJobs.Core.Repositories
 {
-    internal interface IQueueRepository
+    public interface IQueueRepository
     {
         Task AddQueue(QueueParam param);
     }

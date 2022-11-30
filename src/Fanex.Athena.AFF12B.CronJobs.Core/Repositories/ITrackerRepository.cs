@@ -1,4 +1,5 @@
-﻿using Fanex.Athena.AFF12B.CronJobs.Core.Params;
+﻿using Fanex.Athena.AFF12B.CronJobs.Core.Constant;
+using Fanex.Athena.AFF12B.CronJobs.Core.Models.MetaModels;
 
 namespace Fanex.Athena.AFF12B.CronJobs.Core.Repositories
 {
@@ -6,6 +7,6 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Repositories
     {
         Task AddTracker(TrackerParam param);
 
-        Task<DateTime> GetTracker(int tpType, string? subItem = null);
+        Task<DateTime> GetTracker(int tpType, string subItem = DefaultValues.String);
     }
 }
