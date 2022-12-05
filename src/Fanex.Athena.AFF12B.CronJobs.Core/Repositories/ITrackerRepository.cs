@@ -7,6 +7,6 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Repositories
     {
         Task AddTracker(TrackerParam param);
 
-        Task<DateTime> GetTracker(int tpType, string subItem = DefaultValues.String);
+        Task<DateTime> GetTracker(int tpType, string subItem = DefaultValue.String);
     }
 }

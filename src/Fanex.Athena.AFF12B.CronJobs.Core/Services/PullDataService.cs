@@ -1,45 +1,39 @@
 ﻿using Fanex.Athena.AFF12B.CronJobs.Core.Apis;
-using Fanex.Athena.AFF12B.CronJobs.Core.Configurations;
 using Fanex.Athena.AFF12B.CronJobs.Core.Contants;
 using Fanex.Athena.AFF12B.CronJobs.Core.Models.DTO;
 using Fanex.Athena.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.Athena.AFF12B.CronJobs.Core.Utilities;
-using Microsoft.Extensions.Logging;
+using Fanex.Athena.AFF12B.CronJobs.Core.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text;
+using Fanex.Logging;
 
 namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
 {
     public class PullDataService : IPullDataService
     {
-        private readonly ILogger<PullDataService> _logger;
-        private readonly IAppSettings _appSettings;
         private readonly IThirdPartyProductApi _thirdPartyProductApi;
 
-        private const int MinRangeNumber = 1;
+        private const int MIN_RANGE_NUMBER = 1;
+        private const int MAX_ITEMS_IN_RANGE = 2000;
 
         private const string BetTransTicketToken = "$.BetTransTicket";
         private const string CountToken = "$.Count";
 
         public PullDataService(
-            ILogger<PullDataService> logger,
-            IAppSettings appSettings,
             IThirdPartyProductApi thirdPartyProductApi)
         {
-            _logger = logger;
-            _appSettings = appSettings;
             _thirdPartyProductApi = thirdPartyProductApi;
         }
 
         public async Task<IEnumerable<string>> GetRawDataListAsync(ThirdPartyApiParam param)
         {
             var rawDataList = new List<string>();
-            var message = $"get raw data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(DateTimeFormats.Request)} to {param.EndDate.ToString(DateTimeFormats.Request)}";
-            var pullRange = TimeSpan.FromMinutes(_appSettings.MaxTimeRange);
+            var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(Format.DateTimeFormat)} to {param.EndDate.ToString(Format.DateTimeFormat)}";
+            var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
             var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
 
-            _logger.LogInformation($"Start {message}");
+            Logger.Log.Info($"Start {message}");
 
             foreach (var range in timeRanges)
             {
@@ -51,7 +45,7 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
                 rawDataList.Add(rawData);
             }
 
-            _logger.LogInformation($"Finished {message}");
+            Logger.Log.Info($"Finished {message}");
 
             return rawDataList;
         }
@@ -65,14 +59,14 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
             }
             catch (Exception ex)
             {
-                var message = $"get raw data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(DateTimeFormats.Request)} to {param.EndDate.ToString(DateTimeFormats.Request)}";
+                var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(Format.DateTimeFormat)} to {param.EndDate.ToString(Format.DateTimeFormat)}";
                 var logBuilder = new StringBuilder();
                 logBuilder.AppendLine($"Throw exception when {message}");
-                logBuilder.AppendLine(LogHelper.BuildErrorMessage(ex));
+                logBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(ex));
 
                 var logMessage = logBuilder.ToString();
 
-                _logger.LogError(logMessage);
+                Logger.Log.Error(logMessage);
 
                 throw;
             }
@@ -96,7 +90,7 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        public IEnumerable<JObject> GetUnescapedAndRemoveDataInfoDataList(string rawData)
+        public static IEnumerable<JObject> GetUnescapedAndRemoveDataInfoDataList(string rawData)
         {
             var dataJObject = JObject.Parse(rawData);
             var betTransTicketJToken = dataJObject.SelectToken(BetTransTicketToken).ToString();
@@ -121,20 +115,19 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
             return GetUnescapedDataByRange(dataJObject, ticketList);
         }
 
-        private IEnumerable<JObject> GetUnescapedDataByRange(JObject dataJObject, JArray betTransTicketList)
+        private static IEnumerable<JObject> GetUnescapedDataByRange(JObject dataJObject, JArray betTransTicketList)
         {
-            var maxItemsInRange = _appSettings.MaxItemsInRange;
-            var rangeNumbers = betTransTicketList.Count / maxItemsInRange;
+            var rangeNumbers = betTransTicketList.Count / MAX_ITEMS_IN_RANGE;
             var unescapedDataByRangeList = new List<JObject>();
 
-            if (rangeNumbers < MinRangeNumber)
+            if (rangeNumbers < MIN_RANGE_NUMBER)
             {
                 dataJObject.SelectToken(BetTransTicketToken).Replace(betTransTicketList);
                 unescapedDataByRangeList.Add(dataJObject);
             }
             else
             {
-                var betTransTicketChunks = betTransTicketList.Chunk(maxItemsInRange);
+                var betTransTicketChunks = betTransTicketList.Chunk(MAX_ITEMS_IN_RANGE);
                 foreach (var betTransTicket in betTransTicketChunks)
                 {
                     var ticketList = new JArray(betTransTicket);
@@ -159,14 +152,14 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Services
             catch (Exception ex)
             {
 
-                var logMessage = LogHelper.BuildErrorMessage(ex);
-                _logger.LogError(logMessage);
+                var logMessage = ErrorMessageHelper.GenerateMessage(ex);
+                Logger.Log.Error(logMessage);
 
                 throw;
             }
         }
 
-        private IEnumerable<ThirdPartyProductInfo> GetConvertedDataByRange(IEnumerable<JObject> dataList)
+        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataByRange(IEnumerable<JObject> dataList)
         {
             var convertedDataByRangeList = new List<ThirdPartyProductInfo>();
 

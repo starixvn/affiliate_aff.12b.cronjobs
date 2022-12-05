@@ -3,6 +3,6 @@
   <Function Name="Common">
     <Setting Key="Task_APIProduct_CallTimeIns" SpName="Task_APIProduct_CallTimeIns" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />
     <Setting Key="Task_APIProduct_CallTimeByProductSel" SpName="Task_APIProduct_CallTimeByProductSel" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />
-    <Setting Key="Task_APIProduct_ImportQueue" SpName="Task_APIProduct_ImportQueue" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />
+    <Setting Key="Task_NewAPIProduct_ImportQueue" SpName="Task_NewAPIProduct_ImportQueue" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />
   </Function>
 </Functions>

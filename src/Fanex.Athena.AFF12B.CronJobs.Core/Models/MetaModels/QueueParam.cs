@@ -6,6 +6,6 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Models.MetaModels
     {
         public byte JobType { get; set; }
 
-        public string JsonData { get; set; } = DefaultValues.String;
+        public string JsonData { get; set; } = DefaultValue.String;
     }
 }

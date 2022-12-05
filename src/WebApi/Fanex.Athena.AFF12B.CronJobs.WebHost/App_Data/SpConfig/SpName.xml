@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Functions SiteName="AFF-12B-CronJobs">
+<Functions SiteName="AFF-12B-Api-Service">
   <Function Name="Common">
     <Setting Key="Task_APIProduct_CallTimeIns" SpName="Task_APIProduct_CallTimeIns" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />
     <Setting Key="Task_APIProduct_CallTimeByProductSel" SpName="Task_APIProduct_CallTimeByProductSel" DbName="DBAFF12BET.Affiliate_12BET.bodbAdminNet" />

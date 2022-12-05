@@ -1,4 +1,4 @@
-﻿using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Constant;
+﻿using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Constants;
 using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

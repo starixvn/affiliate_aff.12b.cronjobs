@@ -6,10 +6,10 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Models.MetaModels
     {
         public int TpType { get; set; }
 
-        public string SubItem { get; set; } = DefaultValues.String;
+        public string SubItem { get; set; } = DefaultValue.String;
 
         public int ErrCode { get; set; }
 
-        public string ErrMsg { get; set; } = DefaultValues.String;
+        public string ErrMsg { get; set; } = DefaultValue.String;
     }
 }

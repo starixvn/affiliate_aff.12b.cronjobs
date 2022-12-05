@@ -15,7 +15,7 @@ namespace Fanex.Athena.AFF12B.CronJobs.Core.Repositories
             return db.ExecuteNonQueryAsync(param);
         }
 
-        public Task<DateTime> GetTracker(int tpType, string subItem = DefaultValues.String)
+        public Task<DateTime> GetTracker(int tpType, string subItem = DefaultValue.String)
         {
             const string SpName = "Task_APIProduct_CallTimeByProductSel";
 

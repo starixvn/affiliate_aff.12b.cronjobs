@@ -9,10 +9,6 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="Models\MetaModels\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="IPAddressRange" Version="4.2.0" />

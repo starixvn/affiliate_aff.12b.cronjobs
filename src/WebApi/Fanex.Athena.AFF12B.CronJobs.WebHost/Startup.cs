@@ -3,20 +3,18 @@ using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Models;
 using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Models.DTO;
 using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Models.Options;
 using Fanex.Athena.AFF12B.CronJobs.Core.Extensions;
-using Fanex.Athena.AFF12B.CronJobs.Core.Middleware;
+using Fanex.Athena.AFF12B.CronJobs.Core.Middlewares;
 using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Services;
-using Fanex.Data;
-using Fanex.Data.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
-using Sentry.AspNetCore;
 using System.Security.Claims;
 using System.Text;
 using Fanex.Athena.AFF12B.CronJobs.Core.Services;
-using Fanex.Athena.AFF12B.CronJobs.Core.Configurations;
 using Fanex.Athena.AFF12B.CronJobs.Core.Repositories;
+using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Configurations;
+using Fanex.Athena.AFF12B.CronJobs.WebApi.Core.Middlewares;
 
 namespace Fanex.Athena.AFF12B.CronJobs.WebApi.WebHost
 {
@@ -39,13 +37,9 @@ namespace Fanex.Athena.AFF12B.CronJobs.WebApi.WebHost
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
-            services.Configure<SentryAspNetCoreOptions>(Configuration.GetSection("Sentry"));
             services.Configure<TokenManagement>(Configuration.GetSection("tokenManagement"));
             services.Configure<ApplicationOptions>(Configuration.GetSection(ApplicationOptionSettingKey));
-
             services.Configure<List<User>>(Configuration.GetSection("Users"));
-
-            ConfigFanexData();
 
             services.AddResponseCaching(options =>
             {
@@ -129,7 +123,9 @@ namespace Fanex.Athena.AFF12B.CronJobs.WebApi.WebHost
 
         private void DIRegister(IServiceCollection services)
         {
+            services.InitLogging(Configuration);
             services.InitApi(Configuration);
+            services.InitFanexData(Configuration);
             services.AddUnderMaintenance(Configuration);
 
             services.AddScoped<IQueueRepository, QueueRepository>();
@@ -176,20 +172,6 @@ namespace Fanex.Athena.AFF12B.CronJobs.WebApi.WebHost
                         }
                     };
                 });
-        }
-
-        private void ConfigFanexData()
-        {
-            var listConnectionName = Configuration.GetSection("ConnectionStrings").GetChildren().Select(_ => _.Key);
-            var connectionStrings = new Dictionary<string, ConnectionConfiguration>(listConnectionName
-                .Select(connectionName => new KeyValuePair<string, ConnectionConfiguration>(connectionName,
-                    new ConnectionConfiguration(connectionName, Configuration.GetConnectionString(connectionName)))
-                ));
-            DbSettingProviderManager
-              .StartNewSession()
-              .WithSqlServer(resourcePath: "~/App_Data/SpConfig/SpName.xml")
-              .Use(connectionStrings)
-              .Run();
         }
     }
 }
