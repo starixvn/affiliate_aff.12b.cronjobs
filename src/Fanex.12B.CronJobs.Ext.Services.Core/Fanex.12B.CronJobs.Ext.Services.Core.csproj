@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Fanex.Athena.AFF12B.CronJobs.Core\Fanex.Athena.AFF12B.CronJobs.Core.csproj" />
+    <ProjectReference Include="..\Fanex.12B.CronJobs.Core\Fanex.12B.CronJobs.Core.csproj" />
   </ItemGroup>
 
 </Project>

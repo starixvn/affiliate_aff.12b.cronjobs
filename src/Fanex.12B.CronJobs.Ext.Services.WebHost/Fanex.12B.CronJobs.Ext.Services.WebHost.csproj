@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fanex.Athena.AFF12B.CronJobs.Core\Fanex.Athena.AFF12B.CronJobs.WebApi.Core.csproj" />
+    <ProjectReference Include="..\Fanex.12B.CronJobs.Ext.Services.Core\Fanex.12B.CronJobs.Ext.Services.Core.csproj" />
   </ItemGroup>
 
 </Project>
