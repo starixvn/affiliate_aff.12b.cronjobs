@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Fanex.AFF12B.CronJobs.WebHost</RootNamespace>
+    <UserSecretsId>4223b321-43cf-4ced-b3c0-eb1ad64afb7c</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="App_Data\SpConfig\SpName.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="App_Data\SpConfig\SpName.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fanex.AFF12B.CronJobs.Ext.Jobs.Core\Fanex.AFF12B.CronJobs.Ext.Jobs.Core.csproj" />
+  </ItemGroup>
+
+</Project>

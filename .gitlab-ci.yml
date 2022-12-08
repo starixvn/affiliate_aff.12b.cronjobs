@@ -1,0 +1,8 @@
+include:
+    - project: "ci/repos-ci/legion_12b_ext_api"
+      ref: master
+      file: "gitlab-ci.yml"
+      
+    - project: "ci/repos-ci/legion_12b_ext_job"
+      ref: master
+      file: "gitlab-ci-mixing.yml"
