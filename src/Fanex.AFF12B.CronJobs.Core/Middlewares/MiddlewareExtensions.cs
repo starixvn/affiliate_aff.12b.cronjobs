@@ -94,7 +94,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 ResponseWriter = customResponseWriter
             };
 
-            app.UseHealthChecks("/healthcheck", healthCheckOptions);
             app.UseHealthChecks("/whoami", healthCheckOptions);
         }
 

@@ -77,7 +77,7 @@ namespace Fanex.AFF12B.CronJobs.Ext.Services.WebHost
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            //app.UsePingCheck();
+            app.UsePingCheck();
             app.UseForwardedHeaders();
             if (string.Equals(Configuration["UseSwagger"], "1"))
             {
@@ -103,12 +103,7 @@ namespace Fanex.AFF12B.CronJobs.Ext.Services.WebHost
                     context => !context.Request.FromInternal(),
                     builder =>
                     {
-                        //Fix adding UseHttpsRedirection conditionally via UseWhen fails in ASP.NET Core 6. Fixed in v6.0.9
-                        if (builder.ServerFeatures is null)
-                        {
-                            builder.Properties["server.Features"] = app.ServerFeatures;
-                        }
-
+                        builder.Properties["server.Features"] = app.ServerFeatures;
                         builder.UseHttpsRedirection();
                     });
             }

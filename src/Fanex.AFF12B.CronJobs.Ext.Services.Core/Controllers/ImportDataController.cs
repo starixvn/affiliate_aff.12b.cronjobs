@@ -17,14 +17,27 @@ namespace Fanex.AFF12B.CronJobs.Ext.Services.Core.Controllers
         }
 
         [HttpPost("api/ImportData")]
-        public async Task<ActionResult> ImportDataAndTrackTimeToDbAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] QueryParam param)
         {
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var convertedDataList = await _importDataService.ImportDataAndTrackTimeToDbAsync(param);
+                var result = await _importDataService.ImportDataToDbAsync(param);
 
-                return new JsonResult(convertedDataList);
+                return new JsonResult(result);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("api/UpdateTimeTracker")]
+        public async Task<ActionResult> UpdateTimeTrackerAsync([FromQuery] TrackerConfigParam param)
+        {
+            if (ModelState.IsValid)
+            {
+                await _importDataService.UpdateTimeTrackerAsync(param);
+
+                return Ok("Update time tracker successfully!");
             }
 
             return BadRequest(ModelState);

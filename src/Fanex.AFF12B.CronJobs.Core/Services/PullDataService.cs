@@ -15,10 +15,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private readonly IThirdPartyProductApi _thirdPartyProductApi;
 
         private const int MIN_RANGE_NUMBER = 1;
-        private const int MAX_ITEMS_IN_RANGE = 2000;
+        private const int MAX_TICKETS_IN_RANGE = 2000;
 
-        private const string BetTransTicketToken = "$.BetTransTicket";
-        private const string CountToken = "$.Count";
+        private const string BET_TRANS_TICKET_TOKEN = "$.BetTransTicket";
+        private const string COUNT_TOKEN = "$.Count";
 
         public PullDataService(
             IThirdPartyProductApi thirdPartyProductApi)
@@ -29,11 +29,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         public async Task<IEnumerable<string>> GetRawDataListAsync(ThirdPartyApiParam param)
         {
             var rawDataList = new List<string>();
-            var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(Format.DateTimeFormat)} to {param.EndDate.ToString(Format.DateTimeFormat)}";
+            var message = $"Finished get {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
             var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
             var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
-
-            Logger.Log.Info($"Start {message}");
 
             foreach (var range in timeRanges)
             {
@@ -45,21 +43,21 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 rawDataList.Add(rawData);
             }
 
-            Logger.Log.Info($"Finished {message}");
+            Logger.Log.Info(message);
 
             return rawDataList;
         }
 
-        public async Task<IEnumerable<JObject>> GetUnescapedAndRemoveDataInfoDataByTimeRangeAsync(ThirdPartyApiParam param)
+        public async Task<IEnumerable<JObject>> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
         {
             try
             {
                 var rawData = await GetRawDataAsync(param);
-                return GetUnescapedAndRemoveDataInfoDataList(rawData);
+                return GetUnescapedAndRemovedDataInfoByTicketRange(rawData);
             }
             catch (Exception ex)
             {
-                var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.ToString(Format.DateTimeFormat)} to {param.EndDate.ToString(Format.DateTimeFormat)}";
+                var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
                 var logBuilder = new StringBuilder();
                 logBuilder.AppendLine($"Throw exception when {message}");
                 logBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(ex));
@@ -90,10 +88,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        public static IEnumerable<JObject> GetUnescapedAndRemoveDataInfoDataList(string rawData)
+        public static IEnumerable<JObject> GetUnescapedAndRemovedDataInfoByTicketRange(string rawData)
         {
             var dataJObject = JObject.Parse(rawData);
-            var betTransTicketJToken = dataJObject.SelectToken(BetTransTicketToken).ToString();
+            var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
 
             if (dataJObject is null || string.IsNullOrEmpty(betTransTicketJToken))
             {
@@ -112,27 +110,34 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 ticketList.Add(ticket);
             }
 
-            return GetUnescapedDataByRange(dataJObject, ticketList);
+            return GetUnescapedDataByTicketRange(rawData, ticketList);
         }
 
-        private static IEnumerable<JObject> GetUnescapedDataByRange(JObject dataJObject, JArray betTransTicketList)
+        private static IEnumerable<JObject> GetUnescapedDataByTicketRange(string rawData, JArray betTransTicketList)
         {
-            var rangeNumbers = betTransTicketList.Count / MAX_ITEMS_IN_RANGE;
+            var rangeNumbers = betTransTicketList.Count / MAX_TICKETS_IN_RANGE;
             var unescapedDataByRangeList = new List<JObject>();
 
             if (rangeNumbers < MIN_RANGE_NUMBER)
             {
-                dataJObject.SelectToken(BetTransTicketToken).Replace(betTransTicketList);
+                var dataJObject = JObject.Parse(rawData);
+                dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(betTransTicketList);
                 unescapedDataByRangeList.Add(dataJObject);
             }
             else
             {
-                var betTransTicketChunks = betTransTicketList.Chunk(MAX_ITEMS_IN_RANGE);
+                var betTransTicketChunks = betTransTicketList.Chunk(MAX_TICKETS_IN_RANGE);
+
+                var chunkNumber = betTransTicketChunks.Count();
                 foreach (var betTransTicket in betTransTicketChunks)
                 {
+                    chunkNumber--;
+                    var dataJObject = JObject.Parse(rawData);
                     var ticketList = new JArray(betTransTicket);
-                    dataJObject.SelectToken(BetTransTicketToken).Replace(ticketList);
-                    dataJObject.SelectToken(CountToken).Replace(ticketList.Count);
+                    dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(ticketList);
+
+                    var ticketNumber = chunkNumber == 0 ? ticketList.Count : MAX_TICKETS_IN_RANGE;
+                    dataJObject.SelectToken(COUNT_TOKEN).Replace(ticketNumber);
 
                     unescapedDataByRangeList.Add(dataJObject);
                 }
@@ -145,13 +150,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         {
             try
             {
-                var dataList = GetUnescapedAndRemoveDataInfoDataList(rawData);
+                var dataRanges = GetUnescapedAndRemovedDataInfoByTicketRange(rawData);
 
-                return GetConvertedDataByRange(dataList);
+                return ConvertData(dataRanges);
             }
             catch (Exception ex)
             {
-
                 var logMessage = ErrorMessageHelper.GenerateMessage(ex);
                 Logger.Log.Error(logMessage);
 
@@ -159,7 +163,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
         }
 
-        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataByRange(IEnumerable<JObject> dataList)
+        private static IEnumerable<ThirdPartyProductInfo> ConvertData(IEnumerable<JObject> dataList)
         {
             var convertedDataByRangeList = new List<ThirdPartyProductInfo>();
 

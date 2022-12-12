@@ -8,7 +8,7 @@
     {
         Task<IEnumerable<string>> GetRawDataListAsync(ThirdPartyApiParam param);
 
-        Task<IEnumerable<JObject>> GetUnescapedAndRemoveDataInfoDataByTimeRangeAsync(ThirdPartyApiParam param);
+        Task<IEnumerable<JObject>> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param);
 
         Task<IEnumerable<ThirdPartyProductInfo>> GetJsonDataListAsync(ThirdPartyApiParam param);
     }

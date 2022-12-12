@@ -1,4 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
+﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Configurations;
 using Fanex.Logging;
 using Hangfire.Common;
@@ -26,21 +27,31 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Filters
 
         private static string GenerateJobException(ElectStateContext context)
         {
-            var jobSetting = new ThirdPartyCronJobSetting();
-            try
-            {
-                jobSetting = context.BackgroundJob.Job.Args[0] as ThirdPartyCronJobSetting;
-            } catch { };
-
+            var jobName = GetJobName(context);
             var failedState = context.CandidateState as FailedState;
             var stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Job Name: {jobSetting.CronJobName} - {context.BackgroundJob.Job.Type.Name}");
+            stringBuilder.AppendLine($"Job Name: {jobName} - {context.BackgroundJob.Job.Type.Name}");
             stringBuilder.AppendLine($"Job Id: {context.BackgroundJob.Id}");
             stringBuilder.AppendLine($"Arguments: {JsonConvert.SerializeObject(context.BackgroundJob.Job.Args)}");
             stringBuilder.AppendLine($"Created Time: {context.BackgroundJob.CreatedAt}");
             stringBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(failedState.Exception));
 
             return stringBuilder.ToString();
+        }
+
+        private static string GetJobName(ElectStateContext context)
+        {
+            var jobName = "Unknown Cron Job";
+            try
+            {
+                if (context.BackgroundJob.Job.Args[0] is ThirdPartyCronJobSetting jobSetting)
+                {
+                    jobName = $"{Product.GetProductNameByTpTypeAndSubItem(jobSetting.TpType, jobSetting.SubItem)} Cron Job";
+                }
+            }
+            catch { };
+
+            return jobName;
         }
     }
 }

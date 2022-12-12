@@ -33,17 +33,20 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return timeTracker is null ? START_TIME_DEFAULT : (DateTime)timeTracker;
         }
 
-        public async Task<string> ImportDataAndTrackTimeToDbAsync(ThirdPartyApiParam param)
+        public async Task UpdateTimeTrackerAsync(TrackerParam param)
+        {
+            await _trackerRepository.AddTracker(param);
+        }
+
+        public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool addTrackerTime = false)
         {
             var logBuilder = new StringBuilder();
-            var message = $"import data for {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType:'{param.TpType}', SubItem:'{param.SubItem}') from {param.BeginDate.ToString(Format.DateTimeFormat)} to {param.EndDate.ToString(Format.DateTimeFormat)}";
+            var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
 
             try
             {
                 var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
                 var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
-
-                Logger.Log.Info($"Start {message}");
 
                 foreach (var range in timeRanges)
                 {
@@ -51,13 +54,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     param.BeginDate = range.Item1;
                     param.EndDate = range.Item2;
 
-                    await ImportDataAndTrackTimeByRangeToDbAsync(param);
+                    await ImportDataByTimeRangeToDbAsync(param, addTrackerTime);
                 }
 
-                var logMessage = $"Finished {message}";
-                Logger.Log.Info(logMessage);
-
-                return logMessage;
+                return $"Finished {message}";
             }
             catch (Exception ex)
             {
@@ -68,13 +68,13 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 Logger.Log.Error(logMessage);
 
-                throw;
+                return logMessage;
             }
         }
 
-        private async Task ImportDataAndTrackTimeByRangeToDbAsync(ThirdPartyApiParam param)
+        private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool addTrackerTime)
         {
-            var dataList = await _pullDataService.GetUnescapedAndRemoveDataInfoDataByTimeRangeAsync(param);
+            var dataList = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,
@@ -88,13 +88,19 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _queueRepository.AddQueue(queueParam);
             }
 
-            var trackerParam = new TrackerParam
+            if(addTrackerTime)
             {
-                TpType = param.TpType,
-                SubItem = param.SubItem,
-                CallTime = param.EndDate
-            };
-            await _trackerRepository.AddTracker(trackerParam);
+                var trackerParam = new TrackerParam
+                {
+                    TpType = param.TpType,
+                    SubItem = param.SubItem,
+                    CallTime = param.EndDate
+                };
+                await _trackerRepository.AddTracker(trackerParam);
+            }
+
+            var message = $"Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            Logger.Log.Info(message);
         }
     }
 }

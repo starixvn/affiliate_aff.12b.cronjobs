@@ -1,21 +1,26 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Configurations;
 using Fanex.Logging;
+using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
 
 namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.RecuringTasks
 {
     public class FetchThirdPartyProductDataTask : IFetchThirdPartyProductDataTask
     {
-        private const int API_SERVER_TIME_OFFSET = 0;
+        private readonly IConfiguration _configuration;
         private readonly IImportDataService _importDataService;
         private readonly IMaintenanceService _maintenanceService;
 
         public FetchThirdPartyProductDataTask(
+            IConfiguration configuration,
             IImportDataService importDataService,
             IMaintenanceService maintenanceService)
         {
+            _configuration = configuration;
             _importDataService = importDataService;
             _maintenanceService = maintenanceService;
         }
@@ -40,8 +45,8 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.RecuringTasks
                 MaxMinutesRange = cronJobSetting.MaxMinutesRange
             };
 
-            Logger.Log.Info($"{cronJobSetting.CronJobName} is started to import data from {fromDate} to {toDate}");
-            await _importDataService.ImportDataAndTrackTimeToDbAsync(param);
+            Logger.Log.Info($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} is starting to import data from {fromDate} to {toDate}");
+            await _importDataService.ImportDataToDbAsync(param, true);
         }
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)
@@ -52,9 +57,9 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.RecuringTasks
             return lastFetchDate;
         }
 
-        private static DateTime GetAdjustmentApiServerDate()
+        private DateTime GetAdjustmentApiServerDate()
         {
-            var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(API_SERVER_TIME_OFFSET));
+            var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(_configuration.GetAppSettingsValue<int>("ApiServerTimeOffset")));
             return date.DateTime;
         }
     }

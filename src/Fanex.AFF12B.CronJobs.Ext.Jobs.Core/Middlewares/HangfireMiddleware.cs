@@ -1,4 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Filters;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.RecuringTasks;
@@ -19,12 +20,7 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Middlewares
             // Add Hangfire services.
             services.AddHangfire(config =>
             {
-                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
-                    .UseColouredConsoleLogProvider()
-                    .UseSimpleAssemblyNameTypeSerializer()
-                    .UseRecommendedSerializerSettings();
-
-                var memoryOption = new MemoryStorageOptions() { FetchNextJobTimeout = TimeSpan.FromHours(2) };
+                var memoryOption = new MemoryStorageOptions() { FetchNextJobTimeout = TimeSpan.FromHours(6) };
                 config.UseMemoryStorage(memoryOption);
                 config.UseFilter(new GlobalHangfireJobExceptionFilterAttribute());
             });
@@ -48,8 +44,10 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Middlewares
 
                 foreach (var product in productJobs)
                 {
-                    var cronJobSetting = product.CronJobSetting;
-                    RegisterTask<IFetchThirdPartyProductDataTask>(cronJobSetting.CronJobName, product.PullInfoCron, job => job.FetchDataAsync(cronJobSetting));
+                    var setting = product.CronJobSetting;
+                    var jobName = $"{Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)} Cron Job";
+
+                    RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(setting));
                 }
             }
         }

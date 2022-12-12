@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.Middlewares;
 using Fanex.AFF12B.CronJobs.Ext.Jobs.Core.RecuringTasks;
 using Hangfire;
-using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Fanex.AFF12B.CronJobs.Ext.Jobs.WebHost
 {
@@ -19,45 +18,22 @@ namespace Fanex.AFF12B.CronJobs.Ext.Jobs.WebHost
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
             services.RegisterHangfire();
 
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.ForwardedHeaders = ForwardedHeaders.All;
-                options.KnownNetworks.Clear();
-                options.KnownProxies.Clear();
-            });
             services.AddHealthChecks()
                 .AddCheck<WhoAmIHealthCheck>("WhoAmIHealthCheck");
             services.AddHttpContextAccessor();
-            services.AddHttpsRedirection(options =>
-            {
-                const int httpsPort = 443;
-                options.HttpsPort = httpsPort;
-            });
+
             DIRegister(services);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
+            app.UsePingCheck();
+            app.UseWhoAmICheck();
+
             app.UseHangfire(Configuration);
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
-
-            if (string.Equals(Configuration["UseErrorHandler"], "1"))
-            {
-                app.UseErrorHandler();
-            }
-            else
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseWhoAmICheck();
-            app.UseUnderMaintenance();
-            app.UseStaticResource(env.IsDevelopment());
-            app.UseStatusCodePagesWithReExecute("/Error");
-            app.UseResponseCaching();
         }
 
         private void DIRegister(IServiceCollection services)

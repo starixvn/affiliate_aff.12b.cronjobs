@@ -1,11 +1,11 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+﻿
+using System.ComponentModel.DataAnnotations;
 
 namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
 {
     public class TrackerParam : BaseParam
     {
-        public int Currency { get; set; }
-
+        [Required]
         public DateTime CallTime { get; set; }
     }
 }

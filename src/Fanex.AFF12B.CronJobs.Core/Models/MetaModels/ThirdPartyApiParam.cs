@@ -1,22 +1,15 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
 {
-    public class ThirdPartyApiParam
+    public class ThirdPartyApiParam : BaseParam
     {
         [Required]
         public DateTime BeginDate { get; set; }
 
         [Required]
         public DateTime EndDate { get; set; }
-
-        [Required]
-        [Range(1, 100)]
-        public byte TpType { get; set; }
-
-        public string SubItem { get; set; } = DefaultValue.String;
 
         [JsonIgnore]
         [Range(0, 60)]

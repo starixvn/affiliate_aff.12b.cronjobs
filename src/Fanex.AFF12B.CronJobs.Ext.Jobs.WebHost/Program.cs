@@ -20,9 +20,7 @@ var app = builder.Build();
 app.MapGet("/", () => "Affiliate 12B CronJob is running!");
 
 // Configure the HTTP request pipeline.
-startup.Configure(app, app.Environment);
-
-app.MapDefaultControllerRoute();
+startup.Configure(app);
 
 app.Run();
 
