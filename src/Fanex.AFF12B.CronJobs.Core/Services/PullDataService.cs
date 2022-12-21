@@ -29,7 +29,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         public async Task<IEnumerable<string>> GetRawDataListAsync(ThirdPartyApiParam param)
         {
             var rawDataList = new List<string>();
-            var message = $"Finished get {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            var message = $"Finished get {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
             var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
             var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
 
@@ -146,7 +146,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return unescapedDataByRangeList;
         }
 
-        private IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData)
+        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData)
         {
             try
             {

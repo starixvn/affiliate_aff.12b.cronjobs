@@ -1,4 +1,6 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Services;
+﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Ext.Services.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Ext.Services.Core.Models.MetaModels;
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +40,19 @@ namespace Fanex.AFF12B.CronJobs.Ext.Services.Core.Controllers
                 await _importDataService.UpdateTimeTrackerAsync(param);
 
                 return Ok("Update time tracker successfully!");
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpGet("api/GetTimeTracker")]
+        public async Task<ActionResult> GetTimeTrackerAsync([FromQuery] TimeTrackerParam param)
+        {
+            if (ModelState.IsValid)
+            {
+                var timeTracker = await _importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
+
+                return new JsonResult($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') Time Tracker: {timeTracker}");
             }
 
             return BadRequest(ModelState);

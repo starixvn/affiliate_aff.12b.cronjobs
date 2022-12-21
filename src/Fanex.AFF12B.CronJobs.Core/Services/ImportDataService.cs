@@ -36,12 +36,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         public async Task UpdateTimeTrackerAsync(TrackerParam param)
         {
             await _trackerRepository.AddTracker(param);
+
+            var message = $"Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') Tracker Time to {param.CallTime.FormatDateTime()}";
+            Logger.Log.Info(message);
         }
 
         public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool addTrackerTime = false)
         {
             var logBuilder = new StringBuilder();
-            var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
 
             try
             {
@@ -99,7 +102,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _trackerRepository.AddTracker(trackerParam);
             }
 
-            var message = $"Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            var message = $"Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
             Logger.Log.Info(message);
         }
     }
