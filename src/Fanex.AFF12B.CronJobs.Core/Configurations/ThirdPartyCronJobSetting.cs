@@ -1,0 +1,14 @@
+﻿
+namespace Fanex.AFF12B.CronJobs.Core.Configurations
+{
+    public class ThirdPartyCronJobSetting
+    {
+        public int MinutesAdjustment { get; set; }
+
+        public int MaxMinutesRange { get; set; }
+
+        public byte TpType { get; set; }
+
+        public string SubItem { get; set; }
+    }
+}

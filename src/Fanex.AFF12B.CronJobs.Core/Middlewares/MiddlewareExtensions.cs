@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.Data;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
@@ -19,6 +20,8 @@ using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Refit;
 using SharpRaven;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mime;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
@@ -40,6 +43,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<ErrorHandler>();
+        }
+
+        public static IApplicationBuilder UseJWTokenOnPage(this IApplicationBuilder builder)
+        {
+            return builder.UseMiddleware<JWTokenHandler>();
         }
 
         public static void UseStaticResource(this IApplicationBuilder app, bool isDev)
@@ -99,10 +107,22 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitApi(this IServiceCollection services, IConfiguration configuration)
         {
+            var apiSetting = configuration.GetSection("ApiSettingOptions").Get<ApiSettingOptions>();
+
             services.AddRefitClient<IThirdPartyProductApi>()
                 .ConfigureHttpClient(c => {
-                    c.BaseAddress = new Uri(configuration.GetAppSettingsValue<string>("ProductApiUrl"));
-                    c.Timeout = TimeSpan.FromSeconds(configuration.GetAppSettingsValue<int>("ProductApiTimeOut"));
+                    c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
+                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
+                }).ConfigurePrimaryHttpMessageHandler(() => {
+                    if(apiSetting.IsUseProxy) {
+                        return new HttpClientHandler
+                        {
+                            UseProxy = apiSetting.IsUseProxy,
+                            Proxy = new WebProxy(new Uri(apiSetting.ProxyUrl))
+                        };
+                    }
+
+                    return new HttpClientHandler();
                 });
         }
 
@@ -113,9 +133,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 .Select(connectionName => new KeyValuePair<string, ConnectionConfiguration>(connectionName,
                     new ConnectionConfiguration(connectionName, configuration.GetConnectionString(connectionName)))
                 ));
+
             DbSettingProviderManager
               .StartNewSession()
-              .WithSqlServer(resourcePath: "~/App_Data/SpConfig/SpName.xml")
+              .WithSqlServer(resourcePath: $"~/App_Data/SpConfig/SpName.xml")
               .Use(connectionStrings)
               .Run();
         }

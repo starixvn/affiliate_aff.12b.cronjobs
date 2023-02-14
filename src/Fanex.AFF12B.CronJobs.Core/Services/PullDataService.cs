@@ -17,8 +17,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private const int MIN_RANGE_NUMBER = 1;
         private const int MAX_TICKETS_IN_RANGE = 2000;
 
-        private const string BET_TRANS_TICKET_TOKEN = "$.BetTransTicket";
+        private const string CODE_SUCCESS = "GT_S_00";
         private const string COUNT_TOKEN = "$.Count";
+        private const string SYSTEM_CODE_TOKEN = "$.SystemCode";
+        private const string SYSTEM_MESSAGE_TOKEN = "$.SystemCodeMessage";
+        private const string BET_TRANS_TICKET_TOKEN = "$.BetTransTicket";
 
         public PullDataService(
             IThirdPartyProductApi thirdPartyProductApi)
@@ -50,24 +53,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         public async Task<IEnumerable<JObject>> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
         {
-            try
-            {
-                var rawData = await GetRawDataAsync(param);
-                return GetUnescapedAndRemovedDataInfoByTicketRange(rawData);
-            }
-            catch (Exception ex)
-            {
-                var message = $"get data for: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
-                var logBuilder = new StringBuilder();
-                logBuilder.AppendLine($"Throw exception when {message}");
-                logBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(ex));
-
-                var logMessage = logBuilder.ToString();
-
-                Logger.Log.Error(logMessage);
-
-                throw;
-            }
+            var rawData = await GetRawDataAsync(param);
+            return GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
         }
 
         public async Task<IEnumerable<ThirdPartyProductInfo>> GetJsonDataListAsync(ThirdPartyApiParam param)
@@ -77,7 +64,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             foreach (var rawData in rawDataList)
             {
-                convertedDataList.AddRange(GetConvertedDataList(rawData.ToString()));
+                convertedDataList.AddRange(GetConvertedDataList(rawData.ToString(), param));
             }
 
             return convertedDataList;
@@ -88,9 +75,20 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        public static IEnumerable<JObject> GetUnescapedAndRemovedDataInfoByTicketRange(string rawData)
+        public static IEnumerable<JObject> GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
         {
             var dataJObject = JObject.Parse(rawData);
+            var systemCodeToken = dataJObject.SelectToken(SYSTEM_CODE_TOKEN).ToString();
+
+            if (string.IsNullOrEmpty(systemCodeToken) || !systemCodeToken.Contains(CODE_SUCCESS))
+            {
+                var errorMessage = dataJObject.SelectToken(SYSTEM_MESSAGE_TOKEN).ToString();
+                var message = $"The Api return error code {systemCodeToken}, error message{errorMessage}: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+                Logger.Log.Error(message);
+
+                throw new Exception($"The Api return error code {systemCodeToken}, error message{errorMessage}");
+            }
+
             var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
 
             if (dataJObject is null || string.IsNullOrEmpty(betTransTicketJToken))
@@ -146,11 +144,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return unescapedDataByRangeList;
         }
 
-        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData)
+        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData, ThirdPartyApiParam param)
         {
             try
             {
-                var dataRanges = GetUnescapedAndRemovedDataInfoByTicketRange(rawData);
+                var dataRanges = GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
 
                 return ConvertData(dataRanges);
             }
