@@ -33,10 +33,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.RegisterHangfire();
-            services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
 
             services.Configure<TokenManagement>(Configuration.GetSection("tokenManagement"));
             services.Configure<ApiSettingOptions>(Configuration.GetSection("ApiSettingOptions"));
@@ -81,13 +77,13 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         {
             app.UsePingCheck();
             app.UseForwardedHeaders();
-            if (string.Equals(Configuration["UseSwagger"], "1"))
+            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            if (string.Equals(Configuration["UseErrorHandler"], "1"))
+            if (Configuration.GetAppSettingsValue<bool>("UseErrorHandler"))
             {
                 app.UseErrorHandler();
             }
@@ -143,7 +139,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         private void ConfigAuthentication(IServiceCollection services, TokenValidationParameters tokenValidationParameters)
         {
-            var token = Configuration.GetSection("tokenManagement").Get<TokenManagement>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
@@ -168,7 +163,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         {
             var token = Configuration.GetSection("tokenManagement").Get<TokenManagement>();
             
-            return new TokenValidationParameters
+            return token != null ? new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
@@ -180,7 +175,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 RoleClaimType = ClaimsIdentity.DefaultNameClaimType,
                 RequireExpirationTime = true,
                 ValidateLifetime = true,
-            };
+            } : new TokenValidationParameters();
         }
     }
 }

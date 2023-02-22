@@ -1,7 +1,13 @@
+using System.Diagnostics;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.WebHost;
 
-var builder = WebApplication.CreateBuilder(args);
+var webApplicationOptions = new WebApplicationOptions() { 
+  Args = args,
+  ContentRootPath = AppContext.BaseDirectory
+};
+
+var builder = WebApplication.CreateBuilder(webApplicationOptions);
 
 var env = builder.Environment;
 // Add config to the container
@@ -17,6 +23,18 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 // Add services to the container.
+var isRunAsService = builder.Configuration.GetAppSettingsValue<bool>("IsRunAsService");
+
+if(isRunAsService) {
+  builder.Host.UseWindowsService();
+} else {
+  builder.Services.AddControllers();
+
+  // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+  builder.Services.AddEndpointsApiExplorer();
+  builder.Services.AddSwaggerGen();
+}
+
 var startup = new Startup(builder.Configuration);
 startup.ConfigureServices(builder.Services);
 
@@ -26,7 +44,9 @@ app.MapGet("/", () => "Hello, Affiliate 12B CronJobs are running!");
 // Configure the HTTP request pipeline.
 startup.Configure(app, app.Environment);
 
-app.MapDefaultControllerRoute();
+if(!isRunAsService) {
+  app.MapDefaultControllerRoute();
+}
 
 app.Run();
 

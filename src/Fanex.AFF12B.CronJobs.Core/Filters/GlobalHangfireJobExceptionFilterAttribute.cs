@@ -27,7 +27,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Filters
 
         private static string GenerateJobException(ElectStateContext context)
         {
-            var jobName = GetJobName(context);
+            var jobName = context.BackgroundJob.Job.Args[0].ToString();
             var failedState = context.CandidateState as FailedState;
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"Job Name: {jobName} - {context.BackgroundJob.Job.Type.Name}");
@@ -37,21 +37,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Filters
             stringBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(failedState.Exception));
 
             return stringBuilder.ToString();
-        }
-
-        private static string GetJobName(ElectStateContext context)
-        {
-            var jobName = "Unknown Cron Job";
-            try
-            {
-                if (context.BackgroundJob.Job.Args[0] is ThirdPartyCronJobSetting jobSetting)
-                {
-                    jobName = $"{Product.GetProductNameByTpTypeAndSubItem(jobSetting.TpType, jobSetting.SubItem)} Cron Job";
-                }
-            }
-            catch { };
-
-            return jobName;
         }
     }
 }
