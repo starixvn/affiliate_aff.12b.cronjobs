@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Fanex.AFF12B.CronJobs.Core.Contants
 {
     public static class Format

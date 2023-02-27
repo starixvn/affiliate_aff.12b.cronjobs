@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels

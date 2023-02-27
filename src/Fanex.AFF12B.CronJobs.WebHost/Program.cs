@@ -1,53 +1,58 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Hosting;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
-using Fanex.AFF12B.CronJobs.WebHost;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System;
+using Microsoft.Extensions.DependencyInjection;
 
-var webApplicationOptions = new WebApplicationOptions() { 
-  Args = args,
-  ContentRootPath = AppContext.BaseDirectory
-};
+namespace Fanex.AFF12B.CronJobs.WebHost
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            CreateHostBuilder(args).Build().Run();
 
-var builder = WebApplication.CreateBuilder(webApplicationOptions);
+            Logging.Logger.Log.Info("Affiliate 12B CronJobs started!");
+        }
 
-var env = builder.Environment;
-// Add config to the container
-builder.Configuration.SetBasePath(env.ContentRootPath);
-builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-var envFromSetting = builder.Configuration.GetAppSettingsValue<string>("Environment");
-builder.Configuration.AddJsonFile($"App_Data/Users/Users.{envFromSetting}.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddJsonFile($"App_Data/Whitelist/Whitelist.{envFromSetting}.json", optional: false, reloadOnChange: true);
-builder.Configuration.AddEnvironmentVariables();
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            var isRunAsService = false;
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+            var host = Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((builderContext, config) =>
+                {
+                    var env = builderContext.HostingEnvironment;
+                    // Add config to the container
+                    config.SetBasePath(env.ContentRootPath);
+                    config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+                    config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                    var configRoot = config.Build();
+                    var isRunAsService = configRoot.GetAppSettingsValue<string>("IsRunAsService");
+                    var envFromSetting = configRoot.GetAppSettingsValue<string>("Environment");
+                    config.AddJsonFile($"App_Data/Users/Users.{envFromSetting}.json", optional: false, reloadOnChange: true);
+                    config.AddJsonFile($"App_Data/Whitelist/Whitelist.{envFromSetting}.json", optional: false, reloadOnChange: true);
+                    config.AddEnvironmentVariables();
+                })
+                .ConfigureLogging(logging => {
+                    logging.ClearProviders();
+                    logging.AddConsole();
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
 
-// Add services to the container.
-var isRunAsService = builder.Configuration.GetAppSettingsValue<bool>("IsRunAsService");
+            if (isRunAsService)
+            {
+                return host.UseWindowsService();
+            }
 
-if(isRunAsService) {
-  builder.Host.UseWindowsService();
-} else {
-  builder.Services.AddControllers();
-
-  // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-  builder.Services.AddEndpointsApiExplorer();
-  builder.Services.AddSwaggerGen();
+            return host;
+        }
+    }
 }
-
-var startup = new Startup(builder.Configuration);
-startup.ConfigureServices(builder.Services);
-
-var app = builder.Build();
-app.MapGet("/", () => "Hello, Affiliate 12B CronJobs are running!");
-
-// Configure the HTTP request pipeline.
-startup.Configure(app, app.Environment);
-
-if(!isRunAsService) {
-  app.MapDefaultControllerRoute();
-}
-
-app.Run();
-
-Fanex.Logging.Logger.Log.Info("Affiliate 12B CronJobs started!");

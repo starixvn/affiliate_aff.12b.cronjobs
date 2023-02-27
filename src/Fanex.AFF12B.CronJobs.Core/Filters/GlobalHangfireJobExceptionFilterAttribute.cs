@@ -6,6 +6,7 @@ using Hangfire.Common;
 using Hangfire.States;
 using Newtonsoft.Json;
 using System.Text;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.Core.Filters
 {

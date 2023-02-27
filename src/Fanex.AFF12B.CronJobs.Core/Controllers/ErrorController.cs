@@ -7,7 +7,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
     {
         public ActionResult Index(int code)
         {
-            return code == (int)HttpStatusCode.Unauthorized ? Unauthorized("You don't have permission to access") : NotFound("Page not found");
+            if(code == (int)HttpStatusCode.Unauthorized)
+            {
+                return Unauthorized("You don't have permission to access");
+            }
+            return NotFound("Page not found");
         }
     }
 }

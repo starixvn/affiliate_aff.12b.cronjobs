@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using System.Text;
 using Fanex.AFF12B.CronJobs.Core.Constant;
 using Fanex.Logging;
+using System.Threading.Tasks;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {

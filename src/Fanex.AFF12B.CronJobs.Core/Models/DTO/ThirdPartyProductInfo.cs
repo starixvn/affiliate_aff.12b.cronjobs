@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Generic;
+
 namespace Fanex.AFF12B.CronJobs.Core.Models.DTO
 {
     public class ThirdPartyProductInfo

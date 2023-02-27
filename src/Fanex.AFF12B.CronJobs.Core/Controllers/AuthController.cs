@@ -28,8 +28,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             }
             var result = _authService.IsAuthenticated(request);
 
-            return result.Item1 ? Ok(result.Item2)
-                : BadRequest("Wrong username or password");
+            if (result.Item1)
+            {
+                return Ok(result.Item2);
+            }
+
+            return BadRequest("Wrong username or password");
         }
     }
 }

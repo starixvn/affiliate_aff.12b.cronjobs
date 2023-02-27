@@ -1,6 +1,8 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Models.DTO;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {

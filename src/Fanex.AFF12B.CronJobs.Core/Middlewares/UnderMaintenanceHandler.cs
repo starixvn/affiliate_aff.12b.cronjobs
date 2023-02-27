@@ -2,7 +2,10 @@
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using ONEbook.UM.Services;
+using System;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {

@@ -14,6 +14,10 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -72,9 +76,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             private static readonly int CookieExpirationMinutes = 30;
             private static readonly string Aff12BHangFireCookieName = "Aff_12B_HangFire_Cookie";
 
-            private TokenValidationParameters tokenValidationParameters;
+            private readonly TokenValidationParameters tokenValidationParameters;
 
-            public AuthorizationFilter(TokenValidationParameters tokenValidationParameters, string role = null)
+            public AuthorizationFilter(TokenValidationParameters tokenValidationParameters)
             {
                 this.tokenValidationParameters = tokenValidationParameters;
             }
@@ -86,14 +90,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                     return true;
                 }
 
-                var accessToken = String.Empty;
                 var shouldSetCookie = false;
 
+                string accessToken;
                 if (httpContext.Request.Query.ContainsKey("access_token"))
                 {
                     shouldSetCookie = true;
                     accessToken = httpContext.Request.Query["access_token"].FirstOrDefault();
-                } else
+                }
+                else
                 {
                     accessToken = httpContext.Request.Cookies[Aff12BHangFireCookieName];
                 }
@@ -103,7 +108,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                     try
                     {
                         var handler = new JwtSecurityTokenHandler();
-                        var claims = handler.ValidateToken(accessToken, this.tokenValidationParameters, out var _);
+                        var claims = handler.ValidateToken(accessToken, this.tokenValidationParameters, out _);
                         if (claims.Identity.IsAuthenticated)
                         {
                             if (shouldSetCookie)

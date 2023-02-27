@@ -5,8 +5,11 @@ using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text;
 using Fanex.Logging;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -98,43 +101,40 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);
 
-            var ticketList = new JArray();
+            List<JToken> newBetTransTicketList = new List<JToken>();
             foreach (var item in betTransTicketList)
             {
                 var ticket = JObject.Parse(item.ToString());
 
                 ticket.Remove("datainfo");
 
-                ticketList.Add(ticket);
+                newBetTransTicketList.Add(ticket);
             }
 
-            return GetUnescapedDataByTicketRange(rawData, ticketList);
+            return GetUnescapedDataByTicketRange(rawData, newBetTransTicketList);
         }
 
-        private static IEnumerable<JObject> GetUnescapedDataByTicketRange(string rawData, JArray betTransTicketList)
+        private static IEnumerable<JObject> GetUnescapedDataByTicketRange(string rawData, List<JToken> betTransTicketList)
         {
-            var rangeNumbers = betTransTicketList.Count / MAX_TICKETS_IN_RANGE;
+            var totalTickets = betTransTicketList.Count();
+            var rangeNumbers = (totalTickets + MAX_TICKETS_IN_RANGE) / MAX_TICKETS_IN_RANGE;
             var unescapedDataByRangeList = new List<JObject>();
 
-            if (rangeNumbers < MIN_RANGE_NUMBER)
+            if (rangeNumbers == MIN_RANGE_NUMBER)
             {
                 var dataJObject = JObject.Parse(rawData);
-                dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(betTransTicketList);
+                dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(new JArray(betTransTicketList));
                 unescapedDataByRangeList.Add(dataJObject);
             }
             else
             {
-                var betTransTicketChunks = betTransTicketList.Chunk(MAX_TICKETS_IN_RANGE);
-
-                var chunkNumber = betTransTicketChunks.Count();
-                foreach (var betTransTicket in betTransTicketChunks)
+                for (int i = 0; i < rangeNumbers; i++)
                 {
-                    chunkNumber--;
                     var dataJObject = JObject.Parse(rawData);
-                    var ticketList = new JArray(betTransTicket);
-                    dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(ticketList);
+                    var ticketNumber = i == (rangeNumbers - 1) ? (totalTickets - (i * MAX_TICKETS_IN_RANGE)) : MAX_TICKETS_IN_RANGE;
+                    var ticketList = betTransTicketList.GetRange(i * MAX_TICKETS_IN_RANGE, ticketNumber);
 
-                    var ticketNumber = chunkNumber == 0 ? ticketList.Count : MAX_TICKETS_IN_RANGE;
+                    dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).Replace(new JArray(ticketList));
                     dataJObject.SelectToken(COUNT_TOKEN).Replace(ticketNumber);
 
                     unescapedDataByRangeList.Add(dataJObject);

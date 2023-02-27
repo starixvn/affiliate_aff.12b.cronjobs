@@ -3,6 +3,8 @@
     using Fanex.AFF12B.CronJobs.Core.Models.DTO;
     using Models.MetaModels;
     using Newtonsoft.Json.Linq;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
 
     public interface IPullDataService
     {

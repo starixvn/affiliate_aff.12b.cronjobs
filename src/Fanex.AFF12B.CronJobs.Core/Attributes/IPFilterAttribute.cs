@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using NetTools;
 using System.Net;
+using System;
+using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Attributes
 {

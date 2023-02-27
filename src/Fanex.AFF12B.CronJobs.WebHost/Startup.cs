@@ -15,6 +15,15 @@ using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Hangfire;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.OpenApi.Models;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
@@ -33,6 +42,19 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         public void ConfigureServices(IServiceCollection services)
         {
             services.RegisterHangfire();
+            var isRunAsService = Configuration.GetAppSettingsValue<bool>("IsRunAsService");
+
+            if (!isRunAsService)
+            {    
+                services.AddControllers();
+            }
+
+            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
+            {
+                // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                //services.AddApiExplorer();
+                services.AddSwaggerGen();
+            }
 
             services.Configure<TokenManagement>(Configuration.GetSection("tokenManagement"));
             services.Configure<ApiSettingOptions>(Configuration.GetSection("ApiSettingOptions"));
@@ -93,7 +115,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             }
 
             app.UseWhoAmICheck();
-            if (!env.IsDevelopment())
+            if (env.IsDevelopment())
             {
                 app.UseHsts();
 
@@ -109,6 +131,12 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             app.UseStaticResource(env.IsDevelopment());
             app.UseUnderMaintenance();
             app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
+            var isRunAsService = Configuration.GetAppSettingsValue<bool>("IsRunAsService");
+            if (!isRunAsService)
+            {
+                app.UseRouting();
+            }
+
             app.UseJWTokenOnPage();
             app.UseAuthorization();
 
@@ -116,6 +144,18 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
 
             app.UseResponseCaching();
+
+            if (!isRunAsService)
+            {
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapDefaultControllerRoute();
+                    endpoints.MapGet("/", async context =>
+                    {
+                        await context.Response.WriteAsync("Hello, Affiliate 12B CronJobs are running!");
+                    });
+                });
+            }
         }
 
         private void DIRegister(IServiceCollection services)

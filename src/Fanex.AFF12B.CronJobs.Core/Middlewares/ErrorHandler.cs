@@ -3,6 +3,8 @@ using Fanex.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using System;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -17,9 +19,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         }
         public async Task Invoke(HttpContext context)
         {
-            var error = context.Features[typeof(IExceptionHandlerFeature)] as IExceptionHandlerFeature;
-
-            if (error != null && error.Error != null)
+            if (context.Features[typeof(IExceptionHandlerFeature)] is IExceptionHandlerFeature error && error.Error != null)
             {
                 await HandleError(context, error.Error);
             }

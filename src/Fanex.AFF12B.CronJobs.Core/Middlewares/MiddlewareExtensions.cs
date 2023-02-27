@@ -20,9 +20,13 @@ using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Refit;
 using SharpRaven;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using System.Net.Http.Headers;
+using System.Net.Http;
 using System.Net.Mime;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -82,7 +86,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void UseWhoAmICheck(this IApplicationBuilder app)
         {
-            Func<HttpContext, HealthReport, Task> customResponseWriter = async (context, report) =>
+            static async Task customResponseWriter(HttpContext context, HealthReport report)
             {
                 var result = JsonConvert.SerializeObject(
                     new
@@ -93,7 +97,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
                 context.Response.ContentType = MediaTypeNames.Application.Json;
                 await context.Response.WriteAsync(result);
-            };
+            }
 
             var healthCheckOptions = new HealthCheckOptions
             {

@@ -6,6 +6,8 @@ using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.Logging;
 using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
+using System.Threading.Tasks;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 {

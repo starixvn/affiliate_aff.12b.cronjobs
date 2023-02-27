@@ -1,4 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Models;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {

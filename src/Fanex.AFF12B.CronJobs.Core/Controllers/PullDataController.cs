@@ -2,6 +2,7 @@
 using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {

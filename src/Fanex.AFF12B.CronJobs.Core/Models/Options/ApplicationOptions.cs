@@ -1,4 +1,6 @@
-﻿namespace Fanex.AFF12B.CronJobs.Core.Models.Options
+﻿using System.Collections.Generic;
+
+namespace Fanex.AFF12B.CronJobs.Core.Models.Options
 {
     public class ApplicationOptions
     {

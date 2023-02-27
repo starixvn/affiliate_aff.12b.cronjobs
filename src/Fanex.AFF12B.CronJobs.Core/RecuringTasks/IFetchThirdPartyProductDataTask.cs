@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Hangfire;
 

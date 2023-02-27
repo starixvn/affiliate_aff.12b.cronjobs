@@ -1,4 +1,7 @@
 ﻿
+using System;
+using System.Collections.Generic;
+
 namespace Fanex.AFF12B.CronJobs.Core.Helpers
 {
     public static class DateTimeHelper
