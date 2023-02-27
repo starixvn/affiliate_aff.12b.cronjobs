@@ -117,16 +117,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 .ConfigureHttpClient(c => {
                     c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                }).ConfigurePrimaryHttpMessageHandler(() => {
-                    if(apiSetting.IsUseProxy) {
-                        return new HttpClientHandler
-                        {
-                            UseProxy = apiSetting.IsUseProxy,
-                            Proxy = new WebProxy(new Uri(apiSetting.ProxyUrl))
-                        };
-                    }
-
-                    return new HttpClientHandler();
                 });
         }
 

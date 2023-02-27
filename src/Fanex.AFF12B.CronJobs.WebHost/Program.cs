@@ -21,9 +21,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
-            var isRunAsService = false;
-
-            var host = Host.CreateDefaultBuilder(args)
+            return Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
                     var env = builderContext.HostingEnvironment;
@@ -32,7 +30,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                     config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
                     config.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                     var configRoot = config.Build();
-                    var isRunAsService = configRoot.GetAppSettingsValue<string>("IsRunAsService");
                     var envFromSetting = configRoot.GetAppSettingsValue<string>("Environment");
                     config.AddJsonFile($"App_Data/Users/Users.{envFromSetting}.json", optional: false, reloadOnChange: true);
                     config.AddJsonFile($"App_Data/Whitelist/Whitelist.{envFromSetting}.json", optional: false, reloadOnChange: true);
@@ -45,14 +42,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
-
-            if (isRunAsService)
-            {
-                return host.UseWindowsService();
-            }
-
-            return host;
+                }).UseWindowsService();
         }
     }
 }
