@@ -1,12 +1,9 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.IO;
-using System;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
@@ -21,6 +18,11 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+
             return Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((builderContext, config) =>
                 {
@@ -42,6 +44,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls($"https://*:{configuration.GetAppSettingsValue<string>("Port")}");
                 }).UseWindowsService();
         }
     }

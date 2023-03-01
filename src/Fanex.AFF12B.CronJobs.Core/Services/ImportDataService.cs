@@ -8,6 +8,7 @@ using Fanex.AFF12B.CronJobs.Core.Constant;
 using Fanex.Logging;
 using System.Threading.Tasks;
 using System;
+using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -104,7 +105,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _trackerRepository.AddTracker(trackerParam);
             }
 
-            var message = $"Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            string myHost = Dns.GetHostName();
+            var message = $"{myHost} Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
             Logger.Log.Info(message);
         }
     }
