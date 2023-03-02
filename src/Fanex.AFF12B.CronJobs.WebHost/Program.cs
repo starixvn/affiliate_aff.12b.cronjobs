@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
@@ -19,7 +20,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
+                .SetBasePath(AppContext.BaseDirectory)
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .Build();
 
@@ -44,7 +45,10 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls($"https://*:{configuration.GetAppSettingsValue<string>("Port")}");
+                    if (configuration.GetAppSettingsValue<bool>("IsRunOnIIS"))
+                    {
+                        webBuilder.UseUrls($"https://*:{configuration.GetAppSettingsValue<string>("Port")}");
+                    }
                 }).UseWindowsService();
         }
     }
