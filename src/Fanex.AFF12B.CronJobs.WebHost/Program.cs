@@ -3,7 +3,6 @@ using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using System.IO;
 using System;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
@@ -13,8 +12,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
-
-            Logging.Logger.Log.Info("Affiliate 12B CronJobs started!");
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
@@ -45,11 +42,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    if (configuration.GetAppSettingsValue<bool>("IsRunOnIIS"))
-                    {
-                        webBuilder.UseUrls($"https://*:{configuration.GetAppSettingsValue<string>("Port")}");
-                    }
-                }).UseWindowsService();
+                    webBuilder.UseUrls($"https://*:{configuration.GetAppSettingsValue<string>("Port")}");
+                });
         }
     }
 }

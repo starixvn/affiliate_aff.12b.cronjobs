@@ -23,7 +23,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private const string CODE_SUCCESS = "GT_S_00";
         private const string COUNT_TOKEN = "$.Count";
         private const string SYSTEM_CODE_TOKEN = "$.SystemCode";
-        private const string SYSTEM_MESSAGE_TOKEN = "$.SystemCodeMessage";
+        private const string SYSTEM_MESSAGE_TOKEN = "$.SystemMessage";
         private const string BET_TRANS_TICKET_TOKEN = "$.BetTransTicket";
 
         public PullDataService(
@@ -54,7 +54,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return rawDataList;
         }
 
-        public async Task<IEnumerable<JObject>> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
+        public async Task<(IEnumerable<JObject>, bool)> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
         {
             var rawData = await GetRawDataAsync(param);
             return GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
@@ -78,7 +78,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        public static IEnumerable<JObject> GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
+        public static (IEnumerable<JObject>, bool) GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
         {
             var dataJObject = JObject.Parse(rawData);
             var systemCodeToken = dataJObject.SelectToken(SYSTEM_CODE_TOKEN).ToString();
@@ -86,17 +86,18 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             if (string.IsNullOrEmpty(systemCodeToken) || !systemCodeToken.Contains(CODE_SUCCESS))
             {
                 var errorMessage = dataJObject.SelectToken(SYSTEM_MESSAGE_TOKEN).ToString();
-                var message = $"The Api return error code {systemCodeToken}, error message{errorMessage}: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+                var message = $"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Api return error code {systemCodeToken}, error message{errorMessage}: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+
                 Logger.Log.Error(message);
 
-                throw new Exception($"The Api return error code {systemCodeToken}, error message{errorMessage}");
+                return (new List<JObject> { dataJObject }, false);
             }
 
             var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
 
             if (dataJObject is null || string.IsNullOrEmpty(betTransTicketJToken))
             {
-                return new List<JObject> { dataJObject };
+                return (new List<JObject> { dataJObject }, true);
             }
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);
@@ -111,7 +112,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 newBetTransTicketList.Add(ticket);
             }
 
-            return GetUnescapedDataByTicketRange(rawData, newBetTransTicketList);
+            return (GetUnescapedDataByTicketRange(rawData, newBetTransTicketList), true);
         }
 
         private static IEnumerable<JObject> GetUnescapedDataByTicketRange(string rawData, List<JToken> betTransTicketList)
@@ -148,7 +149,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         {
             try
             {
-                var dataRanges = GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
+                var (dataRanges, _) = GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
 
                 return ConvertData(dataRanges);
             }

@@ -12,12 +12,13 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Linq.Expressions;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using Fanex.Logging;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -34,19 +35,25 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             });
 
             // Add the processing server as IHostedService
-            services.AddHangfireServer();
+            services.AddHangfireServer(option =>
+            {
+                option.ServerName = "AFF 12B Cronjobs";
+            });
         }
 
         public static void UseHangfire(this IApplicationBuilder app, IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
         {
-            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            app.UseHangfireDashboard($"/hangfire", new DashboardOptions
             {
                 Authorization = new[] { new AuthorizationFilter(tokenValidationParameters) }
             });
 
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
-            if (isRunFetchTask)
+            var serverAddress = configuration.GetAppSettingsValue<string>("RunFetchTaskOnServer");
+            var isValidServer = IsValidServer(serverAddress);
+            if (isRunFetchTask && isValidServer)
             {
+                Logger.Log.Info($"Affiliate 12B CronJobs are registered on {serverAddress} - {Dns.GetHostName()}");
                 var productJobs = new List<FetchThirdPartyProductSetting>();
                 configuration.GetAppSettingsSection("ThirdPartyProductsSetting").Bind(productJobs);
 
@@ -58,6 +65,13 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                     RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
                 }
             }
+        }
+
+        private static bool IsValidServer(string serverAddress)
+        {
+            var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName()); 
+
+            return hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
         private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)

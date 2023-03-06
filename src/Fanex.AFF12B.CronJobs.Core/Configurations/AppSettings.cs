@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace Fanex.AFF12B.CronJobs.Core.Configurations
 {
@@ -14,5 +15,17 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
         }
 
         public int MaxMinutesRange => _configuration.GetAppSettingsValue<int>("MaxMinutesRange");
+        public bool IsRunFetchTask => _configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
+
+        public List<FetchThirdPartyProductSetting> ProductJobs
+        {
+            get
+            {
+                var productJobs = new List<FetchThirdPartyProductSetting>();
+                _configuration.GetAppSettingsSection("ThirdPartyProductsSetting").Bind(productJobs);
+
+                return productJobs;
+            }
+        }
     }
 }

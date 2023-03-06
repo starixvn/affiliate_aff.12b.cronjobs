@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
 using System.Threading.Tasks;
 using System;
+using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 {
@@ -47,7 +48,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MaxMinutesRange = cronJobSetting.MaxMinutesRange
             };
 
-            Logger.Log.Info($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} is starting to import data from {fromDate} to {toDate}");
+            Logger.Log.Info($"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} is starting to import data from {fromDate} to {toDate}");
             await _importDataService.ImportDataToDbAsync(param, true);
         }
 

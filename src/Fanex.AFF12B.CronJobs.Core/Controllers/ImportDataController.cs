@@ -4,6 +4,11 @@ using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using System.Linq.Expressions;
+using System;
+using Hangfire;
+using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {
@@ -56,6 +61,75 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             }
 
             return BadRequest(ModelState);
+        }
+
+        [HttpPost("api/RegisterJobs")]
+        public ActionResult RegisterJobs([FromQuery] string access_token)
+        {
+            if (string.IsNullOrEmpty(access_token))
+            {
+                return BadRequest("Your don't have permisison");
+            }
+
+            var productJobs = AppSettings.ProductJobs;
+
+            foreach (var product in productJobs)
+            {
+                var setting = product.CronJobSetting;
+                var jobName = $"{Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)} Cron Job";
+
+                RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
+            }
+
+            return Ok($"Register jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
+        }
+
+        [HttpPost("api/DisposeJobs")]
+        public ActionResult DisposeJobs([FromQuery] string access_token)
+        {
+            if (string.IsNullOrEmpty(access_token))
+            {
+                return BadRequest("Your don't have permisison");
+            }
+
+            var productJobs = AppSettings.ProductJobs;
+
+            foreach (var product in productJobs)
+            {
+                var setting = product.CronJobSetting;
+                var jobName = $"{Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)} Cron Job";
+
+                DisposeTask(jobName);
+            }
+
+            return Ok($"Dispose all Jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
+        }
+
+        private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)
+        {
+            if (!string.IsNullOrWhiteSpace(cronExpression))
+            {
+                RecurringJob.AddOrUpdate<T>(
+                            serviceId,
+                            methodCall,
+                            cronExpression);
+            }
+        }
+
+        private static void DisposeTask(string serviceId)
+        {
+            if (!string.IsNullOrWhiteSpace(serviceId))
+            {
+                RecurringJob.RemoveIfExists(serviceId);
+            }
+        }
+
+        private string GetIPAddress()
+        {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+
+            return ipAddress.ToString();
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool addTrackerTime)
         {
-            var dataList = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
+            var (dataList, isSuccess) = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,
@@ -105,9 +105,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _trackerRepository.AddTracker(trackerParam);
             }
 
-            string myHost = Dns.GetHostName();
-            var message = $"{myHost} Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
-            Logger.Log.Info(message);
+            if(isSuccess)
+            {
+                string myHost = Dns.GetHostName();
+                var message = $"{myHost} Finished import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+                Logger.Log.Info(message);
+            }
         }
     }
 }
