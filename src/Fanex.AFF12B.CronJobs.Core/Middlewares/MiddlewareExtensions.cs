@@ -109,6 +109,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             };
 
             app.UseHealthChecks("/whoami", healthCheckOptions);
+            app.UseHealthChecks("/12monitor", healthCheckOptions);
+            app.UseHealthChecks("/12monitor.aspx", healthCheckOptions);
         }
 
         public static void InitApi(this IServiceCollection services, IConfiguration configuration)
@@ -124,6 +126,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitFanexData(this IServiceCollection _, IConfiguration configuration)
         {
+            var env = configuration.GetAppSettingsValue<string>("Environment");
             var listConnectionName = configuration.GetSection("ConnectionStrings").GetChildren().Select(_ => _.Key);
             var connectionStrings = new Dictionary<string, ConnectionConfiguration>(listConnectionName
                 .Select(connectionName => new KeyValuePair<string, ConnectionConfiguration>(connectionName,
@@ -132,7 +135,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
             DbSettingProviderManager
               .StartNewSession()
-              .WithSqlServer(resourcePath: $"~/App_Data/SpConfig/SpName.xml")
+              .WithSqlServer(resourcePath: $"~/App_Data/SpConfig/SpName.{env}.xml")
               .Use(connectionStrings)
               .Run();
         }

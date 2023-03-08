@@ -48,8 +48,13 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MaxMinutesRange = cronJobSetting.MaxMinutesRange
             };
 
-            Logger.Log.Info($"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} is starting to import data from {fromDate} to {toDate}");
+            var myHost = Dns.GetHostName();
+            var message = $"import { Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from { param.BeginDate.FormatDateTime()} to { param.EndDate.FormatDateTime()}";
+            Logger.Log.Info($"{myHost} - Starting {message}");
+
             await _importDataService.ImportDataToDbAsync(param, true);
+
+            Logger.Log.Info($"{myHost} Finished {message}");
         }
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)

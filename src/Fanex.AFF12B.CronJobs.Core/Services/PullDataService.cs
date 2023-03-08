@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Text;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -80,29 +81,40 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         public static (IEnumerable<JObject>, bool) GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
         {
-            var dataJObject = JObject.Parse(rawData);
-            var systemCodeToken = dataJObject.SelectToken(SYSTEM_CODE_TOKEN).ToString();
+            var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
+            var initialMessage = $"TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
 
+            var dataJObject = JObject.Parse(rawData);
+            if (dataJObject is null)
+            {
+                var messageBuilder = new StringBuilder($"{productName} - Api return incorrect format: {initialMessage}");
+                messageBuilder.Append(rawData);
+                Logger.Log.Error(messageBuilder.ToString());
+
+                return (new List<JObject> { dataJObject }, false);
+            }
+
+            var systemCodeToken = dataJObject.SelectToken(SYSTEM_CODE_TOKEN).ToString();
             if (string.IsNullOrEmpty(systemCodeToken) || !systemCodeToken.Contains(CODE_SUCCESS))
             {
                 var errorMessage = dataJObject.SelectToken(SYSTEM_MESSAGE_TOKEN).ToString();
-                var message = $"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Api return error code {systemCodeToken}, error message{errorMessage}: TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+                var messageBuilder = new StringBuilder($"{productName} - Api return error code {systemCodeToken}, error message{errorMessage}: {initialMessage}");
+                messageBuilder.Append(rawData);
 
-                Logger.Log.Error(message);
+                Logger.Log.Error(messageBuilder.ToString());
 
                 return (new List<JObject> { dataJObject }, false);
             }
 
             var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
-
             if (dataJObject is null || string.IsNullOrEmpty(betTransTicketJToken))
             {
                 return (new List<JObject> { dataJObject }, true);
             }
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);
-
             List<JToken> newBetTransTicketList = new List<JToken>();
+
             foreach (var item in betTransTicketList)
             {
                 var ticket = JObject.Parse(item.ToString());

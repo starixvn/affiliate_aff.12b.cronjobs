@@ -5,11 +5,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="App_Data\SpConfig\SpName.xml" />
+    <None Remove="App_Data\SpConfig\SpName.Development.xml" />
+    <None Remove="App_Data\SpConfig\SpName.LOCAL.xml" />
+    <None Remove="App_Data\SpConfig\SpName.PROD.xml" />
+    <None Remove="App_Data\SpConfig\SpName.UAT.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="App_Data\SpConfig\SpName.xml">
+    <Content Include="App_Data\SpConfig\SpName.PROD.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\SpConfig\SpName.UAT.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\SpConfig\SpName.Development.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="App_Data\SpConfig\SpName.LOCAL.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
