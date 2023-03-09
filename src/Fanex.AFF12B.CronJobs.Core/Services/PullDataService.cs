@@ -21,7 +21,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private const int MIN_RANGE_NUMBER = 1;
         private const int MAX_TICKETS_IN_RANGE = 2000;
 
-        private const string CODE_SUCCESS = "GT_S_00";
+        private const string CODE_SUCCESS = "GT_S_000";
+        private const string CODE_SUCCESS_NO_TICKET = "GT_S_001";
+        private const string CODE_SUCCESS_NO_VALID_TICKET = "GT_S_003";
         private const string COUNT_TOKEN = "$.Count";
         private const string SYSTEM_CODE_TOKEN = "$.SystemCode";
         private const string SYSTEM_MESSAGE_TOKEN = "$.SystemMessage";
@@ -89,25 +91,22 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             {
                 var messageBuilder = new StringBuilder($"{productName} - Api return incorrect format: {initialMessage}");
                 messageBuilder.Append(rawData);
-                Logger.Log.Error(messageBuilder.ToString());
 
-                return (new List<JObject> { dataJObject }, false);
+                throw new Exception(messageBuilder.ToString());
             }
 
             var systemCodeToken = dataJObject.SelectToken(SYSTEM_CODE_TOKEN).ToString();
-            if (string.IsNullOrEmpty(systemCodeToken) || !systemCodeToken.Contains(CODE_SUCCESS))
+            if (string.IsNullOrEmpty(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
             {
                 var errorMessage = dataJObject.SelectToken(SYSTEM_MESSAGE_TOKEN).ToString();
                 var messageBuilder = new StringBuilder($"{productName} - Api return error code {systemCodeToken}, error message{errorMessage}: {initialMessage}");
                 messageBuilder.Append(rawData);
 
-                Logger.Log.Error(messageBuilder.ToString());
-
-                return (new List<JObject> { dataJObject }, false);
+                throw new Exception(messageBuilder.ToString());
             }
 
             var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
-            if (dataJObject is null || string.IsNullOrEmpty(betTransTicketJToken))
+            if (string.IsNullOrEmpty(betTransTicketJToken))
             {
                 return (new List<JObject> { dataJObject }, true);
             }
