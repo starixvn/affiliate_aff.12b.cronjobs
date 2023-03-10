@@ -16,6 +16,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
 
         public int MaxMinutesRange => _configuration.GetAppSettingsValue<int>("MaxMinutesRange");
         public bool IsRunFetchTask => _configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
+        public bool IsLocal
+        {
+            get
+            {
+                var env = _configuration.GetAppSettingsValue<string>("Environment");
+
+                return env.Equals("Development") || env.Equals("LOCAL");
+            }
+        }
 
         public List<FetchThirdPartyProductSetting> ProductJobs
         {

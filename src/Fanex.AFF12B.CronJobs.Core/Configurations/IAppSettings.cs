@@ -7,6 +7,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
     {
         int MaxMinutesRange { get; }
 
+        bool IsLocal { get; }
+
         bool IsRunFetchTask { get; }
 
         List<FetchThirdPartyProductSetting> ProductJobs { get; }

@@ -15,5 +15,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
         [JsonIgnore]
         [Range(0, 60)]
         public int MaxMinutesRange { get; set; }
+
+        [JsonIgnore]
+        [Range(0, 5000)]
+        public int MillisecondsDeplay { get; set; }
     }
 }

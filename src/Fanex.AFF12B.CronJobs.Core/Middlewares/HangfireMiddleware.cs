@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Fanex.Logging;
+using System.IO;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -49,8 +50,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             });
 
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
+            var serverPath = configuration.GetAppSettingsValue<string>("PathOnServer");
             var serverAddress = configuration.GetAppSettingsValue<string>("RunFetchTaskOnServer");
-            var isValidServer = IsValidServer(serverAddress);
+            var isValidServer = IsValidServer(serverPath, serverAddress);
             if (isRunFetchTask && isValidServer)
             {
                 Logger.Log.Info($"Affiliate 12B CronJobs are registered on {serverAddress} - {Dns.GetHostName()}");
@@ -67,11 +69,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             }
         }
 
-        private static bool IsValidServer(string serverAddress)
+        private static bool IsValidServer(string serverPath, string serverAddress)
         {
+            var baseDirectory = AppContext.BaseDirectory;
             var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName()); 
 
-            return hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
+            return baseDirectory.Contains(serverPath) && hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
         private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)

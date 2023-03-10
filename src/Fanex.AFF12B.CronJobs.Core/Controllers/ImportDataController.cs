@@ -44,7 +44,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             {
                 await _importDataService.UpdateTimeTrackerAsync(param);
 
-                return Ok("Update time tracker successfully!");
+                return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') updated time tracker successfully!");
             }
 
             return BadRequest(ModelState);

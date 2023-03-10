@@ -45,7 +45,8 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 EndDate = toDate,
                 TpType = cronJobSetting.TpType,
                 SubItem = cronJobSetting.SubItem,
-                MaxMinutesRange = cronJobSetting.MaxMinutesRange
+                MaxMinutesRange = cronJobSetting.MaxMinutesRange,
+                MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
             var myHost = Dns.GetHostName();
@@ -54,7 +55,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 
             await _importDataService.ImportDataToDbAsync(param, true);
 
-            Logger.Log.Info($"{myHost} Finished {message}");
+            Logger.Log.Info($"{myHost} - Finished {message}");
         }
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)

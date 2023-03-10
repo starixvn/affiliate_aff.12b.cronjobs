@@ -11,7 +11,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             { "1", "12Emerald - Playtech" },
             { "4", "12Pearl - AG" },
             { "9", "12Opal - eBet" },
-            { "10", "12Emerald - Playtech" },
+            { "10", "12Amber - Betsoft" },
             { "7001002", "12Crystal - GPI Live" },
             { "7001003", "12Crystal - GPI Slot" },
             { "12", "Exchange" },

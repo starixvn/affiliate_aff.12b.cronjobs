@@ -9,6 +9,7 @@ using Fanex.Logging;
 using System.Threading.Tasks;
 using System;
 using System.Net;
+using System.Threading;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -60,7 +61,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     param.BeginDate = range.Item1;
                     param.EndDate = range.Item2;
 
-                    await ImportDataByTimeRangeToDbAsync(param, addTrackerTime);
+                    await Task.Delay(param.MillisecondsDeplay, CancellationToken.None);
+                    await ImportDataByTimeRangeToDbAsync(param, addTrackerTime).ConfigureAwait(false);
                 }
 
                 return $"Finished {message}";
@@ -72,7 +74,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 var logMessage = logBuilder.ToString();
 
-                Logger.Log.Error(logMessage);
+                await Logger.Log.ErrorAsync(logMessage);
 
                 return logMessage;
             }
@@ -80,7 +82,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool addTrackerTime)
         {
-            var (dataList, _) = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
+            var dataList = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,

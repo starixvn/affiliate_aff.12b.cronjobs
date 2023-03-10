@@ -11,11 +11,13 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using Fanex.AFF12B.CronJobs.Core.Configurations;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
     public class PullDataService : IPullDataService
     {
+        private readonly IAppSettings _appSettings;
         private readonly IThirdPartyProductApi _thirdPartyProductApi;
 
         private const int MIN_RANGE_NUMBER = 1;
@@ -30,8 +32,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private const string BET_TRANS_TICKET_TOKEN = "$.BetTransTicket";
 
         public PullDataService(
+            IAppSettings appSettings,
             IThirdPartyProductApi thirdPartyProductApi)
         {
+            _appSettings = appSettings;
             _thirdPartyProductApi = thirdPartyProductApi;
         }
 
@@ -57,7 +61,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return rawDataList;
         }
 
-        public async Task<(IEnumerable<JObject>, bool)> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
+        public async Task<IEnumerable<JObject>> GetUnescapedDataByTimeRangeAsync(ThirdPartyApiParam param)
         {
             var rawData = await GetRawDataAsync(param);
             return GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
@@ -81,7 +85,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        public static (IEnumerable<JObject>, bool) GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
+        public IEnumerable<JObject> GetUnescapedAndRemovedDataInfoByTicketRange(string rawData, ThirdPartyApiParam param = null)
         {
             var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
             var initialMessage = $"TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
@@ -102,13 +106,19 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 var messageBuilder = new StringBuilder($"{productName} - Api return error code {systemCodeToken}, error message{errorMessage}: {initialMessage}");
                 messageBuilder.Append(rawData);
 
-                throw new Exception(messageBuilder.ToString());
+                if (!_appSettings.IsLocal)
+                {
+                    throw new Exception(messageBuilder.ToString());
+                }
+                
+                Logger.Log.Error(messageBuilder.ToString());
+                return new List<JObject> { dataJObject };
             }
 
             var betTransTicketJToken = dataJObject.SelectToken(BET_TRANS_TICKET_TOKEN).ToString();
             if (string.IsNullOrEmpty(betTransTicketJToken))
             {
-                return (new List<JObject> { dataJObject }, true);
+                return new List<JObject> { dataJObject };
             }
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);
@@ -123,7 +133,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 newBetTransTicketList.Add(ticket);
             }
 
-            return (GetUnescapedDataByTicketRange(rawData, newBetTransTicketList), true);
+            return GetUnescapedDataByTicketRange(rawData, newBetTransTicketList);
         }
 
         private static IEnumerable<JObject> GetUnescapedDataByTicketRange(string rawData, List<JToken> betTransTicketList)
@@ -156,20 +166,17 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return unescapedDataByRangeList;
         }
 
-        private static IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData, ThirdPartyApiParam param)
+        private IEnumerable<ThirdPartyProductInfo> GetConvertedDataList(string rawData, ThirdPartyApiParam param)
         {
             try
             {
-                var (dataRanges, _) = GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
+                var dataRanges = GetUnescapedAndRemovedDataInfoByTicketRange(rawData, param);
 
                 return ConvertData(dataRanges);
             }
             catch (Exception ex)
             {
-                var logMessage = ErrorMessageHelper.GenerateMessage(ex);
-                Logger.Log.Error(logMessage);
-
-                throw;
+                throw ex;
             }
         }
 
