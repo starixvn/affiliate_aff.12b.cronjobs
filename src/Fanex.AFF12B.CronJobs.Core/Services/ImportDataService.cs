@@ -15,7 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 {
     public class ImportDataService : IImportDataService
     {
-        private static readonly DateTime START_TIME_DEFAULT = new DateTime(2022, 11, 01, 00, 00, 00, 00);
+        private static readonly DateTime START_TIME_DEFAULT = new DateTime(2023, 03, 01, 00, 00, 00, 00);
 
         private readonly IQueueRepository _queueRepository;
         private readonly ITrackerRepository _trackerRepository;
@@ -41,14 +41,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         {
             await _trackerRepository.AddTracker(param);
 
-            var message = $"Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') Tracker Time to {param.CallTime.FormatDateTime()}";
+            var message = $"Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
             Logger.Log.Info(message);
         }
 
         public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool addTrackerTime = false)
         {
             var logBuilder = new StringBuilder();
-            var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
+            var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
 
             try
             {

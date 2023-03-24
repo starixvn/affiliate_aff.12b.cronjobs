@@ -50,7 +50,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
             };
 
             var myHost = Dns.GetHostName();
-            var message = $"import { Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} (TpType: '{param.TpType}', SubItem: '{param.SubItem}') from { param.BeginDate.FormatDateTime()} to { param.EndDate.FormatDateTime()}";
+            var message = $"import { Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from { param.BeginDate.FormatDateTime()} to { param.EndDate.FormatDateTime()}";
             Logger.Log.Info($"{myHost} - Starting {message}");
 
             await _importDataService.ImportDataToDbAsync(param, true);

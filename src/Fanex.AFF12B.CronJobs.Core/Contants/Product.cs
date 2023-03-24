@@ -30,7 +30,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             { "27", "12Diamond" },
         };
 
-        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem)
+        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem, string title = null)
         {
             var productName = "Unknown";
             var key = tpType + subItem;
@@ -40,7 +40,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
                 ProductNames.TryGetValue(key, out productName);
             }    
 
-            return productName;
+            return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";
         }
     }
 }

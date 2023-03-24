@@ -23,15 +23,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             _importDataService = importDataService;
         }
 
-        [HttpPost("api/ImportData")]
-        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] QueryParam param)
+        [HttpGet("api/GetTimeTracker")]
+        public async Task<ActionResult> GetTimeTrackerAsync([FromQuery] TimeTrackerParam param)
         {
             if (ModelState.IsValid)
             {
-                SetMaxMinutesRange(param);
-                var result = await _importDataService.ImportDataToDbAsync(param);
+                var timeTracker = await _importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
 
-                return new JsonResult(result);
+                return new JsonResult($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Time Tracker: {timeTracker}");
             }
 
             return BadRequest(ModelState);
@@ -44,20 +43,21 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             {
                 await _importDataService.UpdateTimeTrackerAsync(param);
 
-                return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') updated time tracker successfully!");
+                return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} updated time tracker successfully!");
             }
 
             return BadRequest(ModelState);
         }
 
-        [HttpGet("api/GetTimeTracker")]
-        public async Task<ActionResult> GetTimeTrackerAsync([FromQuery] TimeTrackerParam param)
+        [HttpPost("api/ImportData")]
+        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] QueryParam param)
         {
             if (ModelState.IsValid)
             {
-                var timeTracker = await _importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
+                SetMaxMinutesRange(param);
+                var result = await _importDataService.ImportDataToDbAsync(param);
 
-                return new JsonResult($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}(TpType: '{param.TpType}', SubItem: '{param.SubItem}') Time Tracker: {timeTracker}");
+                return new JsonResult(result);
             }
 
             return BadRequest(ModelState);
@@ -73,12 +73,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
 
             var productJobs = AppSettings.ProductJobs;
 
-            foreach (var product in productJobs)
+            foreach (var productJob in productJobs)
             {
-                var setting = product.CronJobSetting;
-                var jobName = $"{Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)} Cron Job";
+                var (jobName, productJobSetting) = GetInfoProductJob(productJob); ;
 
-                RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
+                RegisterTask<IFetchThirdPartyProductDataTask>(jobName, productJob.PullInfoCron, job => job.FetchDataAsync(jobName, productJobSetting));
             }
 
             return Ok($"Register jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
@@ -94,10 +93,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
 
             var productJobs = AppSettings.ProductJobs;
 
-            foreach (var product in productJobs)
+            foreach (var productJob in productJobs)
             {
-                var setting = product.CronJobSetting;
-                var jobName = $"{Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)} Cron Job";
+                var (jobName, _) = GetInfoProductJob(productJob);
 
                 DisposeTask(jobName);
             }
@@ -130,6 +128,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             IPAddress ipAddress = ipHostInfo.AddressList[0];
 
             return ipAddress.ToString();
+        }
+
+        private (string, ThirdPartyCronJobSetting) GetInfoProductJob(FetchThirdPartyProductSetting productSetting)
+        {
+            var productJobSetting = productSetting.CronJobSetting;
+            var jobName = Product.GetProductNameByTpTypeAndSubItem(productJobSetting.TpType, productJobSetting.SubItem);
+
+            return (jobName, productJobSetting);
         }
     }
 }
