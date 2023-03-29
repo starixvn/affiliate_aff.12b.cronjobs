@@ -7,7 +7,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 {
     public interface IImportDataService
     {
-        Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool addTrackerTime = false);
+        Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool isAddTrackerTime = false);
 
         Task<DateTime> GetTimeTrackerAsync(int tpType, string subItem = DefaultValue.String);
 

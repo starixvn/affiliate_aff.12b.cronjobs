@@ -45,7 +45,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             Logger.Log.Info(message);
         }
 
-        public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool addTrackerTime = false)
+        public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool isAddTrackerTime = false)
         {
             var logBuilder = new StringBuilder();
             var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
@@ -62,8 +62,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     param.EndDate = range.Item2;
 
                     await Task.Delay(param.MillisecondsDeplay, CancellationToken.None);
-                    await ImportDataByTimeRangeToDbAsync(param, addTrackerTime).ConfigureAwait(false);
+                    await ImportDataByTimeRangeToDbAsync(param, isAddTrackerTime).ConfigureAwait(false);
                 }
+
+                Logger.Log.Info($"{Dns.GetHostName()} - Finished {message}");
 
                 return $"Finished {message}";
             }
@@ -80,7 +82,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
         }
 
-        private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool addTrackerTime)
+        private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool isAddTrackerTime)
         {
             var dataList = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
             var queueParam = new QueueParam
@@ -96,7 +98,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _queueRepository.AddQueue(queueParam);
             }
 
-            if(addTrackerTime)
+            if(isAddTrackerTime)
             {
                 var trackerParam = new TrackerParam
                 {
