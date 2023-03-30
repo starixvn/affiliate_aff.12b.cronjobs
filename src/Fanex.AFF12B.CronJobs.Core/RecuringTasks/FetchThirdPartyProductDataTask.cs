@@ -37,7 +37,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
             }
 
             var fromDate = await GetLastTimeFetchDateAsync(cronJobSetting);
-            var toDate = GetAdjustmentApiServerDate();
+            var toDate = GetAdjustmentApiServerDate(new TimeSpan(0, cronJobSetting.MinutesAdjustment, 0));
 
             var param = new ThirdPartyApiParam
             {
@@ -57,16 +57,15 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)
         {
-            var trackingDate = await _importDataService.GetTimeTrackerAsync(cronJobSetting.TpType, cronJobSetting.SubItem);
-            var lastFetchDate = trackingDate.AddMinutes(cronJobSetting.MinutesAdjustment);
-
-            return lastFetchDate;
+            return await _importDataService.GetTimeTrackerAsync(cronJobSetting.TpType, cronJobSetting.SubItem);
         }
 
-        private DateTime GetAdjustmentApiServerDate()
+        private DateTime GetAdjustmentApiServerDate(TimeSpan ajustmentTime)
         {
             var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(_configuration.GetAppSettingsValue<int>("ApiServerTimeOffset")));
-            return date.DateTime;
+            var adjustDate = date.Add(ajustmentTime);
+
+            return adjustDate.DateTime;
         }
     }
 }
