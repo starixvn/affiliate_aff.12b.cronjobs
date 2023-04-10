@@ -62,7 +62,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 foreach (var product in productJobs)
                 {
                     var setting = product.CronJobSetting;
-                    var jobName = Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem);
+                    var jobName = $"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)}";
 
                     RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
                 }

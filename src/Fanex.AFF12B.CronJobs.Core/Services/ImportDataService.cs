@@ -15,6 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 {
     public class ImportDataService : IImportDataService
     {
+        private static readonly string SERVER_NAME = Dns.GetHostName();
         private static readonly DateTime START_TIME_DEFAULT = new DateTime(2023, 03, 01, 00, 00, 00, 00);
 
         private readonly IQueueRepository _queueRepository;
@@ -41,7 +42,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         {
             await _trackerRepository.AddTracker(param);
 
-            var message = $"Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
+            var message = $"{SERVER_NAME} - Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
             Logger.Log.Info(message);
         }
 
@@ -65,13 +66,13 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     await ImportDataByTimeRangeToDbAsync(param, isAddTrackerTime).ConfigureAwait(false);
                 }
 
-                Logger.Log.Info($"{Dns.GetHostName()} - Finished {message}");
+                Logger.Log.Info($"{SERVER_NAME} - Finished {message}");
 
                 return $"Finished {message}";
             }
             catch (Exception ex)
             {
-                logBuilder.AppendLine($"Throw exception when {message}");
+                logBuilder.AppendLine($"{SERVER_NAME} - Throw exception when {message}");
                 logBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(ex));
 
                 var logMessage = logBuilder.ToString();

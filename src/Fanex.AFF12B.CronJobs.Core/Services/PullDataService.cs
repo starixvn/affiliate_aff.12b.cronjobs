@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
+using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -93,7 +94,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             var dataJObject = JObject.Parse(rawData);
             if (dataJObject is null)
             {
-                var messageBuilder = new StringBuilder($"{productName} - Api return incorrect format: {initialMessage}");
+                var messageBuilder = new StringBuilder($"{Dns.GetHostName()} - {productName} - Api return incorrect format: {initialMessage}");
                 messageBuilder.Append(rawData);
 
                 throw new Exception(messageBuilder.ToString());
