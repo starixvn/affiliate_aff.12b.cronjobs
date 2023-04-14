@@ -134,7 +134,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                                 accessToken,
                                 new CookieOptions
                                 {
-                                    Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes)
+                                    Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes),
+                                    HttpOnly = true,
+                                    Secure = true,
+                                    SameSite = SameSiteMode.Strict
                                 });
                             }
                             return true;
