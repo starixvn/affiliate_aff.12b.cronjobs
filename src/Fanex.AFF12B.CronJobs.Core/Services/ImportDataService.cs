@@ -85,7 +85,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool isAddTrackerTime)
         {
-            var dataList = await _pullDataService.GetUnescapedDataByTimeRangeAsync(param);
+            var dataList = await _pullDataService.GetJsonDataListAsync(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,

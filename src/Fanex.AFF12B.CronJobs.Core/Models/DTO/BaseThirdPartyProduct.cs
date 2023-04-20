@@ -1,15 +1,9 @@
 ﻿
-using System.Collections.Generic;
-
 namespace Fanex.AFF12B.CronJobs.Core.Models.DTO
 {
-    public class ThirdPartyProductInfo
+    public class BaseThirdPartyProduct
     {
-        public IEnumerable<Ticket> BetTransTicket { get; set; }
-
         public int Count { get; set; }
-
-        public string Tickets { get; set; }
 
         public string VersionKey { get; set; }
 
