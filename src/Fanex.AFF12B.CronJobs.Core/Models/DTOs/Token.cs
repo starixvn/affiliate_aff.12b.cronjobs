@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Fanex.AFF12B.CronJobs.Core.Models
+namespace Fanex.AFF12B.CronJobs.Core.Models.DTOs
 {
     public class Token
     {

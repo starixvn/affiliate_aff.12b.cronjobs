@@ -9,11 +9,14 @@ using System;
 using Hangfire;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {
     public class ImportDataController : BaseController
     {
+        private const string IpRegex = "((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\\.|$)){4}";
+
         private readonly IImportDataService _importDataService;
 
         public ImportDataController(
@@ -30,7 +33,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             {
                 var timeTracker = await _importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
 
-                return new JsonResult($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Time Tracker: {timeTracker}");
+                return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Time Tracker: {timeTracker}");
             }
 
             return BadRequest(ModelState);
@@ -63,14 +66,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpPost("api/RegisterJobs")]
-        public ActionResult RegisterJobs([FromQuery] string access_token)
+        [HttpPost("api/RegisterCronJobs")]
+        public ActionResult RegisterCronJobs()
         {
-            if (string.IsNullOrEmpty(access_token))
-            {
-                return BadRequest("Your don't have permisison");
-            }
-
             var productJobs = AppSettings.ProductJobs;
 
             foreach (var productJob in productJobs)
@@ -80,17 +78,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
                 RegisterTask<IFetchThirdPartyProductDataTask>(jobName, productJob.PullInfoCron, job => job.FetchDataAsync(jobName, productJobSetting));
             }
 
-            return Ok($"Register jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
+            return Ok($"Register Cron Jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
         }
 
-        [HttpPost("api/DisposeJobs")]
-        public ActionResult DisposeJobs([FromQuery] string access_token)
+        [HttpPost("api/DisposeCronJobs")]
+        public ActionResult DisposeCronJobs()
         {
-            if (string.IsNullOrEmpty(access_token))
-            {
-                return BadRequest("Your don't have permisison");
-            }
-
             var productJobs = AppSettings.ProductJobs;
 
             foreach (var productJob in productJobs)
@@ -100,7 +93,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
                 DisposeTask(jobName);
             }
 
-            return Ok($"Dispose all Jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
+            return Ok($"Dispose Cron Jobs on {Dns.GetHostName()} - {GetIPAddress()} successfully!");
         }
 
         private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)
@@ -125,9 +118,17 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         private string GetIPAddress()
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
 
-            return ipAddress.ToString();
+            foreach (var ip in ipHostInfo.AddressList)
+            {
+                var ipAddress = ip.ToString();
+                if (Regex.IsMatch(ipAddress, IpRegex))
+                {
+                    return ipAddress;
+                }
+            }
+
+            return ipHostInfo.AddressList[0].ToString();
         }
 
         private (string, ThirdPartyCronJobSetting) GetInfoProductJob(FetchThirdPartyProductSetting productSetting)

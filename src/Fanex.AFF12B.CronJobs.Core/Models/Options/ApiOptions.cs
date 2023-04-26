@@ -1,6 +1,6 @@
 namespace Fanex.AFF12B.CronJobs.Core.Models.Options
 {
-    public class ApiSettingOptions
+    public class ApiOptions
     {
         public string ProductApiUrl { get; set; }
 

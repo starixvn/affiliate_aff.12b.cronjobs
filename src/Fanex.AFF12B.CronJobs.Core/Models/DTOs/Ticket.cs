@@ -1,4 +1,4 @@
-﻿namespace Fanex.AFF12B.CronJobs.Core.Models.DTO
+﻿namespace Fanex.AFF12B.CronJobs.Core.Models.DTOs
 {
     public class Ticket
     {

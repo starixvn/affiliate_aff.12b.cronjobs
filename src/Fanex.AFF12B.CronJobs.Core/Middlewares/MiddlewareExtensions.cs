@@ -115,7 +115,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitApi(this IServiceCollection services, IConfiguration configuration)
         {
-            var apiSetting = configuration.GetSection("ApiSettingOptions").Get<ApiSettingOptions>();
+            var apiSetting = configuration.GetSection("ApiOptions").Get<ApiOptions>();
 
             services.AddRefitClient<IThirdPartyProductApi>()
                 .ConfigureHttpClient(c => {

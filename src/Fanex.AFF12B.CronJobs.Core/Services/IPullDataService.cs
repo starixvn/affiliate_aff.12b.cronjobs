@@ -1,6 +1,6 @@
 ﻿namespace Fanex.AFF12B.CronJobs.Core.Services
 {
-    using Fanex.AFF12B.CronJobs.Core.Models.DTO;
+    using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
     using Models.MetaModels;
     using System.Collections.Generic;
     using System.Threading.Tasks;

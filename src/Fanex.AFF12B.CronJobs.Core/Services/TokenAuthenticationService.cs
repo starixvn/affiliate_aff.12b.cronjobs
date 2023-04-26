@@ -1,5 +1,7 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constants;
-using Fanex.AFF12B.CronJobs.Core.Models;
+﻿using Fanex.AFF12B.CronJobs.Core.Models.Options;
+using Fanex.AFF12B.CronJobs.Core.Constants;
+using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -12,31 +14,31 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
     public class TokenAuthenticationService : IAuthenticateService
     {
         private readonly IUserManagementService _userManagementService;
-        private readonly TokenManagement _tokenManagement;
+        private readonly TokenManagementOptions _tokenManagement;
         public TokenAuthenticationService(IUserManagementService service,
-            IOptions<TokenManagement> tokenManagementAccessor)
+            IOptions<TokenManagementOptions> tokenManagementAccessor)
         {
             _userManagementService = service;
             _tokenManagement = tokenManagementAccessor.Value;
         }
 
-        public Tuple<bool, Token> IsAuthenticated(TokenRequest request)
+        public Tuple<bool, Token> IsAuthenticated(TokenRequestParam requestParam)
         {
             var token = new Token
             {
                 ExpiresIn = _tokenManagement.AccessExpiration
             };
-            var siteName = request.Username;
-            var realUserName = request.Username;
+            var siteName = requestParam.Username;
+            var realUserName = requestParam.Username;
 
-            if (request.Username.Contains('@'))
+            if (requestParam.Username.Contains('@'))
             {
-                var temp = request.Username.Split('@');
+                var temp = requestParam.Username.Split('@');
                 siteName = temp[0];
                 realUserName = temp[1];
             }
 
-            if (!_userManagementService.IsValidUser(realUserName, request.Password))
+            if (!_userManagementService.IsValidUser(realUserName, requestParam.Password))
             {
                 return Tuple.Create<bool, Token>(false, token);
             }
@@ -44,7 +46,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             var claim = new[]
             {
                 new Claim(ClaimTypes.Name, siteName),
-                new Claim(CustomClaimType.IsShowIPVN, request.IsShowIpvn.ToString(), ClaimValueTypes.Boolean)
+                new Claim(CustomClaimType.IsShowIPVN, requestParam.IsShowIpvn.ToString(), ClaimValueTypes.Boolean)
              };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -61,7 +63,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                   credentials,
                   encryptCredenction
                   );
-            token.AccessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
+            token.AccessToken = handler.WriteToken(jwtToken);
             token.TokenType = handler.TokenType.Name;
             return Tuple.Create<bool, Token>(true, token);
         }

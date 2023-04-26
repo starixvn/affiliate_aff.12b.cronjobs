@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 
-namespace Fanex.AFF12B.CronJobs.Core.Models
+namespace Fanex.AFF12B.CronJobs.Core.Models.Options
 {
     [JsonObject("tokenManagement")]
-    public class TokenManagement
+    public class TokenManagementOptions
     {
         [JsonProperty("secret")]
         public string Secret { get; set; } = string.Empty;

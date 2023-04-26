@@ -49,9 +49,6 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
-            var message = $"import { Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from { param.BeginDate.FormatDateTime()} to { param.EndDate.FormatDateTime()}";
-            Logger.Log.Info($"{Dns.GetHostName()} - Starting {message}");
-
             await _importDataService.ImportDataToDbAsync(param, true);
         }
 

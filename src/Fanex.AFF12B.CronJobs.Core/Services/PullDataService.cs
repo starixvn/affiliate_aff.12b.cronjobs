@@ -1,6 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Models.DTO;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Newtonsoft.Json;
@@ -11,6 +10,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {

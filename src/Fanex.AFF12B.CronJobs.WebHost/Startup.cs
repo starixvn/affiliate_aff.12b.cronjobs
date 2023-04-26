@@ -1,6 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
-using Fanex.AFF12B.CronJobs.Core.Models;
-using Fanex.AFF12B.CronJobs.Core.Models.DTO;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Middlewares;
@@ -50,8 +49,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 services.AddSwaggerGen();
             }
 
-            services.Configure<TokenManagement>(Configuration.GetSection("tokenManagement"));
-            services.Configure<ApiSettingOptions>(Configuration.GetSection("ApiSettingOptions"));
+            services.Configure<TokenManagementOptions>(Configuration.GetSection("TokenManagementOptions"));
+            services.Configure<ApiOptions>(Configuration.GetSection("ApiOptions"));
             services.Configure<ApplicationOptions>(Configuration.GetSection(ApplicationOptionSettingKey));
             services.Configure<List<User>>(Configuration.GetSection("Users"));
 
@@ -186,7 +185,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         private TokenValidationParameters GetTokenValidationParameters()
         {
-            var token = Configuration.GetSection("tokenManagement").Get<TokenManagement>();
+            var token = Configuration.GetSection("TokenManagementOptions").Get<TokenManagementOptions>();
             
             return token != null ? new TokenValidationParameters
             {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Fanex.AFF12B.CronJobs.Core.Models.DTO
+namespace Fanex.AFF12B.CronJobs.Core.Models.DTOs
 {
     [Serializable]
     public class User
