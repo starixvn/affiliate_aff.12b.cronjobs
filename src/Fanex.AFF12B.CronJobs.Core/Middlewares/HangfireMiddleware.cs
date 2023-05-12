@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Fanex.Logging;
-using System.IO;
+using Fanex.AFF12B.CronJobs.Core.Helpers;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -38,7 +38,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             // Add the processing server as IHostedService
             services.AddHangfireServer(option =>
             {
-                option.ServerName = "AFF 12B Cronjobs";
+                option.ServerName = $"AFF 12B Cronjobs - {Dns.GetHostName()}";
             });
         }
 
@@ -126,11 +126,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                     {
                         var handler = new JwtSecurityTokenHandler();
                         var claims = handler.ValidateToken(accessToken, this.tokenValidationParameters, out _);
-                        if (claims.Identity.IsAuthenticated)
+                        if (!claims.Identity.IsAuthenticated)
                         {
-                            if (shouldSetCookie)
-                            {
-                                httpContext.Response.Cookies.Append(Aff12BHangFireCookieName,
+                            return false;
+                        }
+
+                        if (shouldSetCookie)
+                        {
+                            httpContext.Response.Cookies.Append(Aff12BHangFireCookieName,
                                 accessToken,
                                 new CookieOptions
                                 {
@@ -139,11 +142,13 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                                     Secure = true,
                                     SameSite = SameSiteMode.Strict
                                 });
-                            }
-                            return true;
                         }
+
+                        return true;
                     }
-                    catch (Exception) {}
+                    catch (Exception ex) {
+                        Logger.Log.Warn(ErrorMessageHelper.GenerateMessage(ex));
+                    }
                 }
 
                 return false;
