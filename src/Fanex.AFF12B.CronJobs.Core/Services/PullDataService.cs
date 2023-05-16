@@ -105,8 +105,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 newBetTransTicketList.Add(JsonConvert.DeserializeObject<Ticket>(ticket.ToString()));
             }
+            var jsonData = GetThirdPartyProductJsonObject(rawData);
 
-            return GetJsonDataRemovedDataInfoByTicketRange(GetThirdPartyProductJsonObject(rawData), newBetTransTicketList);
+            return GetJsonDataRemovedDataInfoByTicketRange(jsonData, newBetTransTicketList);
         }
 
         private static IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoByTicketRange(ThirdPartyProductJson jsonData, List<Ticket> betTransTicketList)

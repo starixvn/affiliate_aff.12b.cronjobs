@@ -38,8 +38,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         {
             context.Response.StatusCode = ServerErrorCode;
             context.Response.ContentType = "application/json";
+
             var errorMsg = ErrorMessageHelper.GenerateMessage(ex, context);
             Logger.Log.Error(errorMsg);
+
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new
             {
                 State = "Internal Server Error",
