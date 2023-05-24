@@ -7,6 +7,7 @@ using NetTools;
 using System.Net;
 using System;
 using System.Linq;
+using Fanex.Logging;
 
 namespace Fanex.AFF12B.CronJobs.Core.Attributes
 {
@@ -46,7 +47,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Attributes
         {
             if (!IPAddressRange.TryParse(ipRangeString, out IPAddressRange ipRange))
             {
-                throw new Exception($"The WhiteList IP: {ipRangeString} was invalid - client IP: ${ipAddress}");
+                Logger.Log.Error($"The WhiteList IP: {ipRangeString} was invalid - client IP: ${ipAddress}");
+
+                return false;
             }
 
             return ipRange.Contains(ipAddress);

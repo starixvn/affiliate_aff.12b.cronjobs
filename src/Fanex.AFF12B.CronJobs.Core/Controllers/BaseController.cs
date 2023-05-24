@@ -9,7 +9,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
     [Authorize]
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
-    public abstract class BaseController : ControllerBase
+    public class BaseController : ControllerBase
     {
         private readonly IAppSettings _appSettings;
 
