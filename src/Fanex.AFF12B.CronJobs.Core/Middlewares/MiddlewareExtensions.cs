@@ -76,10 +76,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitLogging(this IServiceCollection services, IConfiguration configuration)
         {
+            var environment = configuration.GetAppSettingsValue<string>("Environment");
             LogManager
-                    .SetDefaultLogCategory("Affiliate.12B.CronJobs")
+                    .SetDefaultLogCategory($"Affiliate.12B.CronJobs {environment}")
                     .Use(new SentryLogging(new SentryEngineOptions
                     {
+                        Environment = environment,
                         Dsn = new Dsn(configuration.GetAppSettingsValue<string>("SentryDsn"))
                     }));
 
