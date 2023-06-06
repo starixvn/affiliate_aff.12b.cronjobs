@@ -1,4 +1,5 @@
-﻿using Fanex.Logging;
+﻿using Fanex.Data;
+using Fanex.Logging;
 using NSubstitute;
 using System.Collections.Generic;
 
@@ -15,6 +16,19 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers
                 {
                     logEngine
                 });
+        }
+
+        public static void SetUpDbManagerEnviroment()
+        {
+            DbSettingProviderManager
+             .StartTestingSession()
+             .Run();
+        }
+
+        public static void SwitchObjectDbFactoryToTestingMode(IObjectDb mockObjectDB)
+        {
+            ObjectDbFactory.SwitchToTestingMode();
+            ObjectDbFactory.Mock((x, y) => mockObjectDB);
         }
     }
 }

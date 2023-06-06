@@ -8,21 +8,23 @@ using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
 using System.Threading.Tasks;
 using System;
-using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 {
     public class FetchThirdPartyProductDataTask : IFetchThirdPartyProductDataTask
     {
+        private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IImportDataService _importDataService;
         private readonly IMaintenanceService _maintenanceService;
 
         public FetchThirdPartyProductDataTask(
+            ILogger logger,
             IConfiguration configuration,
             IImportDataService importDataService,
             IMaintenanceService maintenanceService)
         {
+            _logger = logger;
             _configuration = configuration;
             _importDataService = importDataService;
             _maintenanceService = maintenanceService;
@@ -32,7 +34,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
         {
             if (_maintenanceService.IsUnderMaintenance())
             {
-                Logger.Log.Info("System is currently unavailable due to scheduled maintenance!");
+                _logger.Info("System is currently unavailable due to scheduled maintenance!");
                 return;
             }
 

@@ -1,6 +1,7 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
+using Fanex.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -17,12 +18,14 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
 {
     public class IPFilterAttributeTest
     {
+        private readonly ILogger _logger;
         private readonly IOptions<ApplicationOptions> _options;
         private readonly ActionExecutingContext _actionExecutingContext;
         private readonly HttpContext _mockHttpContext;
 
         public IPFilterAttributeTest()
         {
+            _logger = Substitute.For<ILogger>();
             _mockHttpContext = Substitute.For<HttpContext>();
             _options = Substitute.For<IOptions<ApplicationOptions>>();
 
@@ -62,7 +65,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
             _mockHttpContext.Request.Returns(httpRequest);
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
             filter.OnActionExecuting(_actionExecutingContext);
 
             //Assert
@@ -86,7 +89,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
             _mockHttpContext.Connection.Returns(connectionInfo);
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
             filter.OnActionExecuting(_actionExecutingContext);
 
             //Assert
@@ -112,7 +115,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
             _mockHttpContext.Connection.Returns(connectionInfo);
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
             filter.OnActionExecuting(_actionExecutingContext);
 
             //Assert
@@ -138,7 +141,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
 
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
 
             filter.OnActionExecuting(_actionExecutingContext);
 
@@ -171,7 +174,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
             connectionInfo.RemoteIpAddress.Returns(IPAddress.Parse(requestIP));
             _mockHttpContext.Connection.Returns(connectionInfo);
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
 
             filter.OnActionExecuting(_actionExecutingContext);
 
@@ -199,7 +202,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
 
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
 
             filter.OnActionExecuting(_actionExecutingContext);
 
@@ -227,7 +230,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
             _mockHttpContext.Connection.Returns(connectionInfo);
 
             //Action
-            var filter = new IPFilterAttribute(_options);
+            var filter = new IPFilterAttribute(_logger, _options);
             filter.OnActionExecuting(_actionExecutingContext);
 
             //Assert

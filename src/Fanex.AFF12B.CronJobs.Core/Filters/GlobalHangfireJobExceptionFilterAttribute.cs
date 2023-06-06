@@ -1,13 +1,10 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
+﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.Logging;
 using Hangfire.Common;
 using Hangfire.States;
 using Newtonsoft.Json;
 using System.Text;
 using System;
-using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.Filters
 {

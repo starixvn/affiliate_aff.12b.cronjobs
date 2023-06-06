@@ -17,15 +17,18 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
     {
         private static readonly string SERVER_NAME = Dns.GetHostName();
 
+        private readonly ILogger _logger;
         private readonly IQueueRepository _queueRepository;
         private readonly ITrackerRepository _trackerRepository;
         private readonly IPullDataService _pullDataService;
 
         public ImportDataService(
+            ILogger logger,
             IQueueRepository queueRepository,
             ITrackerRepository trackerRepository,
             IPullDataService pullDataService)
         {
+            _logger = logger;
             _queueRepository = queueRepository;
             _trackerRepository = trackerRepository;
             _pullDataService = pullDataService;
@@ -49,7 +52,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             await _trackerRepository.AddTracker(param);
 
             var message = $"{SERVER_NAME} - Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
-            Logger.Log.Info(message);
+            _logger.Info(message);
         }
 
         public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool isFromRunningJob = false)
@@ -59,7 +62,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             try
             {
-                Logger.Log.Info($"{SERVER_NAME} - Starting {message}");
+                _logger.Info($"{SERVER_NAME} - Starting {message}");
 
                 var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
                 var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
@@ -74,7 +77,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     await ImportDataByTimeRangeToDbAsync(param, isFromRunningJob).ConfigureAwait(false);
                 }
 
-                Logger.Log.Info($"{SERVER_NAME} - Finished {message}");
+                _logger.Info($"{SERVER_NAME} - Finished {message}");
 
                 return $"Finished {message}";
             }
@@ -84,7 +87,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 var logMessage = logBuilder.ToString();
 
-                await Logger.Log.ErrorAsync(logMessage);
+                await _logger.ErrorAsync(logMessage);
 
                 return logMessage;
             }
@@ -117,7 +120,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _trackerRepository.AddTracker(trackerParam);
             } else
             {
-                Logger.Log.Info($"{SERVER_NAME} - Finished manually import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
+                _logger.Info($"{SERVER_NAME} - Finished manually import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
             }
         }
     }

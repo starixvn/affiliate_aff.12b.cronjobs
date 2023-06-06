@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Middlewares;
+using Fanex.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -14,10 +15,12 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
 {
     public class ErrorHandlerTest
     {
-        private RequestDelegate _mockNext { get; set; }
+        private readonly ILogger _logger;
+        private readonly RequestDelegate _mockNext;
 
         public ErrorHandlerTest()
         {
+            _logger = Substitute.For<ILogger>();
             _mockNext = Substitute.For<RequestDelegate>();
         }
 
@@ -25,8 +28,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
         public async Task Invoke_WhenCallWithNoException_NotLogging()
         {
             //Arrange
-            MockingHelper.SetUpLogEngineEnviroment();
-            var errorHandler = new ErrorHandler(_mockNext);
+            var errorHandler = new ErrorHandler(_logger, _mockNext);
 
             //Action
             await errorHandler.Invoke(Substitute.For<HttpContext>());
@@ -39,7 +41,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
         public async Task Invoke_WhenCallInvokeAndHasException_ErrorHandlerHandleExceptionAndCallNextInvoke()
         {
             //Arrange
-            MockingHelper.SetUpLogEngineEnviroment();
             var context = Substitute.For<HttpContext>();
             var reponse = Substitute.For<HttpResponse>();
             var features = Substitute.For<IFeatureCollection>();
@@ -54,7 +55,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
                 reponse.Body = stream;
 
                 features[typeof(IExceptionHandlerFeature)].ReturnsForAnyArgs(new ExceptionHandlerFeature { Error = new Exception("Test") });
-                var errorHandler = new ErrorHandler(_mockNext);
+                var errorHandler = new ErrorHandler(_logger, _mockNext);
 
                 //Action
                 var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));
@@ -69,7 +70,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
         public async Task Invoke_WhenCallNextInvokeAndThrowException_ErrorHandlerHandleException()
         {
             //Arrange
-            MockingHelper.SetUpLogEngineEnviroment();
             var context = Substitute.For<HttpContext>();
             var reponse = Substitute.For<HttpResponse>();
             var features = Substitute.For<IFeatureCollection>();
@@ -84,7 +84,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
 
                 features.Get<IHttpResponseFeature>().ReturnsForAnyArgs(new HttpResponseFeature());
                 _mockNext.Invoke(context).ReturnsForAnyArgs(x => throw new Exception("Test"));
-                var errorHandler = new ErrorHandler(_mockNext);
+                var errorHandler = new ErrorHandler(_logger, _mockNext);
 
                 //Action
                 var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));

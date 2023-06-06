@@ -70,7 +70,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoList(ThirdPartyProductRaw rawData, ThirdPartyApiParam param)
         {
             var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
-            var rawDataString = JsonConvert.SerializeObject(rawData);
 
             if (rawData is null)
             {
@@ -78,7 +77,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
 
             var systemCodeToken = rawData.SystemCode;
-            if (string.IsNullOrEmpty(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
+            if (string.IsNullOrWhiteSpace(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
             {
                 var message = $"{productName} - The 3rd api return ErrorCode: {systemCodeToken}, ErrorMessage: {rawData.SystemMessage}";
 
@@ -86,9 +85,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
 
             var betTransTicketJToken = rawData.BetTransTicket;
-            if (string.IsNullOrEmpty(betTransTicketJToken))
+            if (string.IsNullOrWhiteSpace(betTransTicketJToken))
             {
-                return new List<ThirdPartyProductJson> { JsonConvert.DeserializeObject<ThirdPartyProductJson>(rawDataString) };
+                return new List<ThirdPartyProductJson> { new ThirdPartyProductJson {
+                    BetTransTicket = new List<Ticket>(),
+                    Count = rawData.Count,
+                    VersionKey = rawData.VersionKey,
+                    SystemCode = rawData.SystemCode,
+                    SystemMessage = rawData.SystemMessage
+                }};
             }
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);

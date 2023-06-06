@@ -1,0 +1,2 @@
+dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=TestResults\
+"%UserProfile%\.nuget\packages\reportgenerator\5.1.22\tools\netcoreapp3.1\ReportGenerator.exe" -reports:.\**\TestResults\coverage.cobertura.xml -targetdir:coveragereport

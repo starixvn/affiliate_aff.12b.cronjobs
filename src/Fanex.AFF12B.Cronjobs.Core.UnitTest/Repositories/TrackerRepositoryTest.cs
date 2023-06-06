@@ -1,4 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Repositories;
+﻿using Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Data;
 using NSubstitute;
 using System;
@@ -13,9 +14,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Repositories
     {
         public TrackerRepositoryTest()
         {
-            DbSettingProviderManager
-             .StartTestingSession()
-             .Run();
+            MockingHelper.SetUpDbManagerEnviroment();
         }
 
         [Fact]
@@ -25,9 +24,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Repositories
             var timeTracker = new DateTime(2023, 05, 23) as DateTime?;
             var mockObjectDB = Substitute.For<IObjectDb>();
             mockObjectDB.QueryEntityAsync<DateTime?>(Arg.Any<object>(), Arg.Any<DbTransaction>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(timeTracker));
+            MockingHelper.SwitchObjectDbFactoryToTestingMode(mockObjectDB);
 
-            ObjectDbFactory.SwitchToTestingMode();
-            ObjectDbFactory.Mock((x, y) => mockObjectDB);
             var repository = new TrackerRepository();
 
             //Action
@@ -46,9 +44,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Repositories
             var timeTracker = new DateTime(2023, 05, 23) as DateTime?;
             var mockObjectDB = Substitute.For<IObjectDb>();
             mockObjectDB.QueryEntityAsync<DateTime?>(Arg.Any<object>(), Arg.Any<DbTransaction>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(timeTracker));
+            MockingHelper.SwitchObjectDbFactoryToTestingMode(mockObjectDB);
 
-            ObjectDbFactory.SwitchToTestingMode();
-            ObjectDbFactory.Mock((x, y) => mockObjectDB);
             var repository = new TrackerRepository();
 
             //Action
