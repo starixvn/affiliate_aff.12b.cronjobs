@@ -80,8 +80,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
             catch (Exception ex)
             {
-                logBuilder.AppendLine($"{SERVER_NAME} - Throw exception when {message}");
-                logBuilder.AppendLine(ErrorMessageHelper.GenerateMessage(ex));
+                logBuilder.AppendLine($"{SERVER_NAME} - {ErrorMessageHelper.GenerateMessage(ex, null, $"Range {message}")}");
 
                 var logMessage = logBuilder.ToString();
 

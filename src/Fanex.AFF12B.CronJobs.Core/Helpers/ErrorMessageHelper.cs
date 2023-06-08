@@ -10,10 +10,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
 {
     public static class ErrorMessageHelper
     {
-        public static string GenerateMessage(Exception exception, HttpContext context = null)
+        public static string GenerateMessage(Exception exception, HttpContext context = null, string message = null)
         {
             var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine($"ErrMsg: {exception.Message}");
+            messageBuilder.AppendLine(exception.Message);
+            messageBuilder.AppendLine(message);
             AddRequestInfo(context, messageBuilder);
             AddDatabaseInfo(messageBuilder, exception);
 

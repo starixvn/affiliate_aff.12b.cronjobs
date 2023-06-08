@@ -68,24 +68,22 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPBettingTickets(param);
         }
 
-        private IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoList(ThirdPartyProductRaw rawData, ThirdPartyApiParam param = null)
+        private IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoList(ThirdPartyProductRaw rawData, ThirdPartyApiParam param)
         {
             var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
-            var initialMessage = $"TpType={param.TpType}, SubItem={param.SubItem} and from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
             var rawDataString = JsonConvert.SerializeObject(rawData);
 
             if (rawData is null)
             {
-                throw new Exception($"{productName} - Nothing respond from Api: {initialMessage}");
+                throw CustomException($"{productName} - Nothing respond from Api", param);
             }
 
             var systemCodeToken = rawData.SystemCode;
             if (string.IsNullOrEmpty(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
             {
-                var messageBuilder = new StringBuilder($"{productName} - Api return error code {systemCodeToken}, error message {rawData.SystemMessage}: {initialMessage}");
-                messageBuilder.Append(rawData);
+                var message = $"{productName} - The 3rd api return ErrorCode: {systemCodeToken}, ErrorMessage: {rawData.SystemMessage}";
 
-                throw new Exception(messageBuilder.ToString());
+                throw CustomException(message, param);
             }
 
             var betTransTicketJToken = rawData.BetTransTicket;
@@ -148,6 +146,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 SystemCode = rawData.SystemCode,
                 SystemMessage = rawData.SystemMessage
             };
+        }
+
+        private static Exception CustomException(string initialMessage, ThirdPartyApiParam param)
+        {
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine(initialMessage);
+            messageBuilder.Append($"Parameters: {JsonConvert.SerializeObject(param)}");
+
+            return new Exception(messageBuilder.ToString());
         }
     }
 }
