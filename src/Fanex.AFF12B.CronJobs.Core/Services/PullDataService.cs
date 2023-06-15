@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Fanex.Logging;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
@@ -65,7 +64,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task<ThirdPartyProductRaw> GetRawDataAsync(ThirdPartyApiParam param)
         {
-            return await _thirdPartyProductApi.GetTPBettingTickets(param);
+            return await _thirdPartyProductApi.GetTPGBetTrans(param);
         }
 
         private IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoList(ThirdPartyProductRaw rawData, ThirdPartyApiParam param)
