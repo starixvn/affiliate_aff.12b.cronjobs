@@ -1,5 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Fanex.AFF12B.CronJobs.Core.Contants
 {

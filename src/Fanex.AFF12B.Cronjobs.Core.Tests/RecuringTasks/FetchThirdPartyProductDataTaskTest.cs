@@ -1,4 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
+﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.Core.Services;
@@ -11,7 +12,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.RecuringTasks
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
 {
     public class FetchThirdPartyProductDataTaskTest
     {
@@ -46,13 +47,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.RecuringTasks
         public async Task FetchDataAsync_WhenCallWithNotUnderMaintenance_ShouldCallLogger()
         {
             //Arrange
-            var inMemorySettings = new Dictionary<string, string> {
-                {"AppSettings:ApiServerTimeOffset", "0"},
-            };
-
-            _configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
+            _configuration = MockingHelper.SetUpConfiguration("AppSettings:ApiServerTimeOffset", "0");
             _importDataService.GetTimeTrackerAsync(Arg.Any<int>()).Returns(new DateTime(2023, 06, 06));
             _maintenanceService.IsUnderMaintenance().Returns(false);
             var task = CreateFetchThirdPartyProductDataTask();

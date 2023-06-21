@@ -2,15 +2,15 @@
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
+using Newtonsoft.Json;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Services
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 {
     public class PullDataServiceTest
     {
@@ -102,7 +102,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Services
         {
             //Arrange
             var rawData = new ThirdPartyProductRaw
-            { 
+            {
                 BetTransTicket = betTransTicket,
                 VersionKey = null,
                 SystemCode = "GT_S_001",
@@ -145,6 +145,39 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Services
 
             //Assert
             Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public async Task GetJsonDataListAsync_WhenCallWithValidParam_BetTicketMoreMaxRange_ReturnCorrectData()
+        {
+            //Arrange
+            var rawData = new ThirdPartyProductRaw
+            {
+                BetTransTicket = GetBetTransTicketList(),
+                Count = 2100,
+                VersionKey = null,
+                SystemCode = "GT_S_000",
+                SystemMessage = "Get Ticket Success"
+            };
+
+            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
+            var param = new ThirdPartyApiParam
+            {
+                BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
+                EndDate = new DateTime(2023, 06, 10, 00, 30, 00),
+                MaxMinutesRange = 30
+            };
+            var service = CreatePullDataService();
+
+            //Action
+            var result = await service.GetJsonDataListAsync(param);
+            var firstItem = result.FirstOrDefault();
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count());
+            Assert.Equal(2000, firstItem.Count);
         }
 
         public PullDataService CreatePullDataService() => new PullDataService(_thirdPartyProductApi);
@@ -157,5 +190,20 @@ namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Services
             SystemCode = "GT_S_000",
             SystemMessage = "Get Ticket Success"
         };
+
+        private static string GetBetTransTicketList()
+        {
+            var betTransTicket = new List<Ticket>
+            {
+                new Ticket()
+            };
+
+            while(betTransTicket.Count() < 2100)
+            {
+                betTransTicket.Add(new Ticket());
+            }
+
+            return JsonConvert.SerializeObject(betTransTicket);
+        }
     }
 }

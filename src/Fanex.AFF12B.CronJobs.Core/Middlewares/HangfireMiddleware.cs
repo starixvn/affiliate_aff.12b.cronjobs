@@ -1,7 +1,7 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Contants;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.Core.Filters;
+using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Hangfire;
 using Hangfire.Dashboard;
@@ -30,7 +30,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             // Add Hangfire services.
             services.AddHangfire(config =>
             {
-                var memoryOption = new MemoryStorageOptions() { FetchNextJobTimeout = TimeSpan.FromHours(6) };
+                var memoryOption = new MemoryStorageOptions { FetchNextJobTimeout = TimeSpan.FromHours(6) };
                 config.UseMemoryStorage(memoryOption);
                 config.UseFilter(new GlobalHangfireJobExceptionFilterAttribute());
             });
@@ -90,8 +90,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public class AuthorizationFilter : IDashboardAuthorizationFilter
         {
-            private static readonly int CookieExpirationMinutes = 30;
-            private static readonly string Aff12BHangFireCookieName = "Aff_12B_HangFire_Cookie";
+            private const int CookieExpirationMinutes = 30;
+            private const string Aff12BHangFireCookieName = "Aff_12B_HangFire_Cookie";
 
             private readonly TokenValidationParameters tokenValidationParameters;
 

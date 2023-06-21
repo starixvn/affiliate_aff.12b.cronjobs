@@ -6,7 +6,7 @@ using System;
 using System.Data.SqlClient;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Helpers
 {
     public class ErrorMessageHelperTest
     {

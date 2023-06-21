@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers;
+﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.Logging;
@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Net;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Attributes
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Attributes
 {
     public class IPFilterAttributeTest
     {

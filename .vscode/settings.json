@@ -1,0 +1,7 @@
+{
+    "dotnet-test-explorer.autoExpandTree": true,
+    "dotnet-test-explorer.autoWatch": true,
+    "dotnet-test-explorer.treeMode": "full",
+    "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=../TestResults/coverage.opencover.xml /p:ExcludeByFile=\"../*.WebHost/*.cs",
+    "dotnet-test-explorer.testProjectPath": "**/*.Tests.csproj"
+}

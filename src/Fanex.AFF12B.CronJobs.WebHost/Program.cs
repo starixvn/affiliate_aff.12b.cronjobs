@@ -7,7 +7,7 @@ using System;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

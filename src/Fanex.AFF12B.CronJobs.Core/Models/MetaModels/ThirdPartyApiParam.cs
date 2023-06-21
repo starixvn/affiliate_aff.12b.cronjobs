@@ -6,6 +6,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
 {
     public class ThirdPartyApiParam : BaseParam
     {
+        private const int MaxMinutes = 60;
+        private const int MaxMilliseconds = 120000;
+
         [Required]
         public DateTime BeginDate { get; set; }
 
@@ -13,11 +16,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
         public DateTime EndDate { get; set; }
 
         [JsonIgnore]
-        [Range(0, 60)]
+        [Range(0, MaxMinutes)]
         public int MaxMinutesRange { get; set; }
 
         [JsonIgnore]
-        [Range(0, 120000)]
+        [Range(0, MaxMilliseconds)]
         public int MillisecondsDeplay { get; set; }
     }
 }

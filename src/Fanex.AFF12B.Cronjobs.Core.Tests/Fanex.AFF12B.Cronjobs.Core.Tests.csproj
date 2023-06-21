@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>Fanex.AFF12B.Cronjobs.Core.UnitTest</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +13,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="ReportGenerator" Version="5.1.22" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="NSubstitute" Version="5.0.0" />
     <PackageReference Include="xunit" Version="2.4.2" />

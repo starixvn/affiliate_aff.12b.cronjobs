@@ -8,7 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 {
     public class UnderMaintenanceHandlerTest
     {

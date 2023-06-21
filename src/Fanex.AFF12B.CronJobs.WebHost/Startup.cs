@@ -45,7 +45,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-                //services.AddApiExplorer();
                 services.AddSwaggerGen();
             }
 

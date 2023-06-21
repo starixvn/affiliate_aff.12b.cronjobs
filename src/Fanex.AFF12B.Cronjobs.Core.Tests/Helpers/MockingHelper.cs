@@ -1,12 +1,24 @@
 ﻿using Fanex.Data;
 using Fanex.Logging;
+using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using System.Collections.Generic;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Helpers
 {
     public static class MockingHelper
     {
+        public static IConfiguration SetUpConfiguration(string key, string value)
+        {
+            var inMemorySettings = new Dictionary<string, string> {
+                {key, value},
+            };
+
+            return new ConfigurationBuilder()
+                .AddInMemoryCollection(inMemorySettings)
+                .Build();
+        }
+
         public static void SetUpLogEngineEnviroment()
         {
             var logEngine = Substitute.For<ILogEngine>();

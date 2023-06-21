@@ -77,7 +77,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
 
             var systemCodeToken = rawData.SystemCode;
-            if (string.IsNullOrWhiteSpace(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
+            var isCodeSuccess = systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET);
+            if (string.IsNullOrWhiteSpace(systemCodeToken) || !isCodeSuccess)
             {
                 var message = $"{productName} - The 3rd api return ErrorCode: {systemCodeToken}, ErrorMessage: {rawData.SystemMessage}";
 
@@ -114,7 +115,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private static IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoByTicketRange(ThirdPartyProductJson jsonData, List<Ticket> betTransTicketList)
         {
-            var totalTickets = betTransTicketList.Count();
+            var totalTickets = betTransTicketList.Count;
             var rangeNumbers = (totalTickets + MAX_TICKETS_IN_RANGE) / MAX_TICKETS_IN_RANGE;
             var unescapedDataByRangeList = new List<ThirdPartyProductJson>();
 
@@ -158,7 +159,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             messageBuilder.AppendLine(initialMessage);
             messageBuilder.Append($"Parameters: {JsonConvert.SerializeObject(param)}");
 
-            return new Exception(messageBuilder.ToString());
+            return new FormatException(messageBuilder.ToString());
         }
     }
 }

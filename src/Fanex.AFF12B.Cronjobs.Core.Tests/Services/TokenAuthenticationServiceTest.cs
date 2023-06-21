@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using NSubstitute;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Services
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 {
     public class TokenAuthenticationServiceTest
     {

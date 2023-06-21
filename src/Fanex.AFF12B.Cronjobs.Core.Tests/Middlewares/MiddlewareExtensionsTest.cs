@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Middlewares
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 {
     public class MiddlewareExtensionsTest
     {

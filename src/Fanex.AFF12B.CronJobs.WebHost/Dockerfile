@@ -1,4 +1,4 @@
-FROM hub.nexdev.net/base/dotnet/core/sdk:6.0-alpine AS builder
+FROM hub.nexdev.net/base/dotnet/core/sdk:3.1 AS builder
 
 WORKDIR "/src"
 
@@ -17,7 +17,7 @@ RUN dotnet build "Fanex.AFF12B.CronJobs.WebHost.csproj" -c Release -o /app/build
 
 RUN dotnet publish "Fanex.AFF12B.CronJobs.WebHost.csproj" -c Release -o /app/publish
 
-FROM hub.nexdev.net/base/dotnet/core/aspnet:6.0-final
+FROM hub.nexdev.net/base/dotnet/core/aspnet:3.1 AS base
 
 RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
 RUN sed -i 's/MinProtocol = TLSv1.2/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf

@@ -6,6 +6,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 {
     public interface IAuthenticateService
     {
-        Tuple<bool, Token> IsAuthenticated(TokenRequestParam request);
+        Tuple<bool, Token> IsAuthenticated(TokenRequestParam param);
     }
 }

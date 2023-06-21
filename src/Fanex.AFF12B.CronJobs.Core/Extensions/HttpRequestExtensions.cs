@@ -9,6 +9,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
         private static readonly string HostName = Dns.GetHostName();
 
         public static bool FromInternal(this HttpRequest request)
-            => HostName.Contains(request?.Host.Host, StringComparison.OrdinalIgnoreCase);
+            => HostName.Contains(request.Host.Host, StringComparison.OrdinalIgnoreCase);
     }
 }

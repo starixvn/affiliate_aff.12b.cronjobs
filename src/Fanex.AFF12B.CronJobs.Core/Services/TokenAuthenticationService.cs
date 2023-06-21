@@ -22,23 +22,23 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             _tokenManagement = tokenManagementAccessor.Value;
         }
 
-        public Tuple<bool, Token> IsAuthenticated(TokenRequestParam requestParam)
+        public Tuple<bool, Token> IsAuthenticated(TokenRequestParam param)
         {
             var token = new Token
             {
                 ExpiresIn = _tokenManagement.AccessExpiration
             };
-            var siteName = requestParam.Username;
-            var realUserName = requestParam.Username;
+            var siteName = param.Username;
+            var realUserName = param.Username;
 
-            if (requestParam.Username.Contains('@'))
+            if (param.Username.Contains('@'))
             {
-                var temp = requestParam.Username.Split('@');
+                var temp = param.Username.Split('@');
                 siteName = temp[0];
                 realUserName = temp[1];
             }
 
-            if (!_userManagementService.IsValidUser(realUserName, requestParam.Password))
+            if (!_userManagementService.IsValidUser(realUserName, param.Password))
             {
                 return Tuple.Create<bool, Token>(false, token);
             }
@@ -46,7 +46,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             var claim = new[]
             {
                 new Claim(ClaimTypes.Name, siteName),
-                new Claim(CustomClaimType.IsShowIPVN, requestParam.IsShowIpvn.ToString(), ClaimValueTypes.Boolean)
+                new Claim(CustomClaimType.IsShowIPVN, param.IsShowIpvn.ToString(), ClaimValueTypes.Boolean)
              };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

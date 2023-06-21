@@ -120,7 +120,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _trackerRepository.AddTracker(trackerParam);
             } else
             {
-                _logger.Info($"{SERVER_NAME} - Finished manually import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
+                var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
+                _logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
             }
         }
     }

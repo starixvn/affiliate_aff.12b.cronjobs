@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.CronJobs.WebHo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{857D7012-C393-4D02-94DC-B2AB01D5FBB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.Cronjobs.Core.UnitTest", "src\Fanex.AFF12B.Cronjobs.Core.UnitTest\Fanex.AFF12B.Cronjobs.Core.UnitTest.csproj", "{4172A206-6028-45CF-833B-0D9995DAC715}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.Cronjobs.Core.Tests", "src\Fanex.AFF12B.Cronjobs.Core.Tests\Fanex.AFF12B.Cronjobs.Core.Tests.csproj", "{4172A206-6028-45CF-833B-0D9995DAC715}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,10 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4172A206-6028-45CF-833B-0D9995DAC715} = {857D7012-C393-4D02-94DC-B2AB01D5FBB0}
-	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DFC7DEE7-BB33-4D24-ACBA-F22D6F1B340B}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4172A206-6028-45CF-833B-0D9995DAC715} = {857D7012-C393-4D02-94DC-B2AB01D5FBB0}
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.Cronjobs.Core.UnitTest.Helpers;
+﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Data;
@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Repositories
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Repositories
 {
     public class QueueRepositoryTest
     {

@@ -8,7 +8,7 @@ using System;
 using System.Net;
 using Xunit;
 
-namespace Fanex.AFF12B.Cronjobs.Core.UnitTest.Controllers
+namespace Fanex.AFF12B.Cronjobs.Core.Tests.Controllers
 {
     public class AuthControllerTest
     {
