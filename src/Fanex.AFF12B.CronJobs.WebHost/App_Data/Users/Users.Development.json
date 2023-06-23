@@ -1,0 +1,16 @@
+{
+  "Users": [
+    {
+      "username": "12B_API",
+      "password": "tjCH+VsoJ2X4ZH68blecR4DDrsZA/8pYBOzM0nB/7y4=" //12BCronJobs
+    },
+    {
+      "username": "12B_NEW_API",
+      "password": "tjCH+VsoJ2X4ZH68blecR4DDrsZA/8pYBOzM0nB/7y4=" //12BCronJobs
+    },
+    {
+      "username": "12B_SERVICE",
+      "password": "tjCH+VsoJ2X4ZH68blecR4DDrsZA/8pYBOzM0nB/7y4=" //12BCronJobs
+    }
+  ]
+}
