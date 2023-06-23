@@ -1,13 +1,13 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Models.Options;
-using Fanex.AFF12B.CronJobs.Core.Extensions;
+﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Models.Options;
+using Fanex.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Options;
 using NetTools;
-using System.Net;
 using System;
 using System.Linq;
-using Fanex.Logging;
+using System.Net;
 
 namespace Fanex.AFF12B.CronJobs.Core.Attributes
 {

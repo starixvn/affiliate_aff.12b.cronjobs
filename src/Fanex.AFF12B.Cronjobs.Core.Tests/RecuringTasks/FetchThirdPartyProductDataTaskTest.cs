@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using ONEbook.UM.Services;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 

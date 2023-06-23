@@ -3,10 +3,7 @@ using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using NSubstitute;
-using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Configurations

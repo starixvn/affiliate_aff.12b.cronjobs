@@ -1,8 +1,8 @@
-using Microsoft.AspNetCore.Hosting;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using System;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
@@ -34,7 +34,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                     config.AddJsonFile($"App_Data/Whitelist/Whitelist.{envFromSetting}.json", optional: false, reloadOnChange: true);
                     config.AddEnvironmentVariables();
                 })
-                .ConfigureLogging(logging => {
+                .ConfigureLogging(logging =>
+                {
                     logging.ClearProviders();
                     logging.AddConsole();
                 })

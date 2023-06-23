@@ -1,7 +1,7 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Models.Options;
-using Fanex.AFF12B.CronJobs.Core.Constants;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;

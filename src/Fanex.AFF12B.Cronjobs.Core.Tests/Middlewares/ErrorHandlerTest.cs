@@ -1,5 +1,4 @@
-﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Middlewares;
+﻿using Fanex.AFF12B.CronJobs.Core.Middlewares;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;

@@ -1,4 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Middlewares;
+﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Middlewares;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +78,18 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
         {
             //Arrange
             var ex = Record.Exception(() => MiddlewareExtensions.UseUnderMaintenance(_mockApplicationBuilder));
+
+            //Assert
+            Assert.Null(ex);
+        }
+
+        [Fact]
+        public void InitLogging_WhenCall_NotThrowException()
+        {
+            //Arrange
+            var configuration = MockingHelper.SetUpConfiguration("AppSettings:SentryDsn", "https://142438c583914b1480ea47036f7bec6e@sentry.nexdev.net/76");
+
+            var ex = Record.Exception(() => MiddlewareExtensions.InitLogging(_mockServiceCollection, configuration));
 
             //Assert
             Assert.Null(ex);

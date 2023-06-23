@@ -2,9 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -31,7 +28,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             //Arrange
             _mockHeader.ContainsKey("Authorization").Returns(false);
 
-            _mockQueryCollection.TryGetValue(Arg.Any<string>(), out Arg.Any<StringValues>()).Returns(x => {
+            _mockQueryCollection.TryGetValue(Arg.Any<string>(), out Arg.Any<StringValues>()).Returns(x =>
+            {
                 x[1] = new StringValues(Token);
                 return true;
             });
@@ -42,7 +40,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             _mockContext.Request.Returns(_mockRequest);
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
-            //Arrange
+            //Action
             await handler.Invoke(_mockContext).ConfigureAwait(false);
 
             //Assert
@@ -64,7 +62,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             _mockContext.Request.Returns(_mockRequest);
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
-            //Arrange
+            //Action
             await handler.Invoke(_mockContext).ConfigureAwait(false);
 
             //Assert
@@ -85,7 +83,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             _mockContext.Request.Returns(_mockRequest);
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
-            //Arrange
+            //Action
             await handler.Invoke(_mockContext).ConfigureAwait(false);
 
             //Assert

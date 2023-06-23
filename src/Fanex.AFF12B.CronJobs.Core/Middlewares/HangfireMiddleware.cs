@@ -1,25 +1,22 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Extensions;
+﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.Core.Attributes;
+using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Filters;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using Fanex.Logging;
 using Hangfire;
-using Hangfire.Dashboard;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq.Expressions;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Http;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
-using Fanex.Logging;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -46,7 +43,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         {
             app.UseHangfireDashboard($"/hangfire", new DashboardOptions
             {
-                Authorization = new[] { new AuthorizationFilter(tokenValidationParameters) }
+                Authorization = new[] { new DashboardAuthorizationFilter(tokenValidationParameters) }
             });
 
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
@@ -72,7 +69,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         private static bool IsValidServer(string serverPath, string serverAddress)
         {
             var baseDirectory = AppContext.BaseDirectory;
-            var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName()); 
+            var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName());
 
             return baseDirectory.Contains(serverPath) && hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
@@ -85,73 +82,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                             serviceId,
                             methodCall,
                             cronExpression);
-            }
-        }
-
-        public class AuthorizationFilter : IDashboardAuthorizationFilter
-        {
-            private const int CookieExpirationMinutes = 30;
-            private const string Aff12BHangFireCookieName = "Aff_12B_HangFire_Cookie";
-
-            private readonly TokenValidationParameters tokenValidationParameters;
-
-            public AuthorizationFilter(TokenValidationParameters tokenValidationParameters)
-            {
-                this.tokenValidationParameters = tokenValidationParameters;
-            }
-            public bool Authorize(DashboardContext context)
-            {
-                var httpContext = context.GetHttpContext();
-                if (httpContext.User.Identity.IsAuthenticated)
-                {
-                    return true;
-                }
-
-                var shouldSetCookie = false;
-
-                string accessToken;
-                if (httpContext.Request.Query.ContainsKey("access_token"))
-                {
-                    shouldSetCookie = true;
-                    accessToken = httpContext.Request.Query["access_token"].FirstOrDefault();
-                }
-                else
-                {
-                    accessToken = httpContext.Request.Cookies[Aff12BHangFireCookieName];
-                }
-
-                if (!string.IsNullOrEmpty(accessToken))
-                {
-                    try
-                    {
-                        var handler = new JwtSecurityTokenHandler();
-                        var claims = handler.ValidateToken(accessToken, this.tokenValidationParameters, out _);
-                        if (!claims.Identity.IsAuthenticated)
-                        {
-                            return false;
-                        }
-
-                        if (shouldSetCookie)
-                        {
-                            httpContext.Response.Cookies.Append(Aff12BHangFireCookieName,
-                                accessToken,
-                                new CookieOptions
-                                {
-                                    Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes),
-                                    HttpOnly = true,
-                                    Secure = true,
-                                    SameSite = SameSiteMode.Strict
-                                });
-                        }
-
-                        return true;
-                    }
-                    catch (Exception ex) {
-                        Logger.Log.Warn(ErrorMessageHelper.GenerateMessage(ex));
-                    }
-                }
-
-                return false;
             }
         }
     }

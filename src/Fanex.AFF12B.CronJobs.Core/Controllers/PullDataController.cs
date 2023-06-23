@@ -1,6 +1,6 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Services;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
+﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -11,16 +11,16 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         private readonly IPullDataService _pullDataService;
 
         public PullDataController(
-            IAppSettings appSettings, 
+            IAppSettings appSettings,
             IPullDataService pullDataService) : base(appSettings)
         {
             _pullDataService = pullDataService;
         }
 
         [HttpGet("api/GetRawData")]
-        public async Task<ActionResult> GetRawDataListAsync([FromQuery]QueryParam param)
+        public async Task<ActionResult> GetRawDataListAsync([FromQuery] QueryParam param)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
                 var rawDataList = await _pullDataService.GetRawDataListAsync(param);

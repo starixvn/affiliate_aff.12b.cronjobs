@@ -3,8 +3,8 @@ using Fanex.Logging;
 using Hangfire.Common;
 using Hangfire.States;
 using Newtonsoft.Json;
-using System.Text;
 using System;
+using System.Text;
 
 namespace Fanex.AFF12B.CronJobs.Core.Attributes
 {

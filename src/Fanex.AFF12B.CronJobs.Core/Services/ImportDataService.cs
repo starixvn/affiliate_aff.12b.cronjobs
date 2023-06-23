@@ -1,15 +1,15 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
-using Newtonsoft.Json;
-using System.Text;
-using Fanex.AFF12B.CronJobs.Core.Constant;
 using Fanex.Logging;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
 using System.Net;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -37,7 +37,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         public async Task<DateTime> GetTimeTrackerAsync(int tpType, string subItem = DefaultValue.String)
         {
             var timeTracker = await _trackerRepository.GetTracker(tpType, subItem);
-            
+
             if (timeTracker is null)
             {
                 var now = DateTime.Now;
@@ -109,7 +109,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 await _queueRepository.AddQueue(queueParam);
             }
 
-            if(isFromRunningJob)
+            if (isFromRunningJob)
             {
                 var trackerParam = new TrackerParam
                 {
@@ -118,7 +118,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     CallTime = param.EndDate
                 };
                 await _trackerRepository.AddTracker(trackerParam);
-            } else
+            }
+            else
             {
                 var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
                 _logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");

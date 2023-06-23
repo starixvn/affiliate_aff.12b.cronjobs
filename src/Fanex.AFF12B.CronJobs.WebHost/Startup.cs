@@ -1,27 +1,27 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.Options;
+using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Middlewares;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.Core.Models.Options;
+using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Services;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
-using Fanex.AFF12B.CronJobs.Core.Repositories;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
-using Hangfire;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
@@ -39,7 +39,6 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.RegisterHangfire();
             services.AddControllers();
 
             if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
@@ -58,7 +57,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 options.UseCaseSensitivePaths = true;
             });
 
-            ConfigAuthentication(services, GetTokenValidationParameters());
+            ConfigAuthentication(services);
 
             services.AddAuthorization(options =>
             {
@@ -127,8 +126,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             app.UseJWTokenOnPage();
             app.UseAuthorization();
 
-            app.UseHangfire(Configuration, GetTokenValidationParameters());
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
+            app.UseHangfire(Configuration, GetTokenValidationParameters());
 
             app.UseResponseCaching();
             app.UseEndpoints(endpoints =>
@@ -143,6 +142,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         private void DIRegister(IServiceCollection services)
         {
+            services.RegisterHangfire();
             services.InitLogging(Configuration);
             services.InitApi(Configuration);
             services.InitFanexData(Configuration);
@@ -160,14 +160,14 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.AddScoped<IFetchThirdPartyProductDataTask, FetchThirdPartyProductDataTask>();
         }
 
-        private void ConfigAuthentication(IServiceCollection services, TokenValidationParameters tokenValidationParameters)
+        private void ConfigAuthentication(IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(x =>
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
-                    x.TokenValidationParameters = tokenValidationParameters;
+                    x.TokenValidationParameters = GetTokenValidationParameters();
                     x.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>
@@ -185,7 +185,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         private TokenValidationParameters GetTokenValidationParameters()
         {
             var token = Configuration.GetSection("TokenManagementOptions").Get<TokenManagementOptions>();
-            
+
             return token != null ? new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,

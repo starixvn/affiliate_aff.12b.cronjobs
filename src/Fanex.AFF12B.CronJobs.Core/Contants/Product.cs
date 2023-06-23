@@ -37,7 +37,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             if (ProductNames.ContainsKey(key))
             {
                 ProductNames.TryGetValue(key, out productName);
-            }    
+            }
 
             return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";
         }

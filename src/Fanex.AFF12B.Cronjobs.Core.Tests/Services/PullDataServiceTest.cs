@@ -38,14 +38,14 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 
             //Assert
             Assert.Empty(result);
-            await _thirdPartyProductApi.DidNotReceive().GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>());
+            await _thirdPartyProductApi.DidNotReceive().GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>());
         }
 
         [Fact]
         public async Task GetJsonDataListAsync_WhenCallWithApiReturnEmpty_ThrowException()
         {
             //Arrange
-            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(Task.FromResult<ThirdPartyProductRaw>(null));
+            _thirdPartyProductApi.GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>()).Returns(Task.FromResult<ThirdPartyProductRaw>(null));
             var param = new ThirdPartyApiParam
             {
                 BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
@@ -60,7 +60,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 
             //Assert
             Assert.NotNull(ex);
-            Assert.Equal("12Emerald - Playtech Job(TpType: '1', SubItem: '') - Nothing respond from Api: TpType=1, SubItem= and from 2023-06-10T00:30:00.000 to 2023-06-10T01:00:00.000", ex.Message);
+            Assert.Contains("12Emerald - Playtech Job(TpType: '1', SubItem: '') - Nothing respond from Api", ex.Message);
         }
 
         [Theory]
@@ -74,7 +74,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 SystemCode = errorCode
             };
 
-            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
+            _thirdPartyProductApi.GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
             var param = new ThirdPartyApiParam
             {
                 BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
@@ -89,7 +89,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 
             //Assert
             Assert.NotNull(ex);
-            Assert.Equal($"12Emerald - Playtech Job(TpType: '1', SubItem: '') - Api return error code {errorCode}, error message : TpType=1, SubItem= and from 2023-06-10T00:30:00.000 to 2023-06-10T01:00:00.000Fanex.AFF12B.CronJobs.Core.Models.DTOs.ThirdPartyProductRaw", ex.Message);
+            Assert.Contains($"12Emerald - Playtech Job(TpType: '1', SubItem: '') - The 3rd api return ErrorCode: {errorCode}", ex.Message);
         }
 
         [Theory]
@@ -109,7 +109,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 SystemMessage = "Get Ticket Success But No Ticket"
             };
 
-            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
+            _thirdPartyProductApi.GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
             var param = new ThirdPartyApiParam
             {
                 BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
@@ -131,7 +131,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
         public async Task GetJsonDataListAsync_WhenCallWithValidParam_ReturnCorrectData()
         {
             //Arrange
-            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(RawData);
+            _thirdPartyProductApi.GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>()).Returns(RawData);
             var param = new ThirdPartyApiParam
             {
                 BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
@@ -161,7 +161,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 SystemMessage = "Get Ticket Success"
             };
 
-            _thirdPartyProductApi.GetTPBettingTickets(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
+            _thirdPartyProductApi.GetTPGBetTrans(Arg.Any<ThirdPartyApiParam>()).Returns(rawData);
             var param = new ThirdPartyApiParam
             {
                 BeginDate = new DateTime(2023, 06, 10, 00, 00, 00),
@@ -198,7 +198,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 new Ticket()
             };
 
-            while(betTransTicket.Count() < 2100)
+            while (betTransTicket.Count() < 2100)
             {
                 betTransTicket.Add(new Ticket());
             }

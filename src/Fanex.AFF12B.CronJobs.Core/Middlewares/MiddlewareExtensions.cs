@@ -114,10 +114,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitApi(this IServiceCollection services, IConfiguration configuration)
         {
-            var apiSetting = configuration.GetSection("ApiOptions").Get<ApiOptions>();
+            var section = configuration.GetSection("ApiOptions");
+            var apiSetting = section.Get<ApiOptions>();
 
             services.AddRefitClient<IThirdPartyProductApi>()
-                .ConfigureHttpClient(c => {
+                .ConfigureHttpClient(c =>
+                {
                     c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
                 });

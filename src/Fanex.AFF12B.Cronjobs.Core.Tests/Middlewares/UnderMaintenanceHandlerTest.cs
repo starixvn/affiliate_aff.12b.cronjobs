@@ -43,7 +43,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
         {
             //Arrange
             var header = Substitute.For<IHeaderDictionary>();
-            header.TryGetValue(Arg.Any<string>(), out Arg.Any<StringValues>()).Returns(x => {
+            header.TryGetValue(Arg.Any<string>(), out Arg.Any<StringValues>()).Returns(x =>
+            {
                 x[1] = new StringValues("XMLHttpRequest");
                 return true;
             });
