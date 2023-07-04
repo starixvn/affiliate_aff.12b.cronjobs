@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.Logging;
@@ -31,6 +32,16 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 
         public async Task FetchDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting)
         {
+            await FetchDataAsync<Ticket>(cronJobSetting);
+        }
+
+        public async Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting)
+        {
+            await FetchDataAsync<ConvertedTransactionIdTicket>(cronJobSetting);
+        }
+
+        public async Task FetchDataAsync<T>(ThirdPartyCronJobSetting cronJobSetting)
+        {
             if (_maintenanceService.IsUnderMaintenance())
             {
                 _logger.Info("System is currently unavailable due to scheduled maintenance!");
@@ -50,7 +61,7 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
-            await _importDataService.ImportDataToDbAsync(param, true);
+            await _importDataService.ImportDataToDbAsync<T>(param, true);
         }
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)

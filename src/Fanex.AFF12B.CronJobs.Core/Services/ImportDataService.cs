@@ -1,11 +1,13 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Constant;
 using Fanex.AFF12B.CronJobs.Core.Contants;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -55,7 +57,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             _logger.Info(message);
         }
 
-        public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool isFromRunningJob = false)
+        public async Task<string> ImportDataToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob = false)
         {
             var logBuilder = new StringBuilder();
             var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
@@ -74,7 +76,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     param.EndDate = range.Item2;
 
                     await Task.Delay(param.MillisecondsDeplay, CancellationToken.None);
-                    await ImportDataByTimeRangeToDbAsync(param, isFromRunningJob).ConfigureAwait(false);
+                    await ImportDataByTimeRangeToDbAsync<T>(param, isFromRunningJob).ConfigureAwait(false);
                 }
 
                 _logger.Info($"{SERVER_NAME} - Finished {message}");
@@ -93,9 +95,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
         }
 
-        private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool isFromRunningJob)
+        private async Task ImportDataByTimeRangeToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob)
         {
-            var dataList = await _pullDataService.GetJsonDataListAsync(param);
+            var dataList = await _pullDataService.GetJsonDataListAsync<T>(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,
@@ -104,7 +106,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             foreach (var data in dataList)
             {
-                queueParam.JsonData = JsonConvert.SerializeObject(data);
+                queueParam.JsonData = HandleSerializeData(data);
 
                 await _queueRepository.AddQueue(queueParam);
             }
@@ -124,6 +126,36 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
                 _logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
             }
+        }
+
+        private static string HandleSerializeData<T>(ThirdPartyProductJson<T> data)
+        {
+            var ticket = data.BetTransTicket.FirstOrDefault();
+            var typeOfTicket = ticket?.GetType();
+
+            if(typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
+            {
+                return JsonConvert.SerializeObject(data);
+            }    
+
+            if (typeOfTicket.Name == typeof(ConvertedTransactionIdTicket).Name)
+            {
+                var newData = data as ThirdPartyProductJson<ConvertedTransactionIdTicket>;
+
+                var newBetTransTicket = newData.BetTransTicket.Select(t =>
+                {
+                    var uniqueTransactionId = t.TransactiondateTime + t.TransactionId;
+                    t.TransactionId = uniqueTransactionId;
+
+                    return t;
+                }).ToList();
+
+                newData.BetTransTicket = newBetTransTicket;
+
+                return JsonConvert.SerializeObject(newData);
+            }
+
+            return JsonConvert.SerializeObject(data);
         }
     }
 }

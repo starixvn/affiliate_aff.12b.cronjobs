@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.Core.Services;
@@ -56,7 +57,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
 
             //Assert
             _logger.DidNotReceive().Info("System is currently unavailable due to scheduled maintenance!");
-            await _importDataService.Received().ImportDataToDbAsync(Arg.Any<ThirdPartyApiParam>(), true);
+            await _importDataService.Received().ImportDataToDbAsync<Ticket>(Arg.Any<ThirdPartyApiParam>(), true);
         }
 
         private FetchThirdPartyProductDataTask CreateFetchThirdPartyProductDataTask()

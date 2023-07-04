@@ -34,7 +34,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var result = await service.GetJsonDataListAsync(param);
+            var result = await service.GetJsonDataListAsync<Ticket>(param);
 
             //Assert
             Assert.Empty(result);
@@ -56,7 +56,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var ex = await Record.ExceptionAsync(() => service.GetJsonDataListAsync(param));
+            var ex = await Record.ExceptionAsync(() => service.GetJsonDataListAsync<Ticket>(param));
 
             //Assert
             Assert.NotNull(ex);
@@ -85,7 +85,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var ex = await Record.ExceptionAsync(() => service.GetJsonDataListAsync(param));
+            var ex = await Record.ExceptionAsync(() => service.GetJsonDataListAsync<Ticket>(param));
 
             //Assert
             Assert.NotNull(ex);
@@ -120,7 +120,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var result = await service.GetJsonDataListAsync(param);
+            var result = await service.GetJsonDataListAsync<Ticket>(param);
             var item = result.FirstOrDefault();
 
             //Assert
@@ -141,7 +141,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var result = await service.GetJsonDataListAsync(param);
+            var result = await service.GetJsonDataListAsync<Ticket>(param);
 
             //Assert
             Assert.NotNull(result);
@@ -171,7 +171,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreatePullDataService();
 
             //Action
-            var result = await service.GetJsonDataListAsync(param);
+            var result = await service.GetJsonDataListAsync<Ticket>(param);
             var firstItem = result.FirstOrDefault();
 
             //Assert

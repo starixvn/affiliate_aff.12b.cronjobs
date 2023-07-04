@@ -29,7 +29,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             { "27", "12Diamond" },
         };
 
-        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem, string title = null)
+        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem)
         {
             var productName = "Unknown";
             var key = tpType + subItem;

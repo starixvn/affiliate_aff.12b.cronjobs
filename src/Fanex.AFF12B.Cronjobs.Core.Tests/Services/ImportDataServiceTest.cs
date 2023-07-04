@@ -80,11 +80,11 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 TpType = 1,
                 MaxMinutesRange = 30
             };
-            _pullDataService.GetJsonDataListAsync(Arg.Any<ThirdPartyApiParam>()).Returns(new List<ThirdPartyProductJson> { new ThirdPartyProductJson() });
+            _pullDataService.GetJsonDataListAsync<Ticket>(Arg.Any<ThirdPartyApiParam>()).Returns(new List<ThirdPartyProductJson<Ticket>> { new ThirdPartyProductJson<Ticket> { BetTransTicket = new List<Ticket>() } });
             var service = CreateImportDataService();
 
             //Action
-            await service.ImportDataToDbAsync(param, true);
+            await service.ImportDataToDbAsync<Ticket>(param, true);
 
             //Assert
             await _queueRepository.Received().AddQueue(Arg.Any<QueueParam>());
@@ -104,11 +104,11 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 TpType = 1,
                 MaxMinutesRange = 30
             };
-            _pullDataService.GetJsonDataListAsync(Arg.Any<ThirdPartyApiParam>()).Returns(new List<ThirdPartyProductJson> { new ThirdPartyProductJson() });
+            _pullDataService.GetJsonDataListAsync<Ticket>(Arg.Any<ThirdPartyApiParam>()).Returns(new List<ThirdPartyProductJson<Ticket>> { new ThirdPartyProductJson<Ticket> { BetTransTicket = new List<Ticket>() } });
             var service = CreateImportDataService();
 
             //Action
-            await service.ImportDataToDbAsync(param, false);
+            await service.ImportDataToDbAsync<Ticket>(param, false);
 
             //Assert
             await _queueRepository.Received().AddQueue(Arg.Any<QueueParam>());
@@ -131,7 +131,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             var service = CreateImportDataService();
 
             //Action
-            await service.ImportDataToDbAsync(param, false);
+            await service.ImportDataToDbAsync<Ticket>(param, false);
 
             //Assert
             await _queueRepository.DidNotReceive().AddQueue(Arg.Any<QueueParam>());

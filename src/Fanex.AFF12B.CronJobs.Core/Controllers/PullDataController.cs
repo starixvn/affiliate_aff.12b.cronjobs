@@ -1,4 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var convertedDataList = await _pullDataService.GetJsonDataListAsync(param);
+                var convertedDataList = await _pullDataService.GetJsonDataListAsync<Ticket>(param);
 
                 return new JsonResult(convertedDataList);
             }

@@ -1,5 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -50,7 +51,21 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var result = await _importDataService.ImportDataToDbAsync(param);
+                var result = await _importDataService.ImportDataToDbAsync<Ticket>(param);
+
+                return new JsonResult(result);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        [HttpPost("api/ImportConvertedTransactionIdData")]
+        public async Task<ActionResult> ImportConvertedTransactionIdDataToDbAsync([FromQuery] QueryParam param)
+        {
+            if (ModelState.IsValid)
+            {
+                SetMaxMinutesRange(param);
+                var result = await _importDataService.ImportDataToDbAsync<ConvertedTransactionIdTicket>(param);
 
                 return new JsonResult(result);
             }

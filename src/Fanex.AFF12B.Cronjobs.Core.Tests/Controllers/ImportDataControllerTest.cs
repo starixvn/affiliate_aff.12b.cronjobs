@@ -76,14 +76,14 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Controllers
             var maxMinutesRange = 30;
             var param = new QueryParam { MaxMinutesRange = 15 };
             _appSettings.MaxMinutesRange.Returns(maxMinutesRange);
-            _pullDataService.GetJsonDataListAsync(Arg.Any<QueryParam>()).Returns(new List<ThirdPartyProductJson> { new ThirdPartyProductJson() });
+            _pullDataService.GetJsonDataListAsync<Ticket>(Arg.Any<QueryParam>()).Returns(new List<ThirdPartyProductJson<Ticket>> { new ThirdPartyProductJson<Ticket>() });
             var controller = new PullDataController(_appSettings, _pullDataService);
 
             //Action
             var result = await controller.GetJsonDataListAsync(param) as JsonResult;
 
             //Assert
-            Assert.NotEmpty(result.Value as List<ThirdPartyProductJson>);
+            Assert.NotEmpty(result.Value as List<ThirdPartyProductJson<Ticket>>);
             Assert.NotEqual(maxMinutesRange, param.MaxMinutesRange);
         }
     }

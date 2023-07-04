@@ -11,5 +11,10 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
         [DisableConcurrentExecution(60)]
         [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Fail, Attempts = 1)]
         Task FetchDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting);
+
+        [DisplayName("{0}")]
+        [DisableConcurrentExecution(60)]
+        [AutomaticRetry(OnAttemptsExceeded = AttemptsExceededAction.Fail, Attempts = 1)]
+        Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting);
     }
 }

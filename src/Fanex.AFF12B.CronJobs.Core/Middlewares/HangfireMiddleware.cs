@@ -3,6 +3,7 @@ using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Contants;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Filters;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Fanex.Logging;
 using Hangfire;
@@ -53,15 +54,30 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             if (isRunFetchTask && isValidServer)
             {
                 Logger.Log.Info($"Affiliate 12B CronJobs are registered on {serverAddress} - {Dns.GetHostName()}");
+
+                //Normal Jobs
                 var productJobs = new List<FetchThirdPartyProductSetting>();
                 configuration.GetAppSettingsSection("ThirdPartyProductsSetting").Bind(productJobs);
 
                 foreach (var product in productJobs)
                 {
                     var setting = product.CronJobSetting;
-                    var jobName = $"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)}";
+                    var jobName = GetJobName(setting);
 
                     RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
+                }
+
+                //converted Transaction Id Jobs
+                var convertedTransactionIdProductJobs = new List<FetchThirdPartyProductSetting>();
+                configuration.GetAppSettingsSection("ConvertedTransactionIdProductsSetting").Bind(convertedTransactionIdProductJobs);
+
+                foreach (var convertedProduct in convertedTransactionIdProductJobs)
+                {
+                    var convertedProductSetting = convertedProduct.CronJobSetting;
+                    var convertedJobName = GetJobName(convertedProductSetting);
+
+                    RegisterTask<IFetchThirdPartyProductDataTask>(convertedJobName, convertedProduct.PullInfoCron,
+                        job => job.FetchConvertedTransactionIdDataAsync(convertedJobName, convertedProductSetting));
                 }
             }
         }
@@ -83,6 +99,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                             methodCall,
                             cronExpression);
             }
+        }
+
+        private static string GetJobName(ThirdPartyCronJobSetting setting)
+        {
+            return $"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)}";
         }
     }
 }
