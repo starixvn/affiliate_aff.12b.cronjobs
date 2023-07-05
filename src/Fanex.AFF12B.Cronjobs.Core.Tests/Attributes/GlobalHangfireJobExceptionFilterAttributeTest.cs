@@ -71,7 +71,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Attributes
         private static ElectStateContext GetElectStateContext(IState state)
         {
             var jobStorage = Substitute.For<JobStorage>();
-            var backgroundJob = new BackgroundJob("job-id", Job.FromExpression<IFetchThirdPartyProductDataTask>(job => job.FetchDataAsync("Job Test", new ThirdPartyCronJobSetting())), DateTime.UtcNow);
+            var backgroundJob = new BackgroundJob("job-id", Job.FromExpression<IFetchThirdPartyProductDataTask>(job => job.FetchDataAsync("Job Test", new ThirdPartyProductSetting())), DateTime.UtcNow);
             var storageConnection = Substitute.For<IStorageConnection>();
             var writeOnlyTransaction = Substitute.For<IWriteOnlyTransaction>();
             var applyStateContext = new ApplyStateContext(jobStorage, storageConnection, writeOnlyTransaction, backgroundJob, state, string.Empty);

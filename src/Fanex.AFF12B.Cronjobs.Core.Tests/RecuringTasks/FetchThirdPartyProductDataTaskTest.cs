@@ -37,7 +37,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
             var task = CreateFetchThirdPartyProductDataTask();
 
             //Action
-            await task.FetchDataAsync(string.Empty, new ThirdPartyCronJobSetting());
+            await task.FetchDataAsync(string.Empty, new ThirdPartyProductSetting());
 
             //Assert
             _logger.Received().Info("System is currently unavailable due to scheduled maintenance!");
@@ -53,7 +53,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
             var task = CreateFetchThirdPartyProductDataTask();
 
             //Action
-            await task.FetchDataAsync(string.Empty, new ThirdPartyCronJobSetting());
+            await task.FetchDataAsync(string.Empty, new ThirdPartyProductSetting());
 
             //Assert
             _logger.DidNotReceive().Info("System is currently unavailable due to scheduled maintenance!");

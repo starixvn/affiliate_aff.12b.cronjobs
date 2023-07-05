@@ -1,5 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
-using Fanex.AFF12B.CronJobs.Core.Contants;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
@@ -7,6 +6,7 @@ using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Logging;
 using Newtonsoft.Json;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -57,7 +57,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             _logger.Info(message);
         }
 
-        public async Task<string> ImportDataToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob = false)
+        public async Task<string> ImportDataToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob = false) where T : Ticket
         {
             var logBuilder = new StringBuilder();
             var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
@@ -95,7 +95,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
         }
 
-        private async Task ImportDataByTimeRangeToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob)
+        private async Task ImportDataByTimeRangeToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob) where T : Ticket
         {
             var dataList = await _pullDataService.GetJsonDataListAsync<T>(param);
             var queueParam = new QueueParam
@@ -106,7 +106,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             foreach (var data in dataList)
             {
-                queueParam.JsonData = HandleSerializeData(data);
+                queueParam.JsonData = HandleSerializeData(data, param);
 
                 await _queueRepository.AddQueue(queueParam);
             }
@@ -128,7 +128,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             }
         }
 
-        private static string HandleSerializeData<T>(ThirdPartyProductJson<T> data)
+        private static string HandleSerializeData<T>(ThirdPartyProductJson<T> data, ThirdPartyApiParam param) where T : Ticket
         {
             var ticket = data.BetTransTicket.FirstOrDefault();
             var typeOfTicket = ticket?.GetType();
@@ -153,6 +153,34 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 newData.BetTransTicket = newBetTransTicket;
 
                 return JsonConvert.SerializeObject(newData);
+            }
+
+            if (typeOfTicket.Name == typeof(AdjustedDateTimeTicket).Name)
+            {
+                try
+                {
+                    var newData = data as ThirdPartyProductJson<AdjustedDateTimeTicket>;
+
+                    var newBetTransTicket = newData.BetTransTicket.Select(t =>
+                    {
+                        var transactiondateTime = DateTime.ParseExact($"{t.TransactiondateTime}", param.FormatDateTime, CultureInfo.InvariantCulture);
+                        var convertedTransactiondateTime = transactiondateTime.AddHours(param.HoursAdjustment);
+                        t.TransactiondateTime = convertedTransactiondateTime.ToString(param.FormatDateTime);
+
+                        return t;
+                    }).ToList();
+
+                    newData.BetTransTicket = newBetTransTicket;
+
+                    return JsonConvert.SerializeObject(newData);
+                }
+                catch (Exception ex)
+                {
+                    var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
+                    var message = $"{SERVER_NAME} - {productName} - Can't ParseExact DateTime with {param.FormatDateTime} format: {ex.Message}";
+
+                    throw ErrorMessageHelper.FormatException(message, param);
+                }
             }
 
             return JsonConvert.SerializeObject(data);

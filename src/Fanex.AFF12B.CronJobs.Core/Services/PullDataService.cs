@@ -1,5 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Apis;
-using Fanex.AFF12B.CronJobs.Core.Contants;
+using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
@@ -48,7 +48,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return rawDataList;
         }
 
-        public async Task<IEnumerable<ThirdPartyProductJson<T>>> GetJsonDataListAsync<T>(ThirdPartyApiParam param)
+        public async Task<IEnumerable<ThirdPartyProductJson<T>>> GetJsonDataListAsync<T>(ThirdPartyApiParam param) where T : Ticket
         {
             var rawDataList = await GetRawDataListAsync(param);
             var convertedDataList = new List<ThirdPartyProductJson<T>>();
@@ -66,13 +66,13 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return await _thirdPartyProductApi.GetTPGBetTrans(param);
         }
 
-        private IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoList<T>(ThirdPartyProductRaw rawData, ThirdPartyApiParam param)
+        private IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoList<T>(ThirdPartyProductRaw rawData, ThirdPartyApiParam param) where T : Ticket
         {
             var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
 
             if (rawData is null)
             {
-                throw CustomException($"{productName} - Nothing respond from Api", param);
+                throw ErrorMessageHelper.FormatException($"{productName} - Nothing respond from Api", param);
             }
 
             var systemCodeToken = rawData.SystemCode;
@@ -81,7 +81,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             {
                 var message = $"{productName} - The 3rd api return ErrorCode: {systemCodeToken}, ErrorMessage: {rawData.SystemMessage}";
 
-                throw CustomException(message, param);
+                throw ErrorMessageHelper.FormatException(message, param);
             }
 
             var betTransTicketJToken = rawData.BetTransTicket;
@@ -112,7 +112,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return GetJsonDataRemovedDataInfoByTicketRange(jsonData, newBetTransTicketList);
         }
 
-        private static IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoByTicketRange<T>(ThirdPartyProductJson<T> jsonData, List<T> betTransTicketList)
+        private static IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoByTicketRange<T>(ThirdPartyProductJson<T> jsonData, List<T> betTransTicketList) where T : Ticket
         {
             var totalTickets = betTransTicketList.Count;
             var rangeNumbers = (totalTickets + MAX_TICKETS_IN_RANGE) / MAX_TICKETS_IN_RANGE;
@@ -141,7 +141,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return unescapedDataByRangeList;
         }
 
-        private static ThirdPartyProductJson<T> GetThirdPartyProductJsonObject<T>(BaseThirdPartyProduct rawData)
+        private static ThirdPartyProductJson<T> GetThirdPartyProductJsonObject<T>(BaseThirdPartyProduct rawData) where T : Ticket
         {
             return new ThirdPartyProductJson<T>
             {
@@ -150,15 +150,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 SystemCode = rawData.SystemCode,
                 SystemMessage = rawData.SystemMessage
             };
-        }
-
-        private static Exception CustomException(string initialMessage, ThirdPartyApiParam param)
-        {
-            var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine(initialMessage);
-            messageBuilder.Append($"Parameters: {JsonConvert.SerializeObject(param)}");
-
-            return new FormatException(messageBuilder.ToString());
         }
     }
 }

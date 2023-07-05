@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.Data;
 using System.ComponentModel.DataAnnotations;
 

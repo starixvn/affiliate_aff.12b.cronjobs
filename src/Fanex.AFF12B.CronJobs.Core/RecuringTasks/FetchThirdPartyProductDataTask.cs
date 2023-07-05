@@ -30,17 +30,22 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
             _maintenanceService = maintenanceService;
         }
 
-        public async Task FetchDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting)
+        public async Task FetchDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
         {
             await FetchDataAsync<Ticket>(cronJobSetting);
         }
 
-        public async Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyCronJobSetting cronJobSetting)
+        public async Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
         {
             await FetchDataAsync<ConvertedTransactionIdTicket>(cronJobSetting);
         }
 
-        public async Task FetchDataAsync<T>(ThirdPartyCronJobSetting cronJobSetting)
+        public async Task FetchAdjustedDateTimeDataAsync(string jobName, AdjustedDateTimeProductSetting cronJobSetting)
+        {
+            await FetchDataAsync<AdjustedDateTimeTicket>(cronJobSetting);
+        }
+
+        public async Task FetchDataAsync<T>(ThirdPartyProductSetting cronJobSetting) where T : Ticket
         {
             if (_maintenanceService.IsUnderMaintenance())
             {
@@ -61,10 +66,17 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
+            if(cronJobSetting.GetType().Name == typeof(AdjustedDateTimeProductSetting).Name)
+            {
+                var setting = cronJobSetting as AdjustedDateTimeProductSetting;
+                param.HoursAdjustment = setting.HoursAdjustment;
+                param.FormatDateTime = setting.FormatDateTime;
+            }    
+
             await _importDataService.ImportDataToDbAsync<T>(param, true);
         }
 
-        private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyCronJobSetting cronJobSetting)
+        private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyProductSetting cronJobSetting)
         {
             return await _importDataService.GetTimeTrackerAsync(cronJobSetting.TpType, cronJobSetting.SubItem);
         }

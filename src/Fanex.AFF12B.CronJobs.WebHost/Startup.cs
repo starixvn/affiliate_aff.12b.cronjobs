@@ -112,11 +112,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
                 app.UseWhen(
                     context => !context.Request.FromInternal(),
-                    builder =>
-                    {
-                        builder.Properties["server.Features"] = app.ServerFeatures;
-                        builder.UseHttpsRedirection();
-                    });
+                    builder => builder.UseHttpsRedirection());
             }
 
             app.UseStaticResource(env.IsDevelopment());

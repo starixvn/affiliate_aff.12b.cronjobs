@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using System.ComponentModel.DataAnnotations;
 
 namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
