@@ -15,6 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
         public DateTime BeginDate { get; set; }
 
         [Required]
+        [JsonIgnore]
         public DateTime EndDate { get; set; }
 
         [JsonIgnore]
