@@ -1,4 +1,4 @@
 include:
-    - project: "ci/repos-ci/legion_aff_12b_cronjobs"
-      ref: master
-      file: "gitlab-ci.yml"
+    - project: "ci/core-cicd"
+      ref: main
+      file: "nexcel.gitlab-ci.yml"
