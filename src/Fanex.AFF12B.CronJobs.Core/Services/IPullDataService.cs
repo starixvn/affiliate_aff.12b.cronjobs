@@ -9,6 +9,6 @@
     {
         Task<IEnumerable<ThirdPartyProductRaw>> GetRawDataListAsync(ThirdPartyApiParam param);
 
-        Task<IEnumerable<ThirdPartyProductJson>> GetJsonDataListAsync(ThirdPartyApiParam param);
+        Task<IEnumerable<ThirdPartyProductJson<T>>> GetJsonDataListAsync<T>(ThirdPartyApiParam param) where T : Ticket;
     }
 }

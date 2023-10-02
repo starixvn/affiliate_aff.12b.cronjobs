@@ -11,6 +11,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
 
         bool IsRunFetchTask { get; }
 
-        List<FetchThirdPartyProductSetting> ProductJobs { get; }
+        List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>> ProductJobs { get; }
+
+        List<ThirdPartyCronJobSetting<AdjustedDateTimeProductSetting>> ConvertedTimeZoneProductJobs { get; }
     }
 }

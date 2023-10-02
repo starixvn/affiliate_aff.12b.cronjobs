@@ -1,7 +1,6 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Fanex.AFF12B.CronJobs.Core.Contants
+namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class Product
     {
@@ -30,7 +29,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             { "27", "12Diamond" },
         };
 
-        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem, string title = null)
+        public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem)
         {
             var productName = "Unknown";
             var key = tpType + subItem;
@@ -38,7 +37,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Contants
             if (ProductNames.ContainsKey(key))
             {
                 ProductNames.TryGetValue(key, out productName);
-            }    
+            }
 
             return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";
         }

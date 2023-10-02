@@ -1,21 +1,25 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
+﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.Logging;
 using Hangfire.Common;
 using Hangfire.States;
 using Newtonsoft.Json;
-using System.Text;
 using System;
-using System.Net;
+using System.Text;
 
-namespace Fanex.AFF12B.CronJobs.Core.Filters
+namespace Fanex.AFF12B.CronJobs.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Interface)]
     public class GlobalHangfireJobExceptionFilterAttribute : JobFilterAttribute, IElectStateFilter
     {
-        public GlobalHangfireJobExceptionFilterAttribute()
+        private readonly ILogger _logger;
+
+        public GlobalHangfireJobExceptionFilterAttribute() : this(null)
         {
+        }
+
+        public GlobalHangfireJobExceptionFilterAttribute(ILogger logger)
+        {
+            _logger = logger ?? Logger.Log;
         }
 
         public void OnStateElection(ElectStateContext context)
@@ -23,7 +27,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Filters
             if (context.CandidateState is FailedState failedState)
             {
                 var exception = failedState.Exception;
-                Logger.Log.Error(GenerateJobException(context), exception);
+                _logger.Error(GenerateJobException(context), exception);
             }
         }
 

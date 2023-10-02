@@ -1,15 +1,17 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
+using Fanex.AFF12B.CronJobs.Core.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
-using Newtonsoft.Json;
-using System.Text;
-using Fanex.AFF12B.CronJobs.Core.Constant;
 using Fanex.Logging;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 using System;
+using System.Globalization;
+using System.Linq;
 using System.Net;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -17,15 +19,18 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
     {
         private static readonly string SERVER_NAME = Dns.GetHostName();
 
+        private readonly ILogger _logger;
         private readonly IQueueRepository _queueRepository;
         private readonly ITrackerRepository _trackerRepository;
         private readonly IPullDataService _pullDataService;
 
         public ImportDataService(
+            ILogger logger,
             IQueueRepository queueRepository,
             ITrackerRepository trackerRepository,
             IPullDataService pullDataService)
         {
+            _logger = logger;
             _queueRepository = queueRepository;
             _trackerRepository = trackerRepository;
             _pullDataService = pullDataService;
@@ -34,7 +39,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         public async Task<DateTime> GetTimeTrackerAsync(int tpType, string subItem = DefaultValue.String)
         {
             var timeTracker = await _trackerRepository.GetTracker(tpType, subItem);
-            
+
             if (timeTracker is null)
             {
                 var now = DateTime.Now;
@@ -49,17 +54,17 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             await _trackerRepository.AddTracker(param);
 
             var message = $"{SERVER_NAME} - Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
-            Logger.Log.Info(message);
+            _logger.Info(message);
         }
 
-        public async Task<string> ImportDataToDbAsync(ThirdPartyApiParam param, bool isFromRunningJob = false)
+        public async Task<string> ImportDataToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob = false) where T : Ticket
         {
             var logBuilder = new StringBuilder();
             var message = $"import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}";
 
             try
             {
-                Logger.Log.Info($"{SERVER_NAME} - Starting {message}");
+                _logger.Info($"{SERVER_NAME} - Starting {message}");
 
                 var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
                 var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
@@ -71,10 +76,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     param.EndDate = range.Item2;
 
                     await Task.Delay(param.MillisecondsDeplay, CancellationToken.None);
-                    await ImportDataByTimeRangeToDbAsync(param, isFromRunningJob).ConfigureAwait(false);
+                    await ImportDataByTimeRangeToDbAsync<T>(param, isFromRunningJob).ConfigureAwait(false);
                 }
 
-                Logger.Log.Info($"{SERVER_NAME} - Finished {message}");
+                _logger.Info($"{SERVER_NAME} - Finished {message}");
 
                 return $"Finished {message}";
             }
@@ -84,15 +89,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 var logMessage = logBuilder.ToString();
 
-                await Logger.Log.ErrorAsync(logMessage);
+                await _logger.ErrorAsync(logMessage);
 
                 return logMessage;
             }
         }
 
-        private async Task ImportDataByTimeRangeToDbAsync(ThirdPartyApiParam param, bool isFromRunningJob)
+        private async Task ImportDataByTimeRangeToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob) where T : Ticket
         {
-            var dataList = await _pullDataService.GetJsonDataListAsync(param);
+            var dataList = await _pullDataService.GetJsonDataListAsync<T>(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,
@@ -101,12 +106,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             foreach (var data in dataList)
             {
-                queueParam.JsonData = JsonConvert.SerializeObject(data);
+                queueParam.JsonData = HandleSerializeData(data, param);
 
                 await _queueRepository.AddQueue(queueParam);
             }
 
-            if(isFromRunningJob)
+            if (isFromRunningJob)
             {
                 var trackerParam = new TrackerParam
                 {
@@ -115,10 +120,70 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     CallTime = param.EndDate
                 };
                 await _trackerRepository.AddTracker(trackerParam);
-            } else
-            {
-                Logger.Log.Info($"{SERVER_NAME} - Finished manually import {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
             }
+            else
+            {
+                var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
+                _logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
+            }
+        }
+
+        private static string HandleSerializeData<T>(ThirdPartyProductJson<T> data, ThirdPartyApiParam param) where T : Ticket
+        {
+            var ticket = data.BetTransTicket.FirstOrDefault();
+            var typeOfTicket = ticket?.GetType();
+
+            if(typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
+            {
+                return JsonConvert.SerializeObject(data);
+            }    
+
+            if (typeOfTicket.Name == typeof(ConvertedTransactionIdTicket).Name)
+            {
+                var newData = data as ThirdPartyProductJson<ConvertedTransactionIdTicket>;
+
+                var newBetTransTicket = newData.BetTransTicket.Select(t =>
+                {
+                    var uniqueTransactionId = t.TransactiondateTime + t.TransactionId;
+                    t.TransactionId = uniqueTransactionId;
+
+                    return t;
+                }).ToList();
+
+                newData.BetTransTicket = newBetTransTicket;
+
+                return JsonConvert.SerializeObject(newData);
+            }
+
+            if (typeOfTicket.Name == typeof(AdjustedDateTimeTicket).Name)
+            {
+                try
+                {
+                    var newData = data as ThirdPartyProductJson<AdjustedDateTimeTicket>;
+
+                    var newBetTransTicket = newData.BetTransTicket.Select(t =>
+                    {
+                        var transactiondateTime = DateTime.ParseExact($"{t.TransactiondateTime}", param.FormatDateTime, CultureInfo.InvariantCulture);
+                        var convertedTransactiondateTime = transactiondateTime.AddHours(param.HoursAdjustment);
+                        t.TransactiondateTime = convertedTransactiondateTime.ToString(param.FormatDateTime);
+
+                        return t;
+                    }).ToList();
+
+                    newData.BetTransTicket = newBetTransTicket;
+
+                    return JsonConvert.SerializeObject(newData);
+                }
+                catch (Exception ex)
+                {
+                    var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
+                    var message = $"{SERVER_NAME} - {productName} - Can't ParseExact DateTime with {param.FormatDateTime} format: {ex.Message}";
+
+                    throw ErrorMessageHelper.FormatException(message, param);
+                }
+            }
+
+            return JsonConvert.SerializeObject(data);
         }
     }
 }

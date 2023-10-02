@@ -1,25 +1,22 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Extensions;
+﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.Core.Constants;
+using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Filters;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using Fanex.Logging;
 using Hangfire;
-using Hangfire.Dashboard;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq.Expressions;
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Http;
 using System;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
-using Fanex.Logging;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -30,7 +27,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             // Add Hangfire services.
             services.AddHangfire(config =>
             {
-                var memoryOption = new MemoryStorageOptions() { FetchNextJobTimeout = TimeSpan.FromHours(6) };
+                var memoryOption = new MemoryStorageOptions { FetchNextJobTimeout = TimeSpan.FromHours(6) };
                 config.UseMemoryStorage(memoryOption);
                 config.UseFilter(new GlobalHangfireJobExceptionFilterAttribute());
             });
@@ -46,7 +43,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         {
             app.UseHangfireDashboard($"/hangfire", new DashboardOptions
             {
-                Authorization = new[] { new AuthorizationFilter(tokenValidationParameters) }
+                Authorization = new[] { new DashboardAuthorizationFilter(tokenValidationParameters) }
             });
 
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
@@ -56,15 +53,43 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             if (isRunFetchTask && isValidServer)
             {
                 Logger.Log.Info($"Affiliate 12B CronJobs are registered on {serverAddress} - {Dns.GetHostName()}");
-                var productJobs = new List<FetchThirdPartyProductSetting>();
+
+                //Normal Jobs
+                var productJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>>();
                 configuration.GetAppSettingsSection("ThirdPartyProductsSetting").Bind(productJobs);
 
                 foreach (var product in productJobs)
                 {
                     var setting = product.CronJobSetting;
-                    var jobName = $"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)}";
+                    var jobName = GetJobName(setting);
 
                     RegisterTask<IFetchThirdPartyProductDataTask>(jobName, product.PullInfoCron, job => job.FetchDataAsync(jobName, setting));
+                }
+
+                //converted Transaction Id Jobs
+                var transactionIdProductJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>>();
+                configuration.GetAppSettingsSection("ConvertedTransactionIdProductsSetting").Bind(transactionIdProductJobs);
+
+                foreach (var transactionIdProduct in transactionIdProductJobs)
+                {
+                    var transactionIdProductSetting = transactionIdProduct.CronJobSetting;
+                    var transactionIdJobName = GetJobName(transactionIdProductSetting);
+
+                    RegisterTask<IFetchThirdPartyProductDataTask>(transactionIdJobName, transactionIdProduct.PullInfoCron,
+                        job => job.FetchConvertedTransactionIdDataAsync(transactionIdJobName, transactionIdProductSetting));
+                }
+
+                //Adjusted DateTime Jobs
+                var adjustedProductJobs = new List<ThirdPartyCronJobSetting<AdjustedDateTimeProductSetting>>();
+                configuration.GetAppSettingsSection("AdjustedDateTimeProductsSetting").Bind(adjustedProductJobs);
+
+                foreach (var adjustedProduct in adjustedProductJobs)
+                {
+                    var adjustedProductSetting = adjustedProduct.CronJobSetting;
+                    var adjustedJobName = GetJobName(adjustedProductSetting);
+
+                    RegisterTask<IFetchThirdPartyProductDataTask>(adjustedJobName, adjustedProduct.PullInfoCron,
+                        job => job.FetchAdjustedDateTimeDataAsync(adjustedJobName, adjustedProductSetting));
                 }
             }
         }
@@ -72,7 +97,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         private static bool IsValidServer(string serverPath, string serverAddress)
         {
             var baseDirectory = AppContext.BaseDirectory;
-            var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName()); 
+            var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName());
 
             return baseDirectory.Contains(serverPath) && hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
@@ -88,71 +113,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             }
         }
 
-        public class AuthorizationFilter : IDashboardAuthorizationFilter
+        private static string GetJobName(ThirdPartyProductSetting setting)
         {
-            private static readonly int CookieExpirationMinutes = 30;
-            private static readonly string Aff12BHangFireCookieName = "Aff_12B_HangFire_Cookie";
-
-            private readonly TokenValidationParameters tokenValidationParameters;
-
-            public AuthorizationFilter(TokenValidationParameters tokenValidationParameters)
-            {
-                this.tokenValidationParameters = tokenValidationParameters;
-            }
-            public bool Authorize(DashboardContext context)
-            {
-                var httpContext = context.GetHttpContext();
-                if (httpContext.User.Identity.IsAuthenticated)
-                {
-                    return true;
-                }
-
-                var shouldSetCookie = false;
-
-                string accessToken;
-                if (httpContext.Request.Query.ContainsKey("access_token"))
-                {
-                    shouldSetCookie = true;
-                    accessToken = httpContext.Request.Query["access_token"].FirstOrDefault();
-                }
-                else
-                {
-                    accessToken = httpContext.Request.Cookies[Aff12BHangFireCookieName];
-                }
-
-                if (!string.IsNullOrEmpty(accessToken))
-                {
-                    try
-                    {
-                        var handler = new JwtSecurityTokenHandler();
-                        var claims = handler.ValidateToken(accessToken, this.tokenValidationParameters, out _);
-                        if (!claims.Identity.IsAuthenticated)
-                        {
-                            return false;
-                        }
-
-                        if (shouldSetCookie)
-                        {
-                            httpContext.Response.Cookies.Append(Aff12BHangFireCookieName,
-                                accessToken,
-                                new CookieOptions
-                                {
-                                    Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes),
-                                    HttpOnly = true,
-                                    Secure = true,
-                                    SameSite = SameSiteMode.Strict
-                                });
-                        }
-
-                        return true;
-                    }
-                    catch (Exception ex) {
-                        Logger.Log.Warn(ErrorMessageHelper.GenerateMessage(ex));
-                    }
-                }
-
-                return false;
-            }
+            return $"{Dns.GetHostName()} - {Product.GetProductNameByTpTypeAndSubItem(setting.TpType, setting.SubItem)}";
         }
     }
 }

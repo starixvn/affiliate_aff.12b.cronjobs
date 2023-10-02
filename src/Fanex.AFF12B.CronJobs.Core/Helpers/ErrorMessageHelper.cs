@@ -1,5 +1,7 @@
-﻿using Fanex.Data;
+﻿using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.Data;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -10,6 +12,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
 {
     public static class ErrorMessageHelper
     {
+        public static Exception FormatException(string initialMessage, ThirdPartyApiParam param)
+        {
+            var messageBuilder = new StringBuilder();
+            messageBuilder.AppendLine(initialMessage);
+            messageBuilder.Append($"Parameters: {JsonConvert.SerializeObject(param)}");
+
+            return new FormatException(messageBuilder.ToString());
+        }
+
         public static string GenerateMessage(Exception exception, HttpContext context = null, string message = null)
         {
             var messageBuilder = new StringBuilder();

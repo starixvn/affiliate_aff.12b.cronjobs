@@ -7,7 +7,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Apis
 {
     public interface IThirdPartyProductApi
     {
-        [Post("/ThirdPartyGame/GetTPBettingTickets")]
-        Task<ThirdPartyProductRaw> GetTPBettingTickets([Body(BodySerializationMethod.UrlEncoded)] ThirdPartyApiParam param);
+        [Post("/TPGTickets/GetTPGBetTrans")]
+        Task<ThirdPartyProductRaw> GetTPGBetTrans([Body(BodySerializationMethod.UrlEncoded)] ThirdPartyApiParam param);
     }
 }

@@ -28,12 +28,23 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
             }
         }
 
-        public List<FetchThirdPartyProductSetting> ProductJobs
+        public List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>> ProductJobs
         {
             get
             {
-                var productJobs = new List<FetchThirdPartyProductSetting>();
+                var productJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>>();
                 _configuration.GetAppSettingsSection("ThirdPartyProductsSetting").Bind(productJobs);
+
+                return productJobs;
+            }
+        }
+
+        public List<ThirdPartyCronJobSetting<AdjustedDateTimeProductSetting>> ConvertedTimeZoneProductJobs
+        {
+            get
+            {
+                var productJobs = new List<ThirdPartyCronJobSetting<AdjustedDateTimeProductSetting>>();
+                _configuration.GetAppSettingsSection("ConvertedTimeZoneProductsSetting").Bind(productJobs);
 
                 return productJobs;
             }

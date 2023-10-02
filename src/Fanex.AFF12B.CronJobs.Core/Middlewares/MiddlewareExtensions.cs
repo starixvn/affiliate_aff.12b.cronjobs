@@ -6,7 +6,6 @@ using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
 using Hangfire;
-using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -25,8 +24,6 @@ using SharpRaven;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -117,10 +114,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         public static void InitApi(this IServiceCollection services, IConfiguration configuration)
         {
-            var apiSetting = configuration.GetSection("ApiOptions").Get<ApiOptions>();
+            var section = configuration.GetSection("ApiOptions");
+            var apiSetting = section.Get<ApiOptions>();
 
             services.AddRefitClient<IThirdPartyProductApi>()
-                .ConfigureHttpClient(c => {
+                .ConfigureHttpClient(c =>
+                {
                     c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
                 });

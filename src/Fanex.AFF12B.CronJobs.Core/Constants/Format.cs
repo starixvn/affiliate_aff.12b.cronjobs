@@ -1,11 +1,13 @@
 ﻿
 using System;
 
-namespace Fanex.AFF12B.CronJobs.Core.Contants
+namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class Format
     {
         private const string DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-ddTHH:mm:ss.fff";
+
+        public static string DefaultFomartDateTime => DEFAULT_DATE_TIME_FORMAT;
 
         public static string FormatDateTime(this DateTime dateTime, string dateTimeFormat = DEFAULT_DATE_TIME_FORMAT)
         {

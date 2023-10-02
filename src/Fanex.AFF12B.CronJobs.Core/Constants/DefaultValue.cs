@@ -1,4 +1,4 @@
-﻿namespace Fanex.AFF12B.CronJobs.Core.Constant
+﻿namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class DefaultValue
     {

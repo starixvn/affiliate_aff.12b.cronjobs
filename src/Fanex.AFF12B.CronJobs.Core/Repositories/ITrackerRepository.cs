@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using System;
 using System.Threading.Tasks;

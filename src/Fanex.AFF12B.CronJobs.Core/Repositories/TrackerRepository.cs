@@ -1,4 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constant;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.Data;
 using System;
@@ -22,8 +22,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Repositories
             const string SpName = "Task_APIProduct_CallTimeByProductSel";
 
             using var db = ObjectDbFactory.CreateInstance(SpName);
+            db.SetParameterValue(nameof(tpType), tpType);
+            db.SetParameterValue(nameof(subItem), subItem);
 
-            return db.QueryEntityAsync<DateTime?>(new { tpType, subItem });
+            return db.QueryEntityAsync<DateTime?>();
         }
     }
 }

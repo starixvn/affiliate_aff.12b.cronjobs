@@ -10,11 +10,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
     public class ErrorHandler
     {
+        private readonly ILogger _logger;
         private const int ServerErrorCode = 500;
         private readonly RequestDelegate _next;
 
-        public ErrorHandler(RequestDelegate next)
+        public ErrorHandler(
+            ILogger logger,
+            RequestDelegate next)
         {
+            _logger = logger;
             _next = next;
         }
         public async Task Invoke(HttpContext context)
@@ -40,7 +44,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             context.Response.ContentType = "application/json";
 
             var errorMsg = ErrorMessageHelper.GenerateMessage(ex, context);
-            Logger.Log.Error(errorMsg);
+            _logger.Error(errorMsg);
 
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new
             {

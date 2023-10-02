@@ -1,16 +1,14 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Apis;
-using Fanex.AFF12B.CronJobs.Core.Contants;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
+using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Fanex.Logging;
-using System.Collections.Generic;
 using System;
-using System.Threading.Tasks;
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
+using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -50,14 +48,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return rawDataList;
         }
 
-        public async Task<IEnumerable<ThirdPartyProductJson>> GetJsonDataListAsync(ThirdPartyApiParam param)
+        public async Task<IEnumerable<ThirdPartyProductJson<T>>> GetJsonDataListAsync<T>(ThirdPartyApiParam param) where T : Ticket
         {
             var rawDataList = await GetRawDataListAsync(param);
-            var convertedDataList = new List<ThirdPartyProductJson>();
+            var convertedDataList = new List<ThirdPartyProductJson<T>>();
 
             foreach (var rawData in rawDataList)
             {
-                convertedDataList.AddRange(GetJsonDataRemovedDataInfoList(rawData, param));
+                convertedDataList.AddRange(GetJsonDataRemovedDataInfoList<T>(rawData, param));
             }
 
             return convertedDataList;
@@ -65,35 +63,41 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task<ThirdPartyProductRaw> GetRawDataAsync(ThirdPartyApiParam param)
         {
-            return await _thirdPartyProductApi.GetTPBettingTickets(param);
+            return await _thirdPartyProductApi.GetTPGBetTrans(param);
         }
 
-        private IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoList(ThirdPartyProductRaw rawData, ThirdPartyApiParam param)
+        private IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoList<T>(ThirdPartyProductRaw rawData, ThirdPartyApiParam param) where T : Ticket
         {
             var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
-            var rawDataString = JsonConvert.SerializeObject(rawData);
 
             if (rawData is null)
             {
-                throw CustomException($"{productName} - Nothing respond from Api", param);
+                throw ErrorMessageHelper.FormatException($"{productName} - Nothing respond from Api", param);
             }
 
             var systemCodeToken = rawData.SystemCode;
-            if (string.IsNullOrEmpty(systemCodeToken) || !(systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET)))
+            var isCodeSuccess = systemCodeToken.Equals(CODE_SUCCESS) || systemCodeToken.Equals(CODE_SUCCESS_NO_TICKET) || systemCodeToken.Equals(CODE_SUCCESS_NO_VALID_TICKET);
+            if (string.IsNullOrWhiteSpace(systemCodeToken) || !isCodeSuccess)
             {
                 var message = $"{productName} - The 3rd api return ErrorCode: {systemCodeToken}, ErrorMessage: {rawData.SystemMessage}";
 
-                throw CustomException(message, param);
+                throw ErrorMessageHelper.FormatException(message, param);
             }
 
             var betTransTicketJToken = rawData.BetTransTicket;
-            if (string.IsNullOrEmpty(betTransTicketJToken))
+            if (string.IsNullOrWhiteSpace(betTransTicketJToken))
             {
-                return new List<ThirdPartyProductJson> { JsonConvert.DeserializeObject<ThirdPartyProductJson>(rawDataString) };
+                return new List<ThirdPartyProductJson<T>> { new ThirdPartyProductJson<T> {
+                    BetTransTicket = new List<T>(),
+                    Count = rawData.Count,
+                    VersionKey = rawData.VersionKey,
+                    SystemCode = rawData.SystemCode,
+                    SystemMessage = rawData.SystemMessage
+                }};
             }
 
             var betTransTicketList = JArray.Parse(betTransTicketJToken);
-            List<Ticket> newBetTransTicketList = new List<Ticket>();
+            List<T> newBetTransTicketList = new List<T>();
 
             foreach (var item in betTransTicketList)
             {
@@ -101,18 +105,18 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 ticket.Remove("datainfo");
 
-                newBetTransTicketList.Add(JsonConvert.DeserializeObject<Ticket>(ticket.ToString()));
+                newBetTransTicketList.Add(JsonConvert.DeserializeObject<T>(ticket.ToString()));
             }
-            var jsonData = GetThirdPartyProductJsonObject(rawData);
+            var jsonData = GetThirdPartyProductJsonObject<T>(rawData);
 
             return GetJsonDataRemovedDataInfoByTicketRange(jsonData, newBetTransTicketList);
         }
 
-        private static IEnumerable<ThirdPartyProductJson> GetJsonDataRemovedDataInfoByTicketRange(ThirdPartyProductJson jsonData, List<Ticket> betTransTicketList)
+        private static IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoByTicketRange<T>(ThirdPartyProductJson<T> jsonData, List<T> betTransTicketList) where T : Ticket
         {
-            var totalTickets = betTransTicketList.Count();
+            var totalTickets = betTransTicketList.Count;
             var rangeNumbers = (totalTickets + MAX_TICKETS_IN_RANGE) / MAX_TICKETS_IN_RANGE;
-            var unescapedDataByRangeList = new List<ThirdPartyProductJson>();
+            var unescapedDataByRangeList = new List<ThirdPartyProductJson<T>>();
 
             if (rangeNumbers == MIN_RANGE_NUMBER)
             {
@@ -123,7 +127,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             {
                 for (int i = 0; i < rangeNumbers; i++)
                 {
-                    var newObjectData = GetThirdPartyProductJsonObject(jsonData);
+                    var newObjectData = GetThirdPartyProductJsonObject<T>(jsonData);
                     var ticketNumber = i == (rangeNumbers - 1) ? (totalTickets - (i * MAX_TICKETS_IN_RANGE)) : MAX_TICKETS_IN_RANGE;
                     var ticketList = betTransTicketList.GetRange(i * MAX_TICKETS_IN_RANGE, ticketNumber);
 
@@ -137,24 +141,15 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             return unescapedDataByRangeList;
         }
 
-        private static ThirdPartyProductJson GetThirdPartyProductJsonObject(BaseThirdPartyProduct rawData)
+        private static ThirdPartyProductJson<T> GetThirdPartyProductJsonObject<T>(BaseThirdPartyProduct rawData) where T : Ticket
         {
-            return new ThirdPartyProductJson
+            return new ThirdPartyProductJson<T>
             {
                 Count = rawData.Count,
                 VersionKey = rawData.VersionKey,
                 SystemCode = rawData.SystemCode,
                 SystemMessage = rawData.SystemMessage
             };
-        }
-
-        private static Exception CustomException(string initialMessage, ThirdPartyApiParam param)
-        {
-            var messageBuilder = new StringBuilder();
-            messageBuilder.AppendLine(initialMessage);
-            messageBuilder.Append($"Parameters: {JsonConvert.SerializeObject(param)}");
-
-            return new Exception(messageBuilder.ToString());
         }
     }
 }
