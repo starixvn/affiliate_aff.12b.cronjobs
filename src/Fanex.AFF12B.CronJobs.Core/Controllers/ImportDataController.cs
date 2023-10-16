@@ -72,5 +72,19 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
 
             return BadRequest(ModelState);
         }
+
+        [HttpPost("api/ImportAdjustedDateTimeTicketData")]
+        public async Task<ActionResult> ImportAdjustedDateTimeTicketDataToDbAsync([FromQuery] QueryParam param)
+        {
+            if (ModelState.IsValid)
+            {
+                SetMaxMinutesRange(param);
+                var result = await _importDataService.ImportDataToDbAsync<AdjustedDateTimeTicket>(param);
+
+                return new JsonResult(result);
+            }
+
+            return BadRequest(ModelState);
+        }
     }
 }
