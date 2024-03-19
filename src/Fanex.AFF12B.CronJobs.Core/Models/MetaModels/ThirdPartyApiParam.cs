@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Fanex.AFF12B.CronJobs.Core.Constants;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -28,8 +29,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Models.MetaModels
 
         [JsonIgnore]
         [Range(MinHoursAdjustment, MaxHoursAdjustment)]
-        public int HoursAdjustment { get; set; }
+        public int HoursAdjustment { get; set; } = MaxHoursAdjustment;
 
-        public string FormatDateTime { get; set; }
+        [JsonIgnore]
+        public string FormatDateTime { get; set; } = Format.DefaultFomartDateTime;
     }
 }
