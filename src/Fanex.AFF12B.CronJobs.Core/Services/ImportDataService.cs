@@ -42,8 +42,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             if (timeTracker is null)
             {
-                var now = DateTime.Now;
-                return new DateTime(now.Year, now.Month, 01, 00, 00, 00, 00);
+                var now = DateTimeOffset.Now;
+                return new DateTimeOffset(now.Year, now.Month, 01, 00, 00, 00, TimeSpan.Zero).DateTime;
             }
 
             return (DateTime)timeTracker;
@@ -133,10 +133,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             var ticket = data.BetTransTicket.FirstOrDefault();
             var typeOfTicket = ticket?.GetType();
 
-            if(typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
+            if (typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
             {
                 return JsonConvert.SerializeObject(data);
-            }    
+            }
 
             if (typeOfTicket.Name == typeof(ConvertedTransactionIdTicket).Name)
             {

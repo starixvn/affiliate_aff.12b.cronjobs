@@ -2,7 +2,6 @@
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
@@ -16,7 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         }
 
         public bool IsValidUser(string username, string password)
-            => _users.Any(x => x.UserName.Equals(username)
+            => _users.Exists(x => x.UserName.Equals(username)
             && x.Password.Equals(password.Sha256()));
     }
 }

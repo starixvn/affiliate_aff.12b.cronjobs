@@ -66,12 +66,12 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
-            if(cronJobSetting.GetType().Name == typeof(AdjustedDateTimeProductSetting).Name)
+            if (cronJobSetting.GetType().Name == typeof(AdjustedDateTimeProductSetting).Name)
             {
                 var setting = cronJobSetting as AdjustedDateTimeProductSetting;
                 param.HoursAdjustment = setting.HoursAdjustment;
                 param.FormatDateTime = setting.FormatDateTime;
-            }    
+            }
 
             await _importDataService.ImportDataToDbAsync<T>(param, true);
         }

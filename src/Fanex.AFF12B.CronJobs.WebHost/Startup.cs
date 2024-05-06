@@ -7,6 +7,7 @@ using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Services;
+using Fanex.AFF12B.CronJobs.Core.Utilities;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -18,9 +19,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System;
 using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
@@ -44,7 +45,32 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-                services.AddSwaggerGen();
+                services.AddSwaggerGen(c =>
+                {
+                    var jwtSecurityScheme = new OpenApiSecurityScheme
+                    {
+                        BearerFormat = "JWT",
+                        Name = "JWT Authentication",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+
+                        Reference = new OpenApiReference
+                        {
+                            Id = JwtBearerDefaults.AuthenticationScheme,
+                            Type = ReferenceType.SecurityScheme
+                        }
+                    };
+
+                    c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { jwtSecurityScheme, Array.Empty<string>() }
+                });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Aff.AFF12B.Cronjobs", Version = "v1" });
+                });
             }
 
             services.Configure<TokenManagementOptions>(Configuration.GetSection("TokenManagementOptions"));
@@ -115,15 +141,16 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                     builder => builder.UseHttpsRedirection());
             }
 
-            app.UseStaticResource(env.IsDevelopment());
             app.UseUnderMaintenance();
             app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
             app.UseRouting();
             app.UseJWTokenOnPage();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
-            app.UseHangfire(Configuration, GetTokenValidationParameters());
+            app.UseHangfire(Configuration);
 
             app.UseResponseCaching();
             app.UseEndpoints(endpoints =>
@@ -163,38 +190,19 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
-                    x.TokenValidationParameters = GetTokenValidationParameters();
+                    x.TokenValidationParameters = TokenUtils.GetTokenValidationParameters(Configuration);
                     x.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>
                         {
                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {
-                                context.Response.Headers.Add("Token-Expired", "true");
+                                context.Response.Headers.Append("Token-Expired", "true");
                             }
                             return Task.CompletedTask;
                         }
                     };
                 });
-        }
-
-        private TokenValidationParameters GetTokenValidationParameters()
-        {
-            var token = Configuration.GetSection("TokenManagementOptions").Get<TokenManagementOptions>();
-
-            return token != null ? new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
-                TokenDecryptionKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
-                ValidIssuer = token.Issuer,
-                ValidAudience = token.Audience,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                RoleClaimType = ClaimsIdentity.DefaultNameClaimType,
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-            } : new TokenValidationParameters();
         }
     }
 }

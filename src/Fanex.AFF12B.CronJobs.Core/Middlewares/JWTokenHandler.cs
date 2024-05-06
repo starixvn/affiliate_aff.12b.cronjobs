@@ -15,6 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         {
             _next = next;
         }
+
         public async Task Invoke(HttpContext context)
         {
             if (!context.Request.Headers.ContainsKey(HeaderAuthKey))
@@ -22,7 +23,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 var token = GetToken(context);
                 if (!string.IsNullOrEmpty(token))
                 {
-                    context.Request.Headers.Add(HeaderAuthKey, SuffixTokenValue + token);
+                    context.Request.Headers.Append(HeaderAuthKey, SuffixTokenValue + token);
                 }
             }
 

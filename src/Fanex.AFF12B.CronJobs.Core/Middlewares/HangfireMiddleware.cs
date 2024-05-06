@@ -4,16 +4,15 @@ using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Filters;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.Core.Utilities;
 using Fanex.Logging;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
 using System.Threading.Tasks;
@@ -39,8 +38,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             });
         }
 
-        public static void UseHangfire(this IApplicationBuilder app, IConfiguration configuration, TokenValidationParameters tokenValidationParameters)
+        public static void UseHangfire(this IApplicationBuilder app, IConfiguration configuration)
         {
+            var tokenValidationParameters = TokenUtils.GetTokenValidationParameters(configuration);
+
             app.UseHangfireDashboard($"/hangfire", new DashboardOptions
             {
                 Authorization = new[] { new DashboardAuthorizationFilter(tokenValidationParameters) }
@@ -97,7 +98,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         {
             var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName());
 
-            return hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
+            return Array.Exists(hostAddresss, add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
         private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)

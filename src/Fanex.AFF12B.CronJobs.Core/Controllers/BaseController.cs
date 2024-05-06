@@ -18,7 +18,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             _appSettings = appSettings;
         }
 
-        protected void SetMaxMinutesRange(QueryParam param)
+        protected void SetMaxMinutesRange(ThirdPartyApiParam param)
         {
             param.MaxMinutesRange = param.MaxMinutesRange == 0 ? _appSettings.MaxMinutesRange : param.MaxMinutesRange;
         }

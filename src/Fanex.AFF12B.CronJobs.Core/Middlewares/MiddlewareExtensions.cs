@@ -5,7 +5,6 @@ using Fanex.Data;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
-using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -24,8 +23,8 @@ using SharpRaven;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Net;
+using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -119,7 +118,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             var section = configuration.GetSection("ApiOptions");
             var apiSetting = section.Get<ApiOptions>();
 
-            Func<HttpClientHandler> defaultFuncHttpHandler = () => new HttpClientHandler()
+            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler
             {
                 Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
                   ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
@@ -133,7 +132,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                     c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
                 })
-                .ConfigurePrimaryHttpMessageHandler(defaultFuncHttpHandler);
+                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
         }
 
         public static void InitFanexData(this IServiceCollection _, IConfiguration configuration)
@@ -152,7 +151,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
               .Run();
         }
 
-
         public static void AddUnderMaintenance(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(new UMClientConfiguration().Initialize(configuration));
@@ -162,7 +160,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             services.AddSingleton<IHttpContextHelper, ContextInMemoryHelper>();
             services.AddSingleton<IMaintenanceService, MaintenanceService>();
         }
-
 
         internal class ContextInMemoryHelper : IHttpContextHelper
         {

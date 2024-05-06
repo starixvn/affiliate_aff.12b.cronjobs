@@ -19,7 +19,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpGet("api/GetRawData")]
-        public async Task<ActionResult> GetRawDataListAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> GetRawDataListAsync([FromQuery] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
@@ -33,7 +33,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpGet("api/GetJsonData")]
-        public async Task<ActionResult> GetJsonDataListAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> GetJsonDataListAsync([FromQuery] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
