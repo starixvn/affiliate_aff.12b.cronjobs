@@ -3,24 +3,15 @@ using Fanex.Logging;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using System;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
-    public class ErrorHandler
+    public class ErrorHandler(
+        ILogger logger,
+        RequestDelegate next)
     {
-        private readonly ILogger _logger;
         private const int ServerErrorCode = 500;
-        private readonly RequestDelegate _next;
 
-        public ErrorHandler(
-            ILogger logger,
-            RequestDelegate next)
-        {
-            _logger = logger;
-            _next = next;
-        }
         public async Task Invoke(HttpContext context)
         {
             if (context.Features[typeof(IExceptionHandlerFeature)] is IExceptionHandlerFeature error && error.Error != null)
@@ -30,7 +21,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
             try
             {
-                await _next.Invoke(context);
+                await next.Invoke(context);
             }
             catch (Exception exception)
             {
@@ -44,7 +35,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             context.Response.ContentType = "application/json";
 
             var errorMsg = ErrorMessageHelper.GenerateMessage(ex, context);
-            _logger.Error(errorMsg);
+            logger.Error(errorMsg);
 
             await context.Response.WriteAsync(JsonConvert.SerializeObject(new
             {

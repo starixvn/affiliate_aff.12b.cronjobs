@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using NSubstitute;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
@@ -41,10 +40,10 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
             //Action
-            await handler.Invoke(_mockContext).ConfigureAwait(false);
+            await handler.Invoke(_mockContext);
 
             //Assert
-            _mockRequest.Headers.Received().Add("Authorization", "Bearer " + Token);
+            _mockRequest.Headers.Received().Append("Authorization", "Bearer " + Token);
         }
 
 
@@ -63,10 +62,10 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
             //Action
-            await handler.Invoke(_mockContext).ConfigureAwait(false);
+            await handler.Invoke(_mockContext);
 
             //Assert
-            _mockRequest.Headers.DidNotReceive().Add("Authorization", "Bearer " + Token);
+            _mockRequest.Headers.DidNotReceive().Append("Authorization", "Bearer " + Token);
         }
 
         [Fact]
@@ -84,10 +83,10 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             var handler = new JWTokenHandler(next: async (context) => { await Task.CompletedTask; });
 
             //Action
-            await handler.Invoke(_mockContext).ConfigureAwait(false);
+            await handler.Invoke(_mockContext);
 
             //Assert
-            _mockRequest.Headers.DidNotReceive().Add("Authorization", "Bearer " + Token);
+            _mockRequest.Headers.DidNotReceive().Append("Authorization", "Bearer " + Token);
         }
     }
 }

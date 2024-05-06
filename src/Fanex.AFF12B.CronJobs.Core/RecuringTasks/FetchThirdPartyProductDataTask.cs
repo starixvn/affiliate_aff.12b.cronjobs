@@ -6,50 +6,35 @@ using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.Logging;
 using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 {
-    public class FetchThirdPartyProductDataTask : IFetchThirdPartyProductDataTask
+    public class FetchThirdPartyProductDataTask(
+        ILogger logger,
+        IConfiguration configuration,
+        IImportDataService importDataService,
+        IMaintenanceService maintenanceService) : IFetchThirdPartyProductDataTask
     {
-        private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
-        private readonly IImportDataService _importDataService;
-        private readonly IMaintenanceService _maintenanceService;
-
-        public FetchThirdPartyProductDataTask(
-            ILogger logger,
-            IConfiguration configuration,
-            IImportDataService importDataService,
-            IMaintenanceService maintenanceService)
-        {
-            _logger = logger;
-            _configuration = configuration;
-            _importDataService = importDataService;
-            _maintenanceService = maintenanceService;
-        }
-
         public async Task FetchDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
         {
-            await FetchDataAsync<Ticket>(cronJobSetting);
+            await HandleFetchDataAsync<Ticket>(cronJobSetting);
         }
 
         public async Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
         {
-            await FetchDataAsync<ConvertedTransactionIdTicket>(cronJobSetting);
+            await HandleFetchDataAsync<ConvertedTransactionIdTicket>(cronJobSetting);
         }
 
         public async Task FetchAdjustedDateTimeDataAsync(string jobName, AdjustedDateTimeProductSetting cronJobSetting)
         {
-            await FetchDataAsync<AdjustedDateTimeTicket>(cronJobSetting);
+            await HandleFetchDataAsync<AdjustedDateTimeTicket>(cronJobSetting);
         }
 
-        public async Task FetchDataAsync<T>(ThirdPartyProductSetting cronJobSetting) where T : Ticket
+        private async Task HandleFetchDataAsync<T>(ThirdPartyProductSetting cronJobSetting) where T : Ticket
         {
-            if (_maintenanceService.IsUnderMaintenance())
+            if (maintenanceService.IsUnderMaintenance())
             {
-                _logger.Info("System is currently unavailable due to scheduled maintenance!");
+                logger.Info("System is currently unavailable due to scheduled maintenance!");
                 return;
             }
 
@@ -66,24 +51,24 @@ namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
                 MillisecondsDeplay = cronJobSetting.MillisecondsDeplay
             };
 
-            if(cronJobSetting.GetType().Name == typeof(AdjustedDateTimeProductSetting).Name)
+            if (cronJobSetting.GetType().Name == typeof(AdjustedDateTimeProductSetting).Name)
             {
                 var setting = cronJobSetting as AdjustedDateTimeProductSetting;
                 param.HoursAdjustment = setting.HoursAdjustment;
                 param.FormatDateTime = setting.FormatDateTime;
-            }    
+            }
 
-            await _importDataService.ImportDataToDbAsync<T>(param, true);
+            await importDataService.ImportDataToDbAsync<T>(param, true);
         }
 
         private async Task<DateTime> GetLastTimeFetchDateAsync(ThirdPartyProductSetting cronJobSetting)
         {
-            return await _importDataService.GetTimeTrackerAsync(cronJobSetting.TpType, cronJobSetting.SubItem);
+            return await importDataService.GetTimeTrackerAsync(cronJobSetting.TpType, cronJobSetting.SubItem);
         }
 
         private DateTime GetAdjustmentApiServerDate(TimeSpan ajustmentTime)
         {
-            var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(_configuration.GetAppSettingsValue<int>("ApiServerTimeOffset")));
+            var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(configuration.GetAppSettingsValue<int>("ApiServerTimeOffset")));
             var adjustDate = date.Add(ajustmentTime);
 
             return adjustDate.DateTime;

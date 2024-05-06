@@ -2,7 +2,6 @@
 using Fanex.Data;
 using Microsoft.AspNetCore.Http;
 using NSubstitute;
-using System;
 using System.Data.SqlClient;
 using Xunit;
 

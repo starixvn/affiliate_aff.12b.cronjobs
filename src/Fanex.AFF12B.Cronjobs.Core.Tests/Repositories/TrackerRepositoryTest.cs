@@ -3,10 +3,7 @@ using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Data;
 using NSubstitute;
-using System;
 using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Repositories

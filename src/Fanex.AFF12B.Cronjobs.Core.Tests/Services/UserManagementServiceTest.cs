@@ -3,7 +3,6 @@ using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services

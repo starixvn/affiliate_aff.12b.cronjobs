@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NSubstitute;
 using System.Net;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares

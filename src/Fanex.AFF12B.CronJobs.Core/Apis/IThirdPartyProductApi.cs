@@ -1,7 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Refit;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Apis
 {

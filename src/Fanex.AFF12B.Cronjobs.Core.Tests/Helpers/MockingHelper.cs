@@ -2,7 +2,6 @@
 using Fanex.Logging;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
-using System.Collections.Generic;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Helpers
 {

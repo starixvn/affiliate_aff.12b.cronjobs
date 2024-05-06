@@ -1,11 +1,8 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
-using Fanex.Data;
-using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
-using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -21,13 +18,8 @@ using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
 using Refit;
 using SharpRaven;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Net;
 using System.Net.Mime;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
@@ -119,7 +111,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             var section = configuration.GetSection("ApiOptions");
             var apiSetting = section.Get<ApiOptions>();
 
-            Func<HttpClientHandler> defaultFuncHttpHandler = () => new HttpClientHandler()
+            Func<HttpClientHandler> defaultFuncHttpHandler = () => new HttpClientHandler
             {
                 Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
                   ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
@@ -136,22 +128,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 .ConfigurePrimaryHttpMessageHandler(defaultFuncHttpHandler);
         }
 
-        public static void InitFanexData(this IServiceCollection _, IConfiguration configuration)
-        {
-            var env = configuration.GetAppSettingsValue<string>("Environment");
-            var listConnectionName = configuration.GetSection("ConnectionStrings").GetChildren().Select(_ => _.Key);
-            var connectionStrings = new Dictionary<string, ConnectionConfiguration>(listConnectionName
-                .Select(connectionName => new KeyValuePair<string, ConnectionConfiguration>(connectionName,
-                    new ConnectionConfiguration(connectionName, configuration.GetConnectionString(connectionName)))
-                ));
-
-            DbSettingProviderManager
-              .StartNewSession()
-              .WithSqlServer(resourcePath: $"~/App_Data/SpConfig/SpName.{env}.xml")
-              .Use(connectionStrings)
-              .Run();
-        }
-
 
         public static void AddUnderMaintenance(this IServiceCollection services, IConfiguration configuration)
         {
@@ -162,7 +138,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             services.AddSingleton<IHttpContextHelper, ContextInMemoryHelper>();
             services.AddSingleton<IMaintenanceService, MaintenanceService>();
         }
-
 
         internal class ContextInMemoryHelper : IHttpContextHelper
         {

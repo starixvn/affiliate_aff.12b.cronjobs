@@ -5,45 +5,28 @@ using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.Logging;
 using Newtonsoft.Json;
-using System;
 using System.Globalization;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
-    public class ImportDataService : IImportDataService
+    public class ImportDataService(
+        ILogger logger,
+        IQueueRepository queueRepository,
+        ITrackerRepository trackerRepository,
+        IPullDataService pullDataService) : IImportDataService
     {
         private static readonly string SERVER_NAME = Dns.GetHostName();
 
-        private readonly ILogger _logger;
-        private readonly IQueueRepository _queueRepository;
-        private readonly ITrackerRepository _trackerRepository;
-        private readonly IPullDataService _pullDataService;
-
-        public ImportDataService(
-            ILogger logger,
-            IQueueRepository queueRepository,
-            ITrackerRepository trackerRepository,
-            IPullDataService pullDataService)
-        {
-            _logger = logger;
-            _queueRepository = queueRepository;
-            _trackerRepository = trackerRepository;
-            _pullDataService = pullDataService;
-        }
-
         public async Task<DateTime> GetTimeTrackerAsync(int tpType, string subItem = DefaultValue.String)
         {
-            var timeTracker = await _trackerRepository.GetTracker(tpType, subItem);
+            var timeTracker = await trackerRepository.GetTracker(tpType, subItem);
 
             if (timeTracker is null)
             {
-                var now = DateTime.Now;
-                return new DateTime(now.Year, now.Month, 01, 00, 00, 00, 00);
+                var now = DateTimeOffset.Now;
+                return new DateTimeOffset(now.Year, now.Month, 01, 00, 00, 00, TimeSpan.Zero).DateTime;
             }
 
             return (DateTime)timeTracker;
@@ -51,10 +34,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         public async Task UpdateTimeTrackerAsync(TrackerParam param)
         {
-            await _trackerRepository.AddTracker(param);
+            await trackerRepository.AddTracker(param);
 
             var message = $"{SERVER_NAME} - Updated {Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)}'s Tracker Time to {param.CallTime.FormatDateTime()}";
-            _logger.Info(message);
+            logger.Info(message);
         }
 
         public async Task<string> ImportDataToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob = false) where T : Ticket
@@ -64,7 +47,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
             try
             {
-                _logger.Info($"{SERVER_NAME} - Starting {message}");
+                logger.Info($"{SERVER_NAME} - Starting {message}");
 
                 var pullRange = TimeSpan.FromMinutes(param.MaxMinutesRange);
                 var timeRanges = DateTimeHelper.GetProportionTimeRange(param.BeginDate, param.EndDate, pullRange);
@@ -79,7 +62,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     await ImportDataByTimeRangeToDbAsync<T>(param, isFromRunningJob).ConfigureAwait(false);
                 }
 
-                _logger.Info($"{SERVER_NAME} - Finished {message}");
+                logger.Info($"{SERVER_NAME} - Finished {message}");
 
                 return $"Finished {message}";
             }
@@ -89,7 +72,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
                 var logMessage = logBuilder.ToString();
 
-                await _logger.ErrorAsync(logMessage);
+                await logger.ErrorAsync(logMessage);
 
                 return logMessage;
             }
@@ -97,7 +80,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task ImportDataByTimeRangeToDbAsync<T>(ThirdPartyApiParam param, bool isFromRunningJob) where T : Ticket
         {
-            var dataList = await _pullDataService.GetJsonDataListAsync<T>(param);
+            var dataList = await pullDataService.GetJsonDataListAsync<T>(param);
             var queueParam = new QueueParam
             {
                 TpType = param.TpType,
@@ -108,7 +91,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             {
                 queueParam.JsonData = HandleSerializeData(data, param);
 
-                await _queueRepository.AddQueue(queueParam);
+                await queueRepository.AddQueue(queueParam);
             }
 
             if (isFromRunningJob)
@@ -119,12 +102,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                     SubItem = param.SubItem,
                     CallTime = param.EndDate
                 };
-                await _trackerRepository.AddTracker(trackerParam);
+                await trackerRepository.AddTracker(trackerParam);
             }
             else
             {
                 var productName = Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem);
-                _logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
+                logger.Info($"{SERVER_NAME} - Finished manually import {productName} from {param.BeginDate.FormatDateTime()} to {param.EndDate.FormatDateTime()}");
             }
         }
 
@@ -133,10 +116,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
             var ticket = data.BetTransTicket.FirstOrDefault();
             var typeOfTicket = ticket?.GetType();
 
-            if(typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
+            if (typeOfTicket is null || typeOfTicket.Name == typeof(Ticket).Name)
             {
                 return JsonConvert.SerializeObject(data);
-            }    
+            }
 
             if (typeOfTicket.Name == typeof(ConvertedTransactionIdTicket).Name)
             {

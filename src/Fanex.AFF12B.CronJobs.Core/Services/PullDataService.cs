@@ -5,29 +5,18 @@ using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Services
 {
-    public class PullDataService : IPullDataService
+    public class PullDataService(
+        IThirdPartyProductApi thirdPartyProductApi) : IPullDataService
     {
-        private readonly IThirdPartyProductApi _thirdPartyProductApi;
-
         private const int MIN_RANGE_NUMBER = 1;
         private const int MAX_TICKETS_IN_RANGE = 2000;
 
         private const string CODE_SUCCESS = "GT_S_000";
         private const string CODE_SUCCESS_NO_TICKET = "GT_S_001";
         private const string CODE_SUCCESS_NO_VALID_TICKET = "GT_S_003";
-
-        public PullDataService(
-            IThirdPartyProductApi thirdPartyProductApi)
-        {
-            _thirdPartyProductApi = thirdPartyProductApi;
-        }
 
         public async Task<IEnumerable<ThirdPartyProductRaw>> GetRawDataListAsync(ThirdPartyApiParam param)
         {
@@ -63,7 +52,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
 
         private async Task<ThirdPartyProductRaw> GetRawDataAsync(ThirdPartyApiParam param)
         {
-            return await _thirdPartyProductApi.GetTPGBetTrans(param);
+            return await thirdPartyProductApi.GetTPGBetTrans(param);
         }
 
         private IEnumerable<ThirdPartyProductJson<T>> GetJsonDataRemovedDataInfoList<T>(ThirdPartyProductRaw rawData, ThirdPartyApiParam param) where T : Ticket

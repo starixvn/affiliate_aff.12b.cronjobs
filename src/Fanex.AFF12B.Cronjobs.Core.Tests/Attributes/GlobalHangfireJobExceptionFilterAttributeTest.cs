@@ -8,7 +8,6 @@ using Hangfire.Common;
 using Hangfire.States;
 using Hangfire.Storage;
 using NSubstitute;
-using System;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Attributes

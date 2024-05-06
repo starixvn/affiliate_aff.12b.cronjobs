@@ -8,15 +8,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
-    public class AuthController : ControllerBase
+    public class AuthController(IAuthenticateService authService) : ControllerBase
     {
-        private readonly IAuthenticateService _authService;
-
-        public AuthController(IAuthenticateService authService)
-        {
-            _authService = authService;
-        }
-
         [AllowAnonymous]
         [Route("api/Auth")]
         [HttpPost]
@@ -26,7 +19,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
             {
                 return BadRequest("Invalid Request");
             }
-            var result = _authService.IsAuthenticated(request);
+            var result = authService.IsAuthenticated(request);
 
             if (result.Item1)
             {

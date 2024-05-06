@@ -3,10 +3,7 @@ using Fanex.Data;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Refit;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
 
 namespace Fanex.AFF12B.CronJobs.Core.Helpers

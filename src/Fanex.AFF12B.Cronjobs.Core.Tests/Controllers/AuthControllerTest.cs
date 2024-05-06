@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
-using System;
 using System.Net;
 using Xunit;
 

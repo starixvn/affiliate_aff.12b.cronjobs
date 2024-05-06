@@ -2,14 +2,11 @@
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using ONEbook.UM.Services;
-using System;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
-    public class UnderMaintenanceHandler
+    public class UnderMaintenanceHandler(RequestDelegate next, IMaintenanceService maintenanceService)
     {
         private const string AjaxRequestMsgFormat = "System is currently unavailable due to scheduled maintenance. This downtime will last from {0} to {1} (HK Time GMT +8)";
 
@@ -19,25 +16,16 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
         private const string RequestedWithHeader = "X-Requested-With";
         private const string XmlHttpRequest = "XMLHttpRequest";
 
-        private readonly RequestDelegate _next;
-        private readonly IMaintenanceService _maintenanceService;
-
-        public UnderMaintenanceHandler(RequestDelegate next, IMaintenanceService maintenanceService)
-        {
-            _next = next;
-            _maintenanceService = maintenanceService;
-        }
-
         private static bool IsAjaxRequest(HttpRequest request)
             => request.Headers.TryGetValue(RequestedWithHeader, out StringValues headerValue)
                && string.Equals(headerValue.FirstOrDefault(), XmlHttpRequest, StringComparison.OrdinalIgnoreCase);
 
         public async Task Invoke(HttpContext context)
         {
-            var isUM = await _maintenanceService.IsUnderMaintenanceAsync();
+            var isUM = await maintenanceService.IsUnderMaintenanceAsync();
             if (isUM)
             {
-                var umTime = await _maintenanceService.GetUnderMaintenanceTimeAsync();
+                var umTime = await maintenanceService.GetUnderMaintenanceTimeAsync();
                 string msg;
                 string contentType;
                 if (IsAjaxRequest(context.Request))
@@ -61,7 +49,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             }
             else
             {
-                await _next.Invoke(context);
+                await next.Invoke(context);
             }
         }
     }

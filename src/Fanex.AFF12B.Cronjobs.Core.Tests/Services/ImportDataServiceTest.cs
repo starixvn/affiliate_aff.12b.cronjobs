@@ -4,9 +4,6 @@ using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.Logging;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services

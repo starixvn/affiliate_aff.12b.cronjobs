@@ -1,10 +1,8 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 
 namespace Fanex.AFF12B.CronJobs.Core.Extensions
 {
@@ -37,9 +35,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
             {
                 try
                 {
-                    var handler = new JwtSecurityTokenHandler();
-                    var claims = handler.ValidateToken(accessToken, tokenValidationParameters, out _);
-                    if (!claims.Identity.IsAuthenticated)
+                    var handler = new JsonWebTokenHandler();
+#pragma warning disable S4462
+                    var result = handler.ValidateTokenAsync(accessToken, tokenValidationParameters).Result;
+#pragma warning restore S4462
+                    if (result == null || !result.IsValid)
                     {
                         return false;
                     }
@@ -50,7 +50,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
                             accessToken,
                             new CookieOptions
                             {
-                                Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes),
+                                Expires = DateTimeOffset.Now.AddMinutes(CookieExpirationMinutes),
                                 HttpOnly = true,
                                 Secure = true,
                                 SameSite = SameSiteMode.Strict

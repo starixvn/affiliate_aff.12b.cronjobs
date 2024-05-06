@@ -4,10 +4,7 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using NSubstitute;
-using System;
-using System.IO;
 using System.Net;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
@@ -34,6 +31,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 
             // Assert
             await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
+            _logger.DidNotReceive().Error(Arg.Any<string>());
         }
 
         [Fact]

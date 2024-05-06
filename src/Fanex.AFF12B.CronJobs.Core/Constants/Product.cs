@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Fanex.AFF12B.CronJobs.Core.Constants
+﻿namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class Product
     {

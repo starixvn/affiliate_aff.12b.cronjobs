@@ -7,50 +7,64 @@ using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Services;
+using Fanex.AFF12B.CronJobs.Core.Utilities;
+using Fanex.Data.SqlServer;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using System.Collections.Generic;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.OpenApi.Models;
 
 namespace Fanex.AFF12B.CronJobs.WebHost
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
         private const string ApplicationOptionSettingKey = "ApplicationOptions";
-
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddEndpointsApiExplorer();
 
-            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
+            if (configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-                services.AddSwaggerGen();
+                services.AddSwaggerGen(c =>
+                {
+                    var jwtSecurityScheme = new OpenApiSecurityScheme
+                    {
+                        BearerFormat = "JWT",
+                        Name = "JWT Authentication",
+                        In = ParameterLocation.Header,
+                        Type = SecuritySchemeType.Http,
+                        Scheme = JwtBearerDefaults.AuthenticationScheme,
+                        Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+
+                        Reference = new OpenApiReference
+                        {
+                            Id = JwtBearerDefaults.AuthenticationScheme,
+                            Type = ReferenceType.SecurityScheme
+                        }
+                    };
+
+                    c.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+                    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { jwtSecurityScheme, Array.Empty<string>() }
+                });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Aff.AFF12B.Cronjobs", Version = "v1" });
+                });
             }
 
-            services.Configure<TokenManagementOptions>(Configuration.GetSection("TokenManagementOptions"));
-            services.Configure<ApiOptions>(Configuration.GetSection("ApiOptions"));
-            services.Configure<ApplicationOptions>(Configuration.GetSection(ApplicationOptionSettingKey));
-            services.Configure<List<User>>(Configuration.GetSection("Users"));
+            services.Configure<TokenManagementOptions>(configuration.GetSection("TokenManagementOptions"));
+            services.Configure<ApiOptions>(configuration.GetSection("ApiOptions"));
+            services.Configure<ApplicationOptions>(configuration.GetSection(ApplicationOptionSettingKey));
+            services.Configure<List<User>>(configuration.GetSection("Users"));
+
+            services.AddFanexSql(configuration);
 
             services.AddResponseCaching(options =>
             {
@@ -59,12 +73,10 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
             ConfigAuthentication(services);
 
-            services.AddAuthorization(options =>
-            {
-                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+            services.AddAuthorizationBuilder()
+                .SetDefaultPolicy(new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
                 .RequireAuthenticatedUser()
-                .Build();
-            });
+                .Build());
 
             services.Configure<ForwardedHeadersOptions>(options =>
             {
@@ -90,13 +102,13 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         {
             app.UsePingCheck();
             app.UseForwardedHeaders();
-            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
+            if (configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            if (Configuration.GetAppSettingsValue<bool>("UseErrorHandler"))
+            if (configuration.GetAppSettingsValue<bool>("UseErrorHandler"))
             {
                 app.UseErrorHandler();
             }
@@ -115,34 +127,26 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                     builder => builder.UseHttpsRedirection());
             }
 
-            app.UseStaticResource(env.IsDevelopment());
             app.UseUnderMaintenance();
             app.UseStatusCodePagesWithReExecute("/Error", "?code={0}");
             app.UseRouting();
             app.UseJWTokenOnPage();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
-            app.UseHangfire(Configuration, GetTokenValidationParameters());
+            app.UseHangfire(configuration);
 
             app.UseResponseCaching();
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapDefaultControllerRoute();
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello, Affiliate 12B CronJobs are running!");
-                });
-            });
         }
 
         private void DIRegister(IServiceCollection services)
         {
             services.RegisterHangfire();
-            services.InitLogging(Configuration);
-            services.InitApi(Configuration);
-            services.InitFanexData(Configuration);
-            services.AddUnderMaintenance(Configuration);
+            services.InitApi(configuration);
+            services.InitLogging(configuration);
+            services.AddUnderMaintenance(configuration);
 
             services.AddScoped<IQueueRepository, QueueRepository>();
             services.AddScoped<ITrackerRepository, TrackerRepository>();
@@ -163,38 +167,19 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
-                    x.TokenValidationParameters = GetTokenValidationParameters();
+                    x.TokenValidationParameters = TokenUtils.GetTokenValidationParameters(configuration);
                     x.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>
                         {
                             if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                             {
-                                context.Response.Headers.Add("Token-Expired", "true");
+                                context.Response.Headers.Append("Token-Expired", "true");
                             }
                             return Task.CompletedTask;
                         }
                     };
                 });
-        }
-
-        private TokenValidationParameters GetTokenValidationParameters()
-        {
-            var token = Configuration.GetSection("TokenManagementOptions").Get<TokenManagementOptions>();
-
-            return token != null ? new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
-                TokenDecryptionKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(token.Secret)),
-                ValidIssuer = token.Issuer,
-                ValidAudience = token.Audience,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                RoleClaimType = ClaimsIdentity.DefaultNameClaimType,
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-            } : new TokenValidationParameters();
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Hangfire;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.RecuringTasks
 {

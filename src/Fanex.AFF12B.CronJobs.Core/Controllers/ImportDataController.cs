@@ -4,27 +4,19 @@ using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {
-    public class ImportDataController : BaseController
+    public class ImportDataController(
+        IAppSettings appSettings,
+        IImportDataService importDataService) : BaseController(appSettings)
     {
-        private readonly IImportDataService _importDataService;
-
-        public ImportDataController(
-            IAppSettings appSettings,
-            IImportDataService importDataService) : base(appSettings)
-        {
-            _importDataService = importDataService;
-        }
-
         [HttpGet("api/GetTimeTracker")]
-        public async Task<ActionResult> GetTimeTrackerAsync([FromQuery] TimeTrackerParam param)
+        public async Task<ActionResult> GetTimeTrackerAsync([FromQuery] BaseParam param)
         {
             if (ModelState.IsValid)
             {
-                var timeTracker = await _importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
+                var timeTracker = await importDataService.GetTimeTrackerAsync(param.TpType, param.SubItem);
 
                 return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} - Time Tracker: {timeTracker}");
             }
@@ -33,11 +25,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/UpdateTimeTracker")]
-        public async Task<ActionResult> UpdateTimeTrackerAsync([FromQuery] TrackerConfigParam param)
+        public async Task<ActionResult> UpdateTimeTrackerAsync([FromQuery] TrackerParam param)
         {
             if (ModelState.IsValid)
             {
-                await _importDataService.UpdateTimeTrackerAsync(param);
+                await importDataService.UpdateTimeTrackerAsync(param);
 
                 return Ok($"{Product.GetProductNameByTpTypeAndSubItem(param.TpType, param.SubItem)} updated time tracker successfully!");
             }
@@ -46,12 +38,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportData")]
-        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var result = await _importDataService.ImportDataToDbAsync<Ticket>(param);
+                var result = await importDataService.ImportDataToDbAsync<Ticket>(param);
 
                 return new JsonResult(result);
             }
@@ -60,12 +52,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportConvertedTransactionIdData")]
-        public async Task<ActionResult> ImportConvertedTransactionIdDataToDbAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> ImportConvertedTransactionIdDataToDbAsync([FromQuery] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var result = await _importDataService.ImportDataToDbAsync<ConvertedTransactionIdTicket>(param);
+                var result = await importDataService.ImportDataToDbAsync<ConvertedTransactionIdTicket>(param);
 
                 return new JsonResult(result);
             }
@@ -74,12 +66,12 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportAdjustedDateTimeTicketData")]
-        public async Task<ActionResult> ImportAdjustedDateTimeTicketDataToDbAsync([FromQuery] QueryParam param)
+        public async Task<ActionResult> ImportAdjustedDateTimeTicketDataToDbAsync([FromQuery] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
                 SetMaxMinutesRange(param);
-                var result = await _importDataService.ImportDataToDbAsync<AdjustedDateTimeTicket>(param);
+                var result = await importDataService.ImportDataToDbAsync<AdjustedDateTimeTicket>(param);
 
                 return new JsonResult(result);
             }

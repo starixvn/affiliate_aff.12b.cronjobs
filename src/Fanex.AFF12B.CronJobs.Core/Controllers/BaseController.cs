@@ -9,18 +9,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
     [Authorize]
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
-    public class BaseController : ControllerBase
+    public class BaseController(IAppSettings appSettings) : ControllerBase
     {
-        private readonly IAppSettings _appSettings;
-
-        public BaseController(IAppSettings appSettings)
+        protected void SetMaxMinutesRange(ThirdPartyApiParam param)
         {
-            _appSettings = appSettings;
-        }
-
-        protected void SetMaxMinutesRange(QueryParam param)
-        {
-            param.MaxMinutesRange = param.MaxMinutesRange == 0 ? _appSettings.MaxMinutesRange : param.MaxMinutesRange;
+            param.MaxMinutesRange = param.MaxMinutesRange == 0 ? appSettings.MaxMinutesRange : param.MaxMinutesRange;
         }
     }
 }
