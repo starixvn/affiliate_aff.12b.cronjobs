@@ -4,10 +4,12 @@ using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Middlewares;
 using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
-using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
-using Fanex.AFF12B.CronJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Core.Utilities;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Middlewares;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -29,20 +31,19 @@ namespace Fanex.AFF12B.CronJobs.WebHost
     public class Startup
     {
         private const string ApplicationOptionSettingKey = "ApplicationOptions";
+        private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            _configuration = configuration;
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
 
-            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
+            if (_configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
                 services.AddSwaggerGen(c =>
@@ -73,10 +74,10 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 });
             }
 
-            services.Configure<TokenManagementOptions>(Configuration.GetSection("TokenManagementOptions"));
-            services.Configure<ApiOptions>(Configuration.GetSection("ApiOptions"));
-            services.Configure<ApplicationOptions>(Configuration.GetSection(ApplicationOptionSettingKey));
-            services.Configure<List<User>>(Configuration.GetSection("Users"));
+            services.Configure<TokenManagementOptions>(_configuration.GetSection("TokenManagementOptions"));
+            services.Configure<ApiOptions>(_configuration.GetSection("ApiOptions"));
+            services.Configure<ApplicationOptions>(_configuration.GetSection(ApplicationOptionSettingKey));
+            services.Configure<List<User>>(_configuration.GetSection("Users"));
 
             services.AddResponseCaching(options =>
             {
@@ -116,13 +117,13 @@ namespace Fanex.AFF12B.CronJobs.WebHost
         {
             app.UsePingCheck();
             app.UseForwardedHeaders();
-            if (Configuration.GetAppSettingsValue<bool>("UseSwagger"))
+            if (_configuration.GetAppSettingsValue<bool>("UseSwagger"))
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            if (Configuration.GetAppSettingsValue<bool>("UseErrorHandler"))
+            if (_configuration.GetAppSettingsValue<bool>("UseErrorHandler"))
             {
                 app.UseErrorHandler();
             }
@@ -150,7 +151,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             app.UseAuthorization();
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
-            app.UseHangfire(Configuration);
+            app.UseHangfire(_configuration);
 
             app.UseResponseCaching();
             app.UseEndpoints(endpoints =>
@@ -165,11 +166,11 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         private void DIRegister(IServiceCollection services)
         {
-            services.RegisterHangfire();
-            services.InitLogging(Configuration);
-            services.InitApi(Configuration);
-            services.InitFanexData(Configuration);
-            services.AddUnderMaintenance(Configuration);
+            services.RegisterHangfire("Taiwain API");
+            services.InitLogging(_configuration);
+            services.InitApi(_configuration);
+            services.InitFanexData(_configuration);
+            services.AddUnderMaintenance(_configuration);
 
             services.AddScoped<IQueueRepository, QueueRepository>();
             services.AddScoped<ITrackerRepository, TrackerRepository>();
@@ -190,7 +191,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 {
                     x.RequireHttpsMetadata = false;
                     x.SaveToken = true;
-                    x.TokenValidationParameters = TokenUtils.GetTokenValidationParameters(Configuration);
+                    x.TokenValidationParameters = TokenUtils.GetTokenValidationParameters(_configuration);
                     x.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>

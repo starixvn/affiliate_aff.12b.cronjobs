@@ -1,8 +1,8 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Controllers;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Services;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using System.Collections.Generic;

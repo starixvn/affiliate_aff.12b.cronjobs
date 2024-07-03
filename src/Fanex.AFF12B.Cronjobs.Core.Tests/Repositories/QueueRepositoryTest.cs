@@ -1,6 +1,6 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Repositories;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
 using Fanex.Data;
 using NSubstitute;
 using System.Data.Common;
@@ -28,7 +28,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Repositories
             var repository = new QueueRepository();
 
             //Action
-            await repository.AddQueue(param);
+            await repository.AddQueueAsync(param);
 
             //Assert
             await mockObjectDB.Received().ExecuteNonQueryAsync(param, Arg.Any<DbTransaction>(), Arg.Any<CancellationToken>());

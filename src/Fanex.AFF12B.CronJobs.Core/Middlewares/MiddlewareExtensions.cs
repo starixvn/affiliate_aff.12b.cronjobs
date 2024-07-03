@@ -1,10 +1,11 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Apis;
+﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
-using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.Data;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
 using Fanex.Logging.Sentry.RavenClient;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
@@ -18,13 +19,11 @@ using ONEbook.UM.Configurations;
 using ONEbook.UM.Helpers;
 using ONEbook.UM.Services;
 using ONEbook.UM.Transport;
-using Refit;
 using SharpRaven;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -32,6 +31,23 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
     public static class MiddlewareExtensions
     {
+        public static void RegisterHangfire(this IServiceCollection services, string serverName)
+        {
+            // Add Hangfire services.
+            services.AddHangfire(config =>
+            {
+                var memoryOption = new MemoryStorageOptions { FetchNextJobTimeout = TimeSpan.FromHours(6) };
+                config.UseMemoryStorage(memoryOption);
+                config.UseFilter(new GlobalHangfireJobExceptionFilterAttribute());
+            });
+
+            // Add the processing server as IHostedService
+            services.AddHangfireServer(option =>
+            {
+                option.ServerName = $"AFF 12B {serverName} Cronjobs - {Dns.GetHostName()}";
+            });
+        }
+
         public static void UsePingCheck(this IApplicationBuilder app)
         {
             app.Use(async (context, next) =>
@@ -111,28 +127,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             app.UseHealthChecks("/whoami", healthCheckOptions);
             app.UseHealthChecks("/12monitor", healthCheckOptions);
             app.UseHealthChecks("/12monitor.aspx", healthCheckOptions);
-        }
-
-        public static void InitApi(this IServiceCollection services, IConfiguration configuration)
-        {
-            var section = configuration.GetSection("ApiOptions");
-            var apiSetting = section.Get<ApiOptions>();
-
-            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler
-            {
-                Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
-                  ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
-                  : null,
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
-            };
-
-            services.AddRefitClient<IThirdPartyProductApi>()
-                .ConfigureHttpClient(c =>
-                {
-                    c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
-                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                })
-                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
         }
 
         public static void InitFanexData(this IServiceCollection _, IConfiguration configuration)

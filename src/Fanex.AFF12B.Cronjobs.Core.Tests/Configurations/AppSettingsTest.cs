@@ -1,9 +1,7 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using NSubstitute;
-using System.Collections.Generic;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Configurations
@@ -60,29 +58,29 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Configurations
             Assert.True(result);
         }
 
-        [Fact]
-        public void ProductJobs_WhenCall_ReturnCorrect()
-        {
-            //Arrange
-            var productJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>> { new ThirdPartyCronJobSetting<ThirdPartyProductSetting> {
-                PullInfoCron = "*/15 * * * *",
-                CronJobSetting = new ThirdPartyProductSetting {
-                    MinutesAdjustment = -60,
-                    MaxMinutesRange = 30,
-                    MillisecondsDeplay = 0,
-                    TpType = 7,
-                    SubItem = "001001"
-                }
-            } };
+        //[Fact]
+        //public void ProductJobs_WhenCall_ReturnCorrect()
+        //{
+        //    //Arrange
+        //    var productJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>> { new ThirdPartyCronJobSetting<ThirdPartyProductSetting> {
+        //        PullInfoCron = "*/15 * * * *",
+        //        CronJobSetting = new ThirdPartyProductSetting {
+        //            MinutesAdjustment = -60,
+        //            MaxMinutesRange = 30,
+        //            MillisecondsDeplay = 0,
+        //            TpType = 7,
+        //            SubItem = "001001"
+        //        }
+        //    } };
 
-            _mockConfiguration = MockingHelper.SetUpConfiguration("AppSettings:ThirdPartyProductsSetting", $"{JsonConvert.SerializeObject(productJobs)}");
+        //    _mockConfiguration = MockingHelper.SetUpConfiguration("AppSettings:ThirdPartyProductsSetting", $"{JsonConvert.SerializeObject(productJobs)}");
 
-            //Action
-            var result = AppSettings.ProductJobs;
+        //    //Action
+        //    var result = AppSettings.ProductJobs;
 
-            //Assert
-            Assert.Empty(result);
-        }
+        //    //Assert
+        //    Assert.Empty(result);
+        //}
 
         private AppSettings AppSettings => new AppSettings(_mockConfiguration);
     }

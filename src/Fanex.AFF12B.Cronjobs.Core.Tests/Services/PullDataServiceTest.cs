@@ -1,7 +1,7 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Apis;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Services;
+﻿using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Apis;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
 using Newtonsoft.Json;
 using NSubstitute;
 using System;
@@ -182,7 +182,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
 
         public PullDataService CreatePullDataService() => new PullDataService(_thirdPartyProductApi);
 
-        private static ThirdPartyProductRaw RawData => new ThirdPartyProductRaw
+        private static ThirdPartyProductRaw RawData => new ThirdPartyProductRaw()
         {
             BetTransTicket = "[{\"bet\":100.00,\"betstatus\":\"Win\",\"datainfo\":\"{\\\"BundleId\\\":\\\"3181547310\\\",\\\"BetId\\\":\\\"6484944087\\\",\\\"TableId\\\":\\\"1\\\",\\\"Status\\\":\\\"1\\\",\\\"UserId\\\":\\\"Bi1234zz\\\",\\\"GameType\\\":\\\"C baccarat\\\",\\\"Bet\\\":100.00,\\\"WinLose\\\":100.00,\\\"Balance\\\":492.85,\\\"Currency\\\":\\\"VND\\\",\\\"GameId\\\":\\\"1\\\",\\\"GameCode\\\":\\\"19-44\\\",\\\"Platform\\\":\\\"h5_mobile\\\",\\\"RoundId\\\":\\\"149892356\\\",\\\"PlayerHand\\\":\\\"Player\\\",\\\"GameResult\\\":\\\"C6H8S4#H3D4DQ\\\",\\\"TransDate\\\":\\\"2023-04-30 00:00:05\\\",\\\"IsHedgeBet\\\":false}\",\"gameplatform\":\"gpilive\",\"ishedgebet\":false,\"thirdpartyid\":7,\"transactiondatetime\":\"2023-04-30T00:00:05\",\"transactionid\":\"6484944087\",\"username\":\"Bi1234zz\",\"validbet\":100.00,\"win\":200.00}]",
             Count = 1,
@@ -198,7 +198,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
                 new Ticket()
             };
 
-            while (betTransTicket.Count() < 2100)
+            while (betTransTicket.Count < 2100)
             {
                 betTransTicket.Add(new Ticket());
             }

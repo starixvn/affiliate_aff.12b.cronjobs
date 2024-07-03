@@ -94,5 +94,15 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             //Assert
             Assert.Null(ex);
         }
+
+        [Fact]
+        public void RegisterHangfire_WhenCall_NotThrowException()
+        {
+            //Arrange
+            var ex = Record.Exception(() => MiddlewareExtensions.RegisterHangfire(_mockServiceCollection, "abc"));
+
+            //Assert
+            Assert.Null(ex);
+        }
     }
 }

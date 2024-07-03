@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.CronJobs.Core", "src\Fanex.AFF12B.CronJobs.Core\Fanex.AFF12B.CronJobs.Core.csproj", "{102797B9-E2DB-4941-9367-98672D4AB2E7}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{857D7012-C393-4D02-94DC-B2AB01D5FBB0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.Cronjobs.Core.Tests", "src\Fanex.AFF12B.Cronjobs.Core.Tests\Fanex.AFF12B.Cronjobs.Core.Tests.csproj", "{4172A206-6028-45CF-833B-0D9995DAC715}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fanex.AFF12B.CronJobs.TaiwanApi.Core", "src\Fanex.AFF12B.CronJobs.TaiwanApi.Core\Fanex.AFF12B.CronJobs.TaiwanApi.Core.csproj", "{091F8714-8231-4DF4-A3FC-D5E9046C3133}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,14 +31,18 @@ Global
 		{4172A206-6028-45CF-833B-0D9995DAC715}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4172A206-6028-45CF-833B-0D9995DAC715}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4172A206-6028-45CF-833B-0D9995DAC715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{091F8714-8231-4DF4-A3FC-D5E9046C3133}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{091F8714-8231-4DF4-A3FC-D5E9046C3133}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{091F8714-8231-4DF4-A3FC-D5E9046C3133}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{091F8714-8231-4DF4-A3FC-D5E9046C3133}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DFC7DEE7-BB33-4D24-ACBA-F22D6F1B340B}
-	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4172A206-6028-45CF-833B-0D9995DAC715} = {857D7012-C393-4D02-94DC-B2AB01D5FBB0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DFC7DEE7-BB33-4D24-ACBA-F22D6F1B340B}
 	EndGlobalSection
 EndGlobal

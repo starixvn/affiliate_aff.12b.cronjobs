@@ -14,5 +14,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
         {
             return configuration.GetSection($"AppSettings:{key}");
         }
+
+        public static string GetSettingPullCronTimeValue(this IConfiguration configuration, string productName)
+        {
+            return configuration.GetValue<string>($"AppSettings:VendorProductSettings:{productName}Setting:PullCronTime");
+        }
     }
 }

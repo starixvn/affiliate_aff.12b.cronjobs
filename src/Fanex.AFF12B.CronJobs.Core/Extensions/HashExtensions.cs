@@ -12,7 +12,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
             {
                 return string.Empty;
             }
-
             using var sha = SHA256.Create();
             var bytes = Encoding.UTF8.GetBytes(input);
             var hash = sha.ComputeHash(bytes);

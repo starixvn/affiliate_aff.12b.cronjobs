@@ -46,6 +46,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Fanex.AFF12B.CronJobs.Core\Fanex.AFF12B.CronJobs.Core.csproj" />
+    <ProjectReference Include="..\Fanex.AFF12B.CronJobs.TaiwanApi.Core\Fanex.AFF12B.CronJobs.TaiwanApi.Core.csproj" />
   </ItemGroup>
 
 </Project>
