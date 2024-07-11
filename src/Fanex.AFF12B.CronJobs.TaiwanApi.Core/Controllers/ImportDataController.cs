@@ -33,7 +33,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/UpdateTimeTracker")]
-        public async Task<ActionResult> UpdateTimeTrackerAsync([FromQuery] TrackerParam param)
+        public async Task<ActionResult> UpdateTimeTrackerAsync([FromBody] TrackerParam param)
         {
             if (ModelState.IsValid)
             {
@@ -46,7 +46,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportData")]
-        public async Task<ActionResult> ImportDataToDbAsync([FromQuery] ThirdPartyApiParam param)
+        public async Task<ActionResult> ImportDataToDbAsync([FromBody] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
@@ -60,7 +60,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportConvertedTransactionIdData")]
-        public async Task<ActionResult> ImportConvertedTransactionIdDataToDbAsync([FromQuery] ThirdPartyApiParam param)
+        public async Task<ActionResult> ImportConvertedTransactionIdDataToDbAsync([FromBody] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {
@@ -74,7 +74,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Controllers
         }
 
         [HttpPost("api/ImportAdjustedDateTimeTicketData")]
-        public async Task<ActionResult> ImportAdjustedDateTimeTicketDataToDbAsync([FromQuery] ThirdPartyApiParam param)
+        public async Task<ActionResult> ImportAdjustedDateTimeTicketDataToDbAsync([FromBody] ThirdPartyApiParam param)
         {
             if (ModelState.IsValid)
             {

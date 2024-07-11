@@ -10,6 +10,7 @@ using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Middlewares;
 using Fanex.AFF12B.CronJobs.TaiwanApi.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
 using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
+using Fanex.AFF12B.CronJobs.VendorApi.Core.Middlewares;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -169,6 +170,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.RegisterHangfire("Taiwain API");
             services.InitLogging(_configuration);
             services.InitApi(_configuration);
+            services.Init3rdApi(_configuration);
             services.InitFanexData(_configuration);
             services.AddUnderMaintenance(_configuration);
 
