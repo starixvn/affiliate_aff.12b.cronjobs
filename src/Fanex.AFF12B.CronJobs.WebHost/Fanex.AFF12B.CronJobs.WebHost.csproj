@@ -2,22 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <SonarQubeSetting Include="sonar.coverage.exclusions">
       <Value>**</Value>
     </SonarQubeSetting>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <None Remove="App_Data\SpConfig\SpName.Development.xml" />
-    <None Remove="App_Data\SpConfig\SpName.LOCAL.xml" />
-    <None Remove="App_Data\SpConfig\SpName.PROD.xml" />
-    <None Remove="App_Data\SpConfig\SpName.UAT.xml" />
-    <None Remove="App_Data\SpConfig\SpName.xml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -39,11 +31,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
   </ItemGroup>
   
   <ItemGroup>

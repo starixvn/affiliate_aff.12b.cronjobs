@@ -16,8 +16,8 @@ builder.Configuration.AddEnvironmentVariables();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-var port = builder.Configuration.GetAppSettingsValue<string>("Port");
-builder.WebHost.UseUrls($"https://*:{port}");
+//var port = builder.Configuration.GetAppSettingsValue<string>("Port");
+//builder.WebHost.UseUrls($"https://*:{port}");
 
 // Add services to the container.
 var startup = new Startup(builder.Configuration);
