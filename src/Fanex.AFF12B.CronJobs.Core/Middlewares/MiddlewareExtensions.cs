@@ -24,6 +24,8 @@ using SharpRaven;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net;
 using System.Net.Mime;
 using System.Threading.Tasks;
 
@@ -117,12 +119,21 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             var section = configuration.GetSection("ApiOptions");
             var apiSetting = section.Get<ApiOptions>();
 
+            Func<HttpClientHandler> defaultFuncHttpHandler = () => new HttpClientHandler()
+            {
+                Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
+                  ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
+                  : null,
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            };
+
             services.AddRefitClient<IThirdPartyProductApi>()
                 .ConfigureHttpClient(c =>
                 {
                     c.BaseAddress = new Uri(apiSetting.ProductApiUrl);
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                });
+                })
+                .ConfigurePrimaryHttpMessageHandler(defaultFuncHttpHandler);
         }
 
         public static void InitFanexData(this IServiceCollection _, IConfiguration configuration)

@@ -2,6 +2,7 @@
 using Fanex.Data;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Refit;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -28,6 +29,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
             messageBuilder.AppendLine(message);
             AddRequestInfo(context, messageBuilder);
             AddDatabaseInfo(messageBuilder, exception);
+            AddApiException(messageBuilder, exception);
 
             const int limitedNumOfInnerException = 3;
             AddExceptionInfo(messageBuilder, exception, limitedNumOfInnerException);
@@ -73,6 +75,19 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
             {
                 limitedInnerException--;
                 AddExceptionInfo(builder, exception.InnerException, limitedInnerException);
+            }
+        }
+
+        private static void AddApiException(StringBuilder content, Exception ex)
+        {
+            if (ex is ApiException apiException)
+            {
+                content.AppendLine();
+                content.AppendLine("API EXCEPTION INFO");
+                content.AppendLine($"StatusCode: {apiException.StatusCode}");
+                content.AppendLine($"Content: {apiException.Content}");
+                content.AppendLine($"Header: ${apiException.ContentHeaders}");
+                content.AppendLine($"Request: {apiException.RequestMessage}");
             }
         }
 

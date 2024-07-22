@@ -47,9 +47,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             });
 
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
-            var serverPath = configuration.GetAppSettingsValue<string>("PathOnServer");
             var serverAddress = configuration.GetAppSettingsValue<string>("RunFetchTaskOnServer");
-            var isValidServer = IsValidServer(serverPath, serverAddress);
+            var isValidServer = IsValidServer(serverAddress);
             if (isRunFetchTask && isValidServer)
             {
                 Logger.Log.Info($"Affiliate 12B CronJobs are registered on {serverAddress} - {Dns.GetHostName()}");
@@ -94,12 +93,11 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             }
         }
 
-        private static bool IsValidServer(string serverPath, string serverAddress)
+        private static bool IsValidServer(string serverAddress)
         {
-            var baseDirectory = AppContext.BaseDirectory;
             var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName());
 
-            return baseDirectory.Contains(serverPath) && hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
+            return hostAddresss.Any(add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
         private static void RegisterTask<T>(string serviceId, string cronExpression, Expression<Func<T, Task>> methodCall)
