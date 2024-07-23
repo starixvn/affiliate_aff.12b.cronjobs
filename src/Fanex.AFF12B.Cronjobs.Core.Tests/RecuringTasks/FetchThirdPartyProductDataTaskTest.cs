@@ -1,9 +1,9 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Configurations;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.RecuringTasks;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;

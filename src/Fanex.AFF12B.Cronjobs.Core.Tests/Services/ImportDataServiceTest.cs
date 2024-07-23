@@ -1,7 +1,7 @@
-﻿using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
+﻿using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
 using NSubstitute;
 using System;

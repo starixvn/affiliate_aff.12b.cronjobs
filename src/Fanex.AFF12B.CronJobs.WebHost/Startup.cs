@@ -6,11 +6,11 @@ using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.Core.Services;
 using Fanex.AFF12B.CronJobs.Core.Utilities;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Middlewares;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.RecuringTasks;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Services;
-using Fanex.AFF12B.CronJobs.VendorApi.Core.Middlewares;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions;
+using Fanex.Data.Repository;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -79,6 +79,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.Configure<ApiOptions>(_configuration.GetSection("ApiOptions"));
             services.Configure<ApplicationOptions>(_configuration.GetSection(ApplicationOptionSettingKey));
             services.Configure<List<User>>(_configuration.GetSection("Users"));
+
+            services.Configure<BtiSetting>(_configuration.GetVendorProductSettingsSection("BtiSetting"));
 
             services.AddResponseCaching(options =>
             {
@@ -167,23 +169,22 @@ namespace Fanex.AFF12B.CronJobs.WebHost
 
         private void DIRegister(IServiceCollection services)
         {
-            services.RegisterHangfire("Taiwain API");
+            //Core
             services.InitLogging(_configuration);
-            services.InitApi(_configuration);
-            services.Init3rdApi(_configuration);
             services.InitFanexData(_configuration);
             services.AddUnderMaintenance(_configuration);
 
-            services.AddScoped<IQueueRepository, QueueRepository>();
-            services.AddScoped<ITrackerRepository, TrackerRepository>();
-
             services.AddScoped<IPFilterAttribute>();
             services.AddScoped<IAppSettings, AppSettings>();
-            services.AddScoped<IPullDataService, PullDataService>();
-            services.AddScoped<IImportDataService, ImportDataService>();
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
-            services.AddScoped<IFetchThirdPartyProductDataTask, FetchThirdPartyProductDataTask>();
+            services.AddScoped<IDynamicRepository, DynamicRepository>();
+
+            //TawainJobs
+            services.DIGeneralJobsRegister(_configuration);
+
+            //VendorJobs
+            services.DIVendorJobsRegister(_configuration);
         }
 
         private void ConfigAuthentication(IServiceCollection services)

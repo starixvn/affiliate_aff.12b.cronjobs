@@ -4,7 +4,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class Product
     {
-        private static Dictionary<string, string> ProductByTaiwanApi => new Dictionary<string, string>
+        private static Dictionary<string, string> ProductByGeneralJobs => new Dictionary<string, string>
         {
             //{ tpType + subItem, productName }
             { "1", "12Emerald - Playtech" },
@@ -43,9 +43,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
             var productName = "Unknown";
             var key = tpType + subItem;
 
-            if (ProductByTaiwanApi.ContainsKey(key))
+            if (ProductByGeneralJobs.ContainsKey(key))
             {
-                ProductByTaiwanApi.TryGetValue(key, out productName);
+                ProductByGeneralJobs.TryGetValue(key, out productName);
             }
 
             return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";

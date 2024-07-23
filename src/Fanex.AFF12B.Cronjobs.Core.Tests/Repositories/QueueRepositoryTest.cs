@@ -1,6 +1,6 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.TaiwanApi.Core.Repositories;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
 using Fanex.Data;
 using NSubstitute;
 using System.Data.Common;

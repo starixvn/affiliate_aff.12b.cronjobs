@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.Cronjobs.Core.Tests", "src\Fanex.AFF12B.Cronjobs.Core.Tests\Fanex.AFF12B.Cronjobs.Core.Tests.csproj", "{4172A206-6028-45CF-833B-0D9995DAC715}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.Cronjobs.VendorApi.Core", "src\Fanex.AFF12B.Cronjobs.VendorApi.Core\Fanex.AFF12B.Cronjobs.VendorApi.Core.csproj", "{27B4F580-6A27-49F1-AB34-F67E48927574}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.CronJobs.VendorJobs.Core", "src\Fanex.AFF12B.Cronjobs.VendorJobs.Core\Fanex.AFF12B.CronJobs.VendorJobs.Core.csproj", "{27B4F580-6A27-49F1-AB34-F67E48927574}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fanex.AFF12B.CronJobs.TaiwanApi.Core", "src\Fanex.AFF12B.CronJobs.TaiwanApi.Core\Fanex.AFF12B.CronJobs.TaiwanApi.Core.csproj", "{091F8714-8231-4DF4-A3FC-D5E9046C3133}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Fanex.AFF12B.CronJobs.GeneralJobs.Core", "src\Fanex.AFF12B.CronJobs.GeneralJobs.Core\Fanex.AFF12B.CronJobs.GeneralJobs.Core.csproj", "{091F8714-8231-4DF4-A3FC-D5E9046C3133}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
