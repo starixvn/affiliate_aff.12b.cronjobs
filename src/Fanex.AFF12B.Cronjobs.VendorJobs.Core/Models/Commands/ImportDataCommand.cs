@@ -4,11 +4,10 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.Commands
 {
     public class ImportDataCommand : NonQueryCommand
     {
-        public ImportDataCommand(int productId, string xmlData, byte jobType = 0)
+        public ImportDataCommand(int productId, string xmlData)
         {
             ProductId = productId;
             XmlData = xmlData;
-            JobType = jobType;
         }
 
         private const string SP_NAME = "Task_APIProduct_ImportQueue";
@@ -19,8 +18,6 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.Commands
         public int ProductId { get; set; }
 
         public string XmlData { get; set; }
-
-        public byte JobType { get; set; }
 
         public int ErrCode { get; set; }
 

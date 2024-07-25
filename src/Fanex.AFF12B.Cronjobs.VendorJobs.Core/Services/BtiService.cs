@@ -16,7 +16,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -52,19 +51,37 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             _btiSetting = btiSetting?.Value ?? throw new ArgumentNullException(nameof(btiSetting));
         }
 
-        public async Task ImportDataToDbAsync(bool isFromRunningJob = false)
+        public async Task<IEnumerable<string>> GetConvertedDataListAsync(BaseApiParam param)
+        {
+            var rawDataList = new List<string>();
+            var pullRange = GetPullRange(param.MaxMinutesRange);
+            var timeRanges = DateTimeHelper.GetProportionTimeRange(param.From, param.To, pullRange);
+
+            foreach (var range in timeRanges)
+            {
+                param.From = range.Item1;
+                param.To = range.Item2;
+
+                await Task.Delay(_btiSetting.MillisecondsDeplay, CancellationToken.None);
+                var xmlData = await GetXmlDataAsync(param);
+
+                rawDataList.Add(xmlData.ToString());
+            }
+
+            return rawDataList;
+        }
+
+        public async Task ImportDataToDbAsync(BaseParam param, bool isFromRunningJob = false)
         {
             var logBuilder = new StringBuilder();
-            var fromDate = await _trackerService.GetTrackerAsync(_btiSetting.ProductId);
-            var toDate = DateTimeHelper.GetAdjustmentApiServerDate(new TimeSpan(0, _btiSetting.MinutesAdjustment, 0));
-            var message = $"import {Product.GetProductNameById(_btiSetting.ProductId.ToString())} from {fromDate.FormatDateTime()} to {toDate.FormatDateTime()}";
+            var message = $"import {Product.GetProductNameById(_btiSetting.ProductId.ToString())} from {param.From.FormatDateTime()} to {param.To.FormatDateTime()}";
 
             try
             {
                 _logger.Info($"{SERVER_NAME} - Starting {message}");
 
                 var pullRange = TimeSpan.FromMinutes(_btiSetting.MaxMinutesRange);
-                var timeRanges = DateTimeHelper.GetProportionTimeRange(fromDate, toDate, pullRange);
+                var timeRanges = DateTimeHelper.GetProportionTimeRange(param.From, param.To, pullRange);
 
                 foreach (var range in timeRanges)
                 {
@@ -82,6 +99,19 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
                 await _logger.ErrorAsync(logMessage);
             }
+        }
+
+        public async Task ImportDataToDbFromJobAsync(bool isFromRunningJob = false)
+        {
+            var fromDate = await _trackerService.GetTrackerAsync(_btiSetting.ProductId);
+            var toDate = DateTimeHelper.GetAdjustmentApiServerDate(new TimeSpan(0, _btiSetting.MinutesAdjustment, 0));
+            var param = new BaseParam
+            {
+                From = fromDate,
+                To = toDate,
+            };
+
+            await ImportDataToDbAsync(param, isFromRunningJob);
         }
 
         private async Task ImportDataByTimeRangeToDbAsync(DateTime from, DateTime to, bool isFromRunningJob)
@@ -113,7 +143,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
                 param.To = range.Item2;
 
                 await Task.Delay(_btiSetting.MillisecondsDeplay, CancellationToken.None);
-                var rawData = await GetRawDataAsync(param); ;
+                var rawData = await GetRawDataAsync(param);
 
                 rawDataList.Add(rawData);
             }
@@ -126,14 +156,14 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             return TimeSpan.FromMinutes(maxMinutesRange == 0 ? _btiSetting.MaxMinutesRange : maxMinutesRange);
         }
 
-        private async Task<XDocument> GetXmlDataAsync(BaseApiParam param)
+        private async Task<XDocument> GetXmlDataAsync(BaseParam param)
         {
             var rawData = await GetRawDataAsync(param);
 
             return ConvertRawDataToXml(rawData);
         }
 
-        private async Task<string> GetRawDataAsync(BaseApiParam param)
+        private async Task<string> GetRawDataAsync(BaseParam param)
         {
             var tokenInfo = await HandleGetTokenAsync();
 

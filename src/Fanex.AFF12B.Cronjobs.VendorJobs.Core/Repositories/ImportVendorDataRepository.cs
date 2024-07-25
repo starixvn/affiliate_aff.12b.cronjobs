@@ -12,9 +12,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories
             _dynamicRepository = dynamicRepository;
         }
 
-        public async Task ImportDataAsync(int productId, string xmlData, byte jobType = 0)
+        public async Task ImportDataAsync(int productId, string xmlData)
         {
-            await _dynamicRepository.ExecuteAsync(new ImportDataCommand(productId, xmlData, jobType));
+            await _dynamicRepository.ExecuteAsync(new ImportDataCommand(productId, xmlData));
         }
     }
 }

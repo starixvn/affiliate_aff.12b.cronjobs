@@ -8,6 +8,10 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
     {
         Task<IEnumerable<string>> GetRawDataListAsync(BaseApiParam param);
 
-        Task ImportDataToDbAsync(bool isFromRunningJob = false);
+        Task<IEnumerable<string>> GetConvertedDataListAsync(BaseApiParam param);
+
+        Task ImportDataToDbAsync(BaseParam param, bool isFromRunningJob = false);
+
+        Task ImportDataToDbFromJobAsync(bool isFromRunningJob = false);
     }
 }

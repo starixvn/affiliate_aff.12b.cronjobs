@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Functions SiteName="AFF-12B-CronJobs">
   <Function Name="Common">
-    <Setting Key="Task_APIProduct_CallTimeIns" SpName="Task_APIProduct_CallTimeIns" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
-    <Setting Key="Task_APIProduct_CallTimeByProductSel" SpName="Task_APIProduct_CallTimeByProductSel" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
+    <Setting Key="Task_APIProduct_CallTimeIns" SpName="Task_APIProduct_CallTimeInsTest" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
+    <Setting Key="Task_APIProduct_CallTimeByProductSel" SpName="Task_APIProduct_CallTimeByProductSelTest" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
   </Function>
   <Function Name="GeneralJobs">
-    <Setting Key="Task_NewAPIProduct_ImportQueue" SpName="Task_NewAPIProduct_ImportQueue" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
+    <Setting Key="Task_NewAPIProduct_ImportQueue" SpName="Task_NewAPIProduct_ImportQueueTest" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
   </Function>
   <Function Name="VendorJobs">
-    <Setting Key="Task_APIProduct_ImportQueue" SpName="Task_APIProduct_ImportQueue" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
+    <Setting Key="Task_APIProduct_ImportQueue" SpName="Task_APIProduct_ImportQueueTest" DbName="DBAFF12BET.Affiliate_12BET.wsv_afinet" />
   </Function>
 </Functions>

@@ -29,7 +29,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
             { "27", "12Diamond" },
         };
 
-        private static Dictionary<string, string> ProductOnDb => new Dictionary<string, string>
+        public static Dictionary<string, string> ProductOnDb => new Dictionary<string, string>
         {
             { "9", "12Emerald - Playtech" },
             { "11", "12Amber - Betsoft" },

@@ -28,7 +28,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.RecuringTasks
                 return;
             }
 
-            await _btiService.ImportDataToDbAsync(true);
+            await _btiService.ImportDataToDbFromJobAsync(true);
         }
     }
 }
