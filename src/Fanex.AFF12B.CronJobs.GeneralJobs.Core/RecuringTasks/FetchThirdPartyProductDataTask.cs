@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
-using Microsoft.Extensions.Configuration;
 using ONEbook.UM.Services;
 using System;
 using System.Threading.Tasks;
@@ -14,18 +13,15 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks
     public class FetchThirdPartyProductDataTask : IFetchThirdPartyProductDataTask
     {
         private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
         private readonly IImportDataService _importDataService;
         private readonly IMaintenanceService _maintenanceService;
 
         public FetchThirdPartyProductDataTask(
             ILogger logger,
-            IConfiguration configuration,
             IImportDataService importDataService,
             IMaintenanceService maintenanceService)
         {
             _logger = logger;
-            _configuration = configuration;
             _importDataService = importDataService;
             _maintenanceService = maintenanceService;
         }

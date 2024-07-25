@@ -1,5 +1,7 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Filters;
+using Fanex.AFF12B.CronJobs.Core.Utilities;
 using Fanex.Data;
 using Fanex.Data.SqlServer;
 using Fanex.Logging;
@@ -31,7 +33,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 {
     public static class MiddlewareExtensions
     {
-        public static void RegisterHangfire(this IServiceCollection services, string serverName)
+        public static void RegisterHangfire(this IServiceCollection services)
         {
             // Add Hangfire services.
             services.AddHangfire(config =>
@@ -44,7 +46,17 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             // Add the processing server as IHostedService
             services.AddHangfireServer(option =>
             {
-                option.ServerName = $"AFF 12B {serverName} Cronjobs - {Dns.GetHostName()}";
+                option.ServerName = $"AFF 12B Cronjobs - {Dns.GetHostName()}";
+            });
+        }
+
+        public static void UseDashboardHangfire(this IApplicationBuilder app, IConfiguration configuration)
+        {
+            var tokenValidationParameters = TokenUtils.GetTokenValidationParameters(configuration);
+
+            app.UseHangfireDashboard($"/Hangfire", new DashboardOptions
+            {
+                Authorization = new[] { new DashboardAuthorizationFilter(tokenValidationParameters) }
             });
         }
 

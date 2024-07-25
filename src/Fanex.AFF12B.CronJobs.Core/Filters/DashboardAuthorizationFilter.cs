@@ -16,7 +16,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Filters
         {
             var httpContext = context.GetHttpContext();
 
-            return httpContext.IsAuthorize(this.tokenValidationParameters);
+            return httpContext.IsAuthorize(tokenValidationParameters);
         }
     }
 }

@@ -1,23 +1,17 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Constants;
-using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+﻿using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.Commands;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
-using Fanex.Logging;
 using System;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
     public class VendorTrackerService : IVendorTrackerService
     {
-        private readonly ILogger _logger;
         private readonly IVendorTrackerRepository _trackerRepository;
         public VendorTrackerService(
-            ILogger logger,
             IVendorTrackerRepository trackerRepository)
         {
-            _logger = logger;
             _trackerRepository = trackerRepository;
         }
 
@@ -42,9 +36,6 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
                     ProductId = productId,
                     CallTime = callTime
                 });
-
-            var message = $"{Dns.GetHostName()} - Updated {Product.GetProductNameById(productId.ToString())}'s Tracker Time to {callTime.FormatDateTime()}";
-            _logger.Info(message);
         }
     }
 }

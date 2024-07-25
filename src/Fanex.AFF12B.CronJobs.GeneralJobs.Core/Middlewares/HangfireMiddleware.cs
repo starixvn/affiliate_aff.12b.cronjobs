@@ -1,12 +1,9 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.Core.Extensions;
-using Fanex.AFF12B.CronJobs.Core.Filters;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Utilities;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.Logging;
-using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,15 +14,8 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares
 {
     public static class HangfireMiddleware
     {
-        public static void UseHangfire(this IApplicationBuilder app, IConfiguration configuration)
+        public static void RegisterGeneralJobs(this IApplicationBuilder _, IConfiguration configuration)
         {
-            var tokenValidationParameters = TokenUtils.GetTokenValidationParameters(configuration);
-
-            app.UseHangfireDashboard($"/hangfire", new DashboardOptions
-            {
-                Authorization = new[] { new DashboardAuthorizationFilter(tokenValidationParameters) }
-            });
-
             var isRunFetchTask = HangfireHelpers.IsRunFetchTask(configuration);
             if (isRunFetchTask)
             {

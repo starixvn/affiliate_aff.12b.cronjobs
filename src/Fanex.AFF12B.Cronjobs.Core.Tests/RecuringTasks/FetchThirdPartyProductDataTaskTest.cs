@@ -17,14 +17,12 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
     public class FetchThirdPartyProductDataTaskTest
     {
         private readonly ILogger _logger;
-        private IConfiguration _configuration;
         private readonly IImportDataService _importDataService;
         private readonly IMaintenanceService _maintenanceService;
 
         public FetchThirdPartyProductDataTaskTest()
         {
             _logger = Substitute.For<ILogger>();
-            _configuration = Substitute.For<IConfiguration>();
             _importDataService = Substitute.For<IImportDataService>();
             _maintenanceService = Substitute.For<IMaintenanceService>();
         }
@@ -47,7 +45,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
         public async Task FetchDataAsync_WhenCallWithNotUnderMaintenance_ShouldCallLogger()
         {
             //Arrange
-            _configuration = MockingHelper.SetUpConfiguration("AppSettings:ApiServerTimeOffset", "0");
             _importDataService.GetTimeTrackerAsync(Arg.Any<int>()).Returns(new DateTime(2023, 06, 06));
             _maintenanceService.IsUnderMaintenance().Returns(false);
             var task = CreateFetchThirdPartyProductDataTask();
@@ -61,6 +58,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
         }
 
         private FetchThirdPartyProductDataTask CreateFetchThirdPartyProductDataTask()
-            => new FetchThirdPartyProductDataTask(_logger, _configuration, _importDataService, _maintenanceService);
+            => new FetchThirdPartyProductDataTask(_logger, _importDataService, _maintenanceService);
     }
 }

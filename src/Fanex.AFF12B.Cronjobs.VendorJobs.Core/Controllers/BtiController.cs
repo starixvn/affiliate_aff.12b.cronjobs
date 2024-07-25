@@ -1,12 +1,13 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Attributes;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.Core.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
     [Route("api/[controller]/[action]")]

@@ -9,7 +9,6 @@ using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
 using Fanex.Logging;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -25,7 +24,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
     public class BtiService : IBtiService
     {
         private const string BTI_TOKEN_MEMORY_CACHE = "BTI_TOKEN_MEMORY_CACHE";
-        private const int BTI_CACHE_TIME_OUT = 20;
+        private const int BTI_CACHE_TIME_OUT = 5;
 
         private readonly ILogger _logger;
         private readonly IBtiApi _btiApi;

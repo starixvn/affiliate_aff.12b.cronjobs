@@ -1,5 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Middlewares;
-using Fanex.AFF12B.CronJobs.Core.Models.Options;
+﻿using Fanex.AFF12B.CronJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
@@ -41,9 +40,8 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares
 
         public static void DIGeneralJobsRegister(this IServiceCollection services, IConfiguration configuration)
         {
-            services.RegisterHangfire("General API");
-
             services.InitGeneralJobsApi(configuration);
+
             services.AddScoped<IQueueRepository, QueueRepository>();
             services.AddScoped<ITrackerRepository, TrackerRepository>();
             services.AddScoped<IPullDataService, PullDataService>();

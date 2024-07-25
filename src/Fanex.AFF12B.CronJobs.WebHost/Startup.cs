@@ -150,11 +150,12 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             app.UseRouting();
             app.UseJWTokenOnPage();
 
-            app.UseAuthentication();
             app.UseAuthorization();
 
             GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
-            app.UseHangfire(_configuration);
+            app.UseDashboardHangfire(_configuration);
+            app.RegisterVendorJobs(_configuration);
+            app.RegisterGeneralJobs(_configuration);
 
             app.UseResponseCaching();
             app.UseEndpoints(endpoints =>
@@ -179,6 +180,8 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.AddScoped<IUserManagementService, UserManagementService>();
             services.AddScoped<IAuthenticateService, TokenAuthenticationService>();
             services.AddScoped<IDynamicRepository, DynamicRepository>();
+
+            services.RegisterHangfire();
 
             //TawainJobs
             services.DIGeneralJobsRegister(_configuration);
