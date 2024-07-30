@@ -1,11 +1,9 @@
-﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
+﻿using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
-using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using ONEbook.UM.Services;
 using System;

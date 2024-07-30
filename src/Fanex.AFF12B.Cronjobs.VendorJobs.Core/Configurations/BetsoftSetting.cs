@@ -2,7 +2,6 @@
 {
     public class BetsoftSetting : VendorCronJobSetting
     {
-        public string BankId { get; set; }
-        public string Password { get; set; }
+        public string[] BankIds { get; set; }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
-using Fanex.AFF12B.CronJobs.Core.Helpers;
+﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.RecuringTasks;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Builder;
@@ -19,8 +19,10 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
 
                 //Jobs
                 var btiPullCronTime = configuration.GetSettingPullCronTimeValue("Bti");
+                var betsoftPullCronTime = configuration.GetSettingPullCronTimeValue("Betsoft");
 
                 HangfireHelpers.RegisterTask<FetchBtiProductDataTask>(nameof(FetchBtiProductDataTask), btiPullCronTime, job => job.FetchDataAsync());
+                HangfireHelpers.RegisterTask<FetchBetsoftProductDataTask>(nameof(FetchBetsoftProductDataTask), betsoftPullCronTime, job => job.FetchDataAsync());
             }
         }
     }

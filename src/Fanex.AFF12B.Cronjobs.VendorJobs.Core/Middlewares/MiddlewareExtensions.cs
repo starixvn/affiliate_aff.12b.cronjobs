@@ -56,7 +56,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
             services.AddRefitClient<IBetsoftApi>()
                 .ConfigureHttpClient(c =>
                 {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("BetsoftProductSetting:ApiUrl"));
+                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("BetsoftSetting:ApiUrl"));
                     c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
                 })
                 .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
@@ -70,6 +70,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
             services.AddScoped<IVendorTrackerRepository, VendorTrackerRepository>();
             services.AddScoped<IVendorTrackerService, VendorTrackerService>();
             services.AddScoped<IBtiService, BtiService>();
+            services.AddScoped<IBetsoftService, BetsoftService>();
         }
     }
 }

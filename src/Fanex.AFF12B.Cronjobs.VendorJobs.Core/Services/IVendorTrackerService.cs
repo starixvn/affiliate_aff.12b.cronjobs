@@ -7,6 +7,6 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
     {
         Task UpdateTrackerAsync(int productId, DateTime callTime);
 
-        Task<DateTime> GetTrackerAsync(int productId);
+        Task<DateTime> GetTrackerAsync(int productId, DateTime? startTime = null);
     }
 }

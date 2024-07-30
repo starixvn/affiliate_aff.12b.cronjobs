@@ -15,14 +15,14 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             _trackerRepository = trackerRepository;
         }
 
-        public async Task<DateTime> GetTrackerAsync(int productId)
+        public async Task<DateTime> GetTrackerAsync(int productId, DateTime? startTime = null)
         {
             var timeTracker = await _trackerRepository.GetTrackerAsync(new TrackerCriteria { ProductId = productId });
 
             if (timeTracker is null)
             {
                 var now = DateTimeOffset.Now;
-                return new DateTimeOffset(now.Year, now.Month, 01, 00, 00, 00, TimeSpan.Zero).DateTime;
+                return startTime ?? new DateTimeOffset(now.Year, now.Month, 01, 00, 00, 00, TimeSpan.Zero).DateTime;
             }
 
             return (DateTime)timeTracker;

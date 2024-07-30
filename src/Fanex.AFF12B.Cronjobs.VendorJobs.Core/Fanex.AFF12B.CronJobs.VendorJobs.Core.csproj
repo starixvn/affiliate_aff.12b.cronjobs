@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Fanex.Data.Repository" Version="4.2.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Refit" Version="5.2.4" />
   </ItemGroup>
 

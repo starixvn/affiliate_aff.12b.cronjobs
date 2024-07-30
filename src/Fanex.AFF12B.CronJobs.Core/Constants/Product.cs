@@ -48,7 +48,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
                 ProductByGeneralJobs.TryGetValue(key, out productName);
             }
 
-            return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";
+            return $"{productName} Job (TpType: '{tpType}', SubItem: '{subItem}')";
         }
 
         public static string GetProductNameById(string productId)
@@ -59,7 +59,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
                 ProductOnDb.TryGetValue(productId, out productName);
             }
 
-            return $"{productName} Job(ProductId: '{productId}')";
+            return $"{productName} Job Vendor (ProductId: '{productId}')";
         }
     }
 }

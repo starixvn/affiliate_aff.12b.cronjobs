@@ -2,7 +2,7 @@
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations
 {
-    public class VendorProductSetting
+    public class VendorSetting
     {
         public int ProductId { get; set; }
         public DateTime StartTime { get; set; }
