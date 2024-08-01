@@ -68,9 +68,12 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
 
             services.AddScoped<IImportVendorDataRepository, ImportVendorDataRepository>();
             services.AddScoped<IVendorTrackerRepository, VendorTrackerRepository>();
+
             services.AddScoped<IVendorTrackerService, VendorTrackerService>();
             services.AddScoped<IBtiService, BtiService>();
             services.AddScoped<IBetsoftService, BetsoftService>();
+            services.AddScoped<IPlaytechService, PlaytechService>();
+            services.AddScoped<ICrystalGpiService, CrystalGpiService>();
         }
     }
 }

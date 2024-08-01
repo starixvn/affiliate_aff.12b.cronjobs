@@ -84,8 +84,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.Configure<BetsoftSetting>(_configuration.GetVendorProductSettingsSection("BetsoftSetting"));
             services.Configure<CrystalGpiSetting>(_configuration.GetVendorProductSettingsSection("CrystalGpiSetting"));
             services.Configure<PlaytechSetting>(_configuration.GetVendorProductSettingsSection("PlaytechSetting"));
-            services.Configure<TopazSetting>(_configuration.GetVendorProductSettingsSection("TopazSetting"));
-
+           
             services.AddResponseCaching(options =>
             {
                 options.UseCaseSensitivePaths = true;
