@@ -34,7 +34,6 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
             { "9", "12Emerald - Playtech" },
             { "11", "12Amber - Betsoft" },
             { "12", "12Crystal - GPI" },
-            { "23", "12Topaz" },
             { "25", "BTi" },
         };
 

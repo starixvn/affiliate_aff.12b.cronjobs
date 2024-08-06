@@ -1,4 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
 using Microsoft.Extensions.Configuration;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions
@@ -15,9 +16,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions
             return configuration.GetAppSettingsSection($"VendorProductSettings:{key}");
         }
 
-        public static string GetSettingPullCronTimeValue(this IConfiguration configuration, string productName)
+        public static JobSetting GetSettingJobSettingSection(this IConfiguration configuration, string productName)
         {
-            return configuration.GetValue<string>($"AppSettings:VendorProductSettings:{productName}Setting:PullInfoCron");
+            return configuration.GetAppSettingsSection($"VendorProductSettings:{productName}Setting:JobSetting").Get<JobSetting>();
         }
     }
 }

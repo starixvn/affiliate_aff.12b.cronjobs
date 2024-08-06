@@ -1,13 +1,14 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.VendorJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
 using Fanex.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
@@ -18,8 +19,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private readonly CrystalGpiSetting _crystalGpiSetting;
         private const string PRODUCT_NAME = "CrystalGpi";
 
-        protected override string ErrorCodePropertyName => "status";
-        protected override string BetsPropertyName => "details";
+        protected override string ErrorCodePropertyName => "errorCode";
+        protected override string BetsPropertyName => "bets";
         protected override string[] DataFieldNames => new string[] {
                 "betId", "betNo", "memberId", "status", "actionTime",
                 "timeBet", "currency", "betAmount", "winAmount",
@@ -41,7 +42,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var rawDataList = new List<string>();
             var apiParam = BuildApiParam(param);
             var rawData = await _crystalGpiApi.GetRawDataAsync(apiParam);
-            rawDataList.Add(rawData.ToString());
+            rawDataList.Add(ReFormatRawData(rawData));
 
             return rawDataList;
         }
@@ -51,7 +52,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var startDate = param.From.ToString(_crystalGpiSetting.FormatDateTime);
             var endDate = param.To.ToString(_crystalGpiSetting.FormatDateTime);
 
-            return new CrystalGpiParam {
+            return new CrystalGpiParam
+            {
                 StartDate = startDate,
                 EndDate = endDate,
                 PageNumber = pageNumber,
@@ -61,6 +63,21 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
                 Status = _crystalGpiSetting.Status,
                 PageSize = _crystalGpiSetting.PageSize,
             };
+        }
+
+        private string ReFormatRawData(string rawData)
+        {
+            var rawJsonArray = JArray.Parse(rawData);
+            var isValidData = !rawJsonArray.HasValues
+                || (rawJsonArray.HasValues && rawJsonArray.Any(j => !string.IsNullOrEmpty(j.SelectToken($"$.memberId").ToString())));
+
+            if (isValidData)
+            {
+                var customData = $"{{\"{ErrorCodePropertyName}\":0, \"{BetsPropertyName}\":{rawData}}}";
+                return customData;
+            }
+
+            throw ErrorMessageHelper.FormatException($"{PRODUCT_NAME} Product Vendor - Data is invalid - {rawData}");
         }
     }
 }

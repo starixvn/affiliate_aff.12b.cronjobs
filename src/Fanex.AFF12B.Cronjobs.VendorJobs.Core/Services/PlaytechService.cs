@@ -49,7 +49,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var startDate = param.From.ToString(_playtechSetting.FormatDateTime);
             var endDate = param.To.ToString(_playtechSetting.FormatDateTime);
 
-            return new PlaytechParam { 
+            return new PlaytechParam
+            {
                 StartDate = startDate,
                 EndDate = endDate,
                 FormatExtension = _playtechSetting.FormatExtension,

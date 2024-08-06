@@ -18,11 +18,20 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
                 Logger.Log.Info($"AFF 12B Vendor API Cronjobs are registered on - {Dns.GetHostName()}");
 
                 //Jobs
-                var btiPullCronTime = configuration.GetSettingPullCronTimeValue("Bti");
-                var betsoftPullCronTime = configuration.GetSettingPullCronTimeValue("Betsoft");
+                RegisterTask<FetchBtiProductDataTask>(configuration, "Bti");
+                RegisterTask<FetchBetsoftProductDataTask>(configuration, "Betsoft");
+                RegisterTask<FetchCrystalGpiProductDataTask>(configuration, "CrystalGpi");
+            }
+        }
 
-                HangfireHelpers.RegisterTask<FetchBtiProductDataTask>(nameof(FetchBtiProductDataTask), btiPullCronTime, job => job.FetchDataAsync());
-                HangfireHelpers.RegisterTask<FetchBetsoftProductDataTask>(nameof(FetchBetsoftProductDataTask), betsoftPullCronTime, job => job.FetchDataAsync());
+        private static void RegisterTask<T>(IConfiguration configuration, string productName)
+            where T : IFetchVendorProductDataTask
+        {
+            var jobSetting = configuration.GetSettingJobSettingSection(productName);
+            if (jobSetting.IsRunJob)
+            {
+                var name = typeof(T).Name;
+                HangfireHelpers.RegisterTask<T>(typeof(T).Name, jobSetting.PullInfoCron, job => job.FetchDataAsync());
             }
         }
     }
