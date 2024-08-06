@@ -43,9 +43,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             _productName = productName;
         }
 
-        public async Task<IEnumerable<string>> GetConvertedDataListAsync(BaseApiParam param)
+        public async Task<IEnumerable<string>> GetXmlDataListAsync(BaseApiParam param)
         {
-            return await GetDataListAsync(param, GetXmlDataAsync);
+            return await GetDataListAsync(param, HandleGetXmlDataAsync);
         }
 
         public async Task<IEnumerable<string>> GetRawDataListAsync(BaseApiParam param)
@@ -114,7 +114,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         private async Task ImportDataByTimeRangeToDbAsync(DateTime from, DateTime to, bool isFromRunningJob)
         {
-            var xmlDatas = await GetXmlDataAsync(new BaseApiParam { From = from, To = to });
+            var xmlDatas = await HandleGetXmlDataAsync(new BaseApiParam { From = from, To = to });
 
             foreach (var xmlData in xmlDatas)
             {
@@ -132,11 +132,24 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             }
         }
 
-        private async Task<IEnumerable<string>> GetXmlDataAsync(BaseApiParam param)
+        private async Task<IEnumerable<string>> HandleGetXmlDataAsync(BaseApiParam param)
         {
-            var rawData = await HandleGetRawDataAsync(param);
+            var dataList = new List<string>();
+            var rawDatas = await HandleGetRawDataAsync(param);
 
-            return rawData.Select(raw => ConvertRawDataToXml(raw));
+            foreach (var data in rawDatas)
+            {
+                var xmlData = ConvertRawDataToXml(data);
+                var root = xmlData.Root;
+                var shouldImportToDb = root.Elements(BetsPropertyName).Count() != 0;
+
+                if (shouldImportToDb)
+                {
+                    dataList.Add(xmlData.ToString());
+                }
+            }
+
+            return dataList;
         }
 
         private IEnumerable<Tuple<DateTime, DateTime>> GetTimeRanges(BaseApiParam param)
@@ -155,7 +168,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         protected abstract Task<IEnumerable<string>> GetRawDataAsync(BaseParam param);
 
-        private string ConvertRawDataToXml(string raw)
+        private XDocument ConvertRawDataToXml(string raw)
         {
             var formatedJson = ReFormatJson(raw);
             var xml = XmlHelper.ParseToXDocumentFromJson(formatedJson);
@@ -202,7 +215,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             }
         }
 
-        public string CheckXml(XDocument xml)
+        public XDocument CheckXml(XDocument xml)
         {
             var root = xml.Root;
             var code = root.Element(ErrorCodePropertyName) ?? throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response is not correct format {xml}");
@@ -214,7 +227,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
                 throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response code indicate request not success {xml}");
             }
 
-            return xml.ToString();
+            return xml;
         }
     }
 }

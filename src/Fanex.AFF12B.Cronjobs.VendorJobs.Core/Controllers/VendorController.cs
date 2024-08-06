@@ -26,9 +26,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetConvertedDataAsync([FromQuery] BaseApiParam param)
+        public async Task<IActionResult> GetXmlDataListAsync([FromQuery] BaseApiParam param)
         {
-            return Ok(await _vendorService.GetConvertedDataListAsync(param));
+            return Ok(await _vendorService.GetXmlDataListAsync(param));
         }
 
         [HttpPost]
