@@ -18,7 +18,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private const string PRODUCT_NAME = "Betsoft";
 
         protected override string ErrorCodePropertyName => "status";
-        protected override string BetsPropertyName => "details";
+        protected override string TicketsPropertyName => "details";
         protected override string[] DataFieldNames => new string[] {
                 "betOrderNo", "betTime", "account", "validBetAmount",
                 "payout", "currency", "betAmount", "winAmount",
@@ -47,7 +47,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             {
                 var apiParam = BuildApiParam(param, bankId);
                 var rawData = await _betsoftApi.GetRawDataAsync(apiParam);
-                rawDataList.Add(rawData.ToString());
+                rawDataList.Add(rawData);
             }
 
             return rawDataList;

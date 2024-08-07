@@ -20,7 +20,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private const string PRODUCT_NAME = "CrystalGpi";
 
         protected override string ErrorCodePropertyName => "errorCode";
-        protected override string BetsPropertyName => "bets";
+        protected override string TicketsPropertyName => "bets";
         protected override string[] DataFieldNames => new string[] {
                 "betId", "betNo", "memberId", "status", "actionTime",
                 "timeBet", "currency", "betAmount", "winAmount",
@@ -73,7 +73,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
             if (isValidData)
             {
-                var customData = $"{{\"{ErrorCodePropertyName}\":0, \"{BetsPropertyName}\":{rawData}}}";
+                var customData = $"{{\"{ErrorCodePropertyName}\":0, \"{TicketsPropertyName}\":{rawData}}}";
                 return customData;
             }
 

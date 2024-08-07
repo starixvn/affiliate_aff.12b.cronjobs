@@ -26,7 +26,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private readonly string _productName;
 
         protected virtual string ErrorCodePropertyName => string.Empty;
-        protected virtual string BetsPropertyName => string.Empty;
+        protected virtual string TicketsPropertyName => string.Empty;
         protected virtual string[] DataFieldNames => new string[] { };
 
         public VendorService(
@@ -141,7 +141,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             {
                 var xmlData = ConvertRawDataToXml(data);
                 var root = xmlData.Root;
-                var shouldImportToDb = root.Elements(BetsPropertyName).Count() != 0;
+                var shouldImportToDb = root.Elements(TicketsPropertyName).Count() != 0;
 
                 if (shouldImportToDb)
                 {
@@ -185,7 +185,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
             if ((string)code == StatusCode.Success)
             {
-                var dataList = rawJsonOject.SelectToken($"$.{BetsPropertyName}");
+                var dataList = rawJsonOject.SelectToken($"$.{TicketsPropertyName}");
                 var items = ReArrangeDataToListItems(dataList);
                 dataList.Replace(items);
             }
@@ -215,14 +215,12 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             }
         }
 
-        public XDocument CheckXml(XDocument xml)
+        private XDocument CheckXml(XDocument xml)
         {
             var root = xml.Root;
             var code = root.Element(ErrorCodePropertyName) ?? throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response is not correct format {xml}");
 
-            var value = code.Value;
-
-            if (value != StatusCode.Success)
+            if (code.Value != StatusCode.Success)
             {
                 throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response code indicate request not success {xml}");
             }

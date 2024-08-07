@@ -24,7 +24,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private const string PRODUCT_NAME = "Bti";
 
         protected override string ErrorCodePropertyName => "errorCode";
-        protected override string BetsPropertyName => "Bets";
+        protected override string TicketsPropertyName => "Bets";
         protected override string[] DataFieldNames => new string[] {
                 "PurchaseID", "UserName", "TotalStake", "ValidStake",
                 "PL", "BetStatus", "BetSettledDate",

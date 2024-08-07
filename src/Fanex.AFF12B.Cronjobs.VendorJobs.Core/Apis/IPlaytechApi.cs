@@ -7,6 +7,6 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis
     public interface IPlaytechApi
     {
         [Post("/reporting/services/report/execute")]
-        Task<string> GetRawDataAsync([Body(BodySerializationMethod.Serialized)] PlaytechParam param);
+        Task<string> GetRawDataAsync([Body(BodySerializationMethod.UrlEncoded)] PlaytechParam param);
     }
 }

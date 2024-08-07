@@ -1,9 +1,12 @@
-﻿using Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis;
+﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
 using Fanex.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -16,8 +19,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private readonly PlaytechSetting _playtechSetting;
         private const string PRODUCT_NAME = "Playtech";
 
-        protected override string ErrorCodePropertyName => "status";
-        protected override string BetsPropertyName => "details";
+        protected override string ErrorCodePropertyName => "errorCode";
+        protected override string TicketsPropertyName => "data";
         protected override string[] DataFieldNames => new string[] {
                 "gameid", "gamecode", "gamedate", "username",
                 "bonusbet", "winloss", "currencycode", "progressiveshare", "totalwin", "jackpotwin",
@@ -39,7 +42,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var rawDataList = new List<string>();
             var apiParam = BuildApiParam(param);
             var rawData = await _playtechApi.GetRawDataAsync(apiParam);
-            rawDataList.Add(rawData.ToString());
+            rawDataList.Add(ReFormatRawData(rawData));
 
             return rawDataList;
         }
@@ -62,6 +65,20 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
                 ReportCode = _playtechSetting.ReportCode,
                 Outputs = _playtechSetting.Outputs,
             };
+        }
+
+        private string ReFormatRawData(string rawData)
+        {
+            var rawJsonOject = JObject.Parse(rawData);
+            var isValidData = rawJsonOject.HasValues && rawJsonOject.SelectToken($"$.{TicketsPropertyName}") != null;
+
+            if (isValidData)
+            {
+                rawJsonOject.AddFirst(new JProperty(ErrorCodePropertyName, StatusCode.Success));
+                return rawJsonOject.ToString();
+            }
+
+            throw ErrorMessageHelper.FormatException($"{PRODUCT_NAME} Product Vendor - Data is invalid - {rawData}");
         }
     }
 }
