@@ -26,8 +26,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected override string ErrorCodePropertyName => "errorCode";
         protected override string TicketsPropertyName => "Bets";
         protected override string[] DataFieldNames => new string[] {
-                "PurchaseID", "UserName", "TotalStake", "ValidStake",
-                "PL", "BetStatus", "BetSettledDate",
+                "PurchaseID", "UserName", "Currency", "ValidStake", "PL", "BetStatus", "BetSettledDate",
             };
 
         public BtiService(

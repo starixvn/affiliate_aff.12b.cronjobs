@@ -5,14 +5,16 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.RecuringTasks
 {
-    public abstract class FetchVendorProductDataTask : IFetchVendorProductDataTask
+    public class FetchVendorProductDataTask<T> : IFetchVendorProductDataTask
+        where T : IVendorService
     {
         private readonly ILogger _logger;
-        private readonly IVendorService _vendorService;
+        private readonly T _vendorService;
         private readonly IMaintenanceService _maintenanceService;
+
         public FetchVendorProductDataTask(
             ILogger logger,
-            IVendorService vendorService,
+            T vendorService,
             IMaintenanceService maintenanceService)
         {
             _logger = logger;

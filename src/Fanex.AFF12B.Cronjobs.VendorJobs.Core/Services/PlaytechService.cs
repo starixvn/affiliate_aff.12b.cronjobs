@@ -22,8 +22,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected override string ErrorCodePropertyName => "errorCode";
         protected override string TicketsPropertyName => "data";
         protected override string[] DataFieldNames => new string[] {
-                "gameid", "gamecode", "gamedate", "username",
-                "bonusbet", "winloss", "currencycode", "progressiveshare", "totalwin", "jackpotwin",
+                "gamecode", "gamedate", "username", "currencycode", "bet","bonusbet", "winloss",
             };
 
         public PlaytechService(
@@ -74,6 +73,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
             if (isValidData)
             {
+                rawJsonOject.Remove("reportName");
                 rawJsonOject.AddFirst(new JProperty(ErrorCodePropertyName, StatusCode.Success));
                 return rawJsonOject.ToString();
             }

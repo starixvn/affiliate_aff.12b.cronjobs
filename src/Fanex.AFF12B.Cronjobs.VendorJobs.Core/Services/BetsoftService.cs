@@ -20,8 +20,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected override string ErrorCodePropertyName => "status";
         protected override string TicketsPropertyName => "details";
         protected override string[] DataFieldNames => new string[] {
-                "betOrderNo", "betTime", "account", "validBetAmount",
-                "payout", "currency", "betAmount", "winAmount",
+                "betOrderNo", "betTime", "account", "validBetAmount", "payout", "currency",
             };
 
         public BetsoftService(

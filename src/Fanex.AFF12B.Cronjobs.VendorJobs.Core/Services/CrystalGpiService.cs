@@ -22,8 +22,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected override string ErrorCodePropertyName => "errorCode";
         protected override string TicketsPropertyName => "bets";
         protected override string[] DataFieldNames => new string[] {
-                "betId", "betNo", "memberId", "status", "actionTime",
-                "timeBet", "currency", "betAmount", "winAmount",
+                "betNo", "memberId", "status", "actionTime", "currency", "betAmount", "winAmount",
             };
 
         public CrystalGpiService(

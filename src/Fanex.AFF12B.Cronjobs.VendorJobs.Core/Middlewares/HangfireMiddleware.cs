@@ -1,6 +1,7 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Services;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -18,20 +19,20 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
                 Logger.Log.Info($"AFF 12B Vendor API Cronjobs are registered on - {Dns.GetHostName()}");
 
                 //Jobs
-                RegisterTask<FetchBtiProductDataTask>(configuration, "Bti");
-                RegisterTask<FetchBetsoftProductDataTask>(configuration, "Betsoft");
-                RegisterTask<FetchCrystalGpiProductDataTask>(configuration, "CrystalGpi");
+                RegisterVendorTask<IBtiService>(configuration, "Bti");
+                RegisterVendorTask<IBetsoftService>(configuration, "Betsoft");
+                RegisterVendorTask<ICrystalGpiService>(configuration, "CrystalGpi");
+                RegisterVendorTask<IPlaytechService>(configuration, "Playtech");
             }
         }
 
-        private static void RegisterTask<T>(IConfiguration configuration, string productName)
-            where T : IFetchVendorProductDataTask
+        private static void RegisterVendorTask<T>(IConfiguration configuration, string productName)
+            where T : IVendorService
         {
             var jobSetting = configuration.GetSettingJobSettingSection(productName);
             if (jobSetting.IsRunJob)
             {
-                var name = typeof(T).Name;
-                HangfireHelpers.RegisterTask<T>(typeof(T).Name, jobSetting.PullInfoCron, job => job.FetchDataAsync());
+                HangfireHelpers.RegisterTask<FetchVendorProductDataTask<T>>($"Fetch{productName}ProductDataTask", jobSetting.PullInfoCron, job => job.FetchDataAsync());
             }
         }
     }
