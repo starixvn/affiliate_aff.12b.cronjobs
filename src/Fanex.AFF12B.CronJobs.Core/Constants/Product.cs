@@ -31,7 +31,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
 
         public static Dictionary<string, string> ProductOnDb => new Dictionary<string, string>
         {
-            { "9", "12Emerald - Playtech" },
+            { "3", "12Emerald - Playtech" },
             { "11", "12Amber - Betsoft" },
             { "12", "12Crystal - GPI" },
             { "25", "BTi" },
