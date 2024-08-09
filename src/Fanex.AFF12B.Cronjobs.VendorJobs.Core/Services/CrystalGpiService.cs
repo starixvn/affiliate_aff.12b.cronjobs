@@ -38,10 +38,24 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         protected override async Task<IEnumerable<string>> GetRawDataAsync(BaseParam param)
         {
+            bool isPaging;
             var rawDataList = new List<string>();
             var apiParam = BuildApiParam(param);
-            var rawData = await _crystalGpiApi.GetRawDataAsync(apiParam);
-            rawDataList.Add(ReFormatRawData(rawData));
+
+            do
+            {
+                var rawData = await _crystalGpiApi.GetRawDataAsync(apiParam);
+                var rawJsonArray = JArray.Parse(rawData);
+                rawDataList.Add(ReFormatRawData(rawData, rawJsonArray));
+
+                isPaging = rawJsonArray.Count() == apiParam.PageSize;
+
+                if (isPaging)
+                {
+                    apiParam.PageNumber = apiParam.PageSize + 1;
+                }
+
+            } while (isPaging);
 
             return rawDataList;
         }
@@ -64,9 +78,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             };
         }
 
-        private string ReFormatRawData(string rawData)
+        private string ReFormatRawData(string rawData, JArray rawJsonArray)
         {
-            var rawJsonArray = JArray.Parse(rawData);
             var isValidData = !rawJsonArray.HasValues
                 || (rawJsonArray.HasValues && rawJsonArray.Any(j => !string.IsNullOrEmpty(j.SelectToken($"$.memberId").ToString())));
 

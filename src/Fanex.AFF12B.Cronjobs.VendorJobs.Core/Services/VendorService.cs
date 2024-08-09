@@ -196,7 +196,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private JArray ReArrangeDataToListItems(JToken dataList)
         {
             var items = new JArray();
-            for (int i = 0; i < dataList.Count(); i++)
+            var totalItems = dataList.Count();
+
+            for (int i = 0; i < totalItems; i++)
             {
                 var item = new JObject();
                 FillDataToItem(item, dataList[i]);
