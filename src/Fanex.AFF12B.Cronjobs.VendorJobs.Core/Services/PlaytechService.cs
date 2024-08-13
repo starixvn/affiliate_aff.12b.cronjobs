@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
+    public interface IPlaytechService : IVendorService {}
+
     public class PlaytechService : VendorService, IPlaytechService
     {
         private readonly IPlaytechApi _playtechApi;
@@ -22,18 +24,18 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected override string ErrorCodePropertyName => "errorCode";
         protected override string TicketsPropertyName => "data";
         protected override string[] DataFieldNames => new string[] {
-                "gamecode", "gamedate", "username", "currencycode", "bet","bonusbet", "winloss",
-            };
+            "gamecode", "gamedate", "username", "currencycode", "bet","bonusbet", "winloss",
+        };
 
         public PlaytechService(
             ILogger logger,
-            IPlaytechApi PlaytechApi,
+            IPlaytechApi playtechApi,
             IVendorTrackerService trackerService,
             IImportVendorDataRepository importDataRepository,
-            IOptions<PlaytechSetting> PlaytechSetting) : base(logger, trackerService, importDataRepository, PlaytechSetting?.Value, PRODUCT_NAME)
+            IOptions<PlaytechSetting> playtechSetting) : base(logger, trackerService, importDataRepository, playtechSetting?.Value, PRODUCT_NAME)
         {
-            _playtechApi = PlaytechApi ?? throw new ArgumentNullException(nameof(PlaytechApi));
-            _playtechSetting = PlaytechSetting?.Value ?? throw new ArgumentNullException(nameof(PlaytechSetting));
+            _playtechApi = playtechApi ?? throw new ArgumentNullException(nameof(playtechApi));
+            _playtechSetting = playtechSetting?.Value ?? throw new ArgumentNullException(nameof(playtechSetting));
         }
 
         protected override async Task<IEnumerable<string>> GetRawDataAsync(BaseParam param)

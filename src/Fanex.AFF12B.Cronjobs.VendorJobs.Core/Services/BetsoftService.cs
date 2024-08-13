@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
+    public interface IBetsoftService : IVendorService {}
+
     public class BetsoftService : VendorService, IBetsoftService
     {
         private readonly IBetsoftApi _betsoftApi;

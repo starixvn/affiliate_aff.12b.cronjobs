@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
+    public interface IBtiService : IVendorService {}
+
     public class BtiService : VendorService, IBtiService
     {
         private readonly IBtiApi _btiApi;

@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
+    public interface ICrystalGpiService : IVendorService {}
+
     public class CrystalGpiService : VendorService, ICrystalGpiService
     {
         private readonly ICrystalGpiApi _crystalGpiApi;

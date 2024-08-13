@@ -1,9 +1,7 @@
 ﻿using Newtonsoft.Json;
-using System;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels
 {
-    [Serializable]
     public class PlaytechParam
     {
         [JsonProperty("startdate")]

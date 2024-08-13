@@ -80,10 +80,15 @@ namespace Fanex.AFF12B.CronJobs.WebHost
             services.Configure<ApplicationOptions>(_configuration.GetSection(ApplicationOptionSettingKey));
             services.Configure<List<User>>(_configuration.GetSection("Users"));
 
-            services.Configure<BtiSetting>(_configuration.GetVendorProductSettingsSection("BtiSetting"));
-            services.Configure<BetsoftSetting>(_configuration.GetVendorProductSettingsSection("BetsoftSetting"));
-            services.Configure<CrystalGpiSetting>(_configuration.GetVendorProductSettingsSection("CrystalGpiSetting"));
-            services.Configure<PlaytechSetting>(_configuration.GetVendorProductSettingsSection("PlaytechSetting"));
+            var setting = _configuration.GetVendorProductSettingsSection(nameof(DiamondEvoSetting));
+            services.Configure<BtiSetting>(_configuration.GetVendorProductSettingsSection(nameof(BtiSetting)));
+            var a = _configuration.GetVendorProductSettingsSection(nameof(BetsoftSetting));
+            services.Configure<BetsoftSetting>(_configuration.GetVendorProductSettingsSection(nameof(BetsoftSetting)));
+            services.Configure<CrystalGpiSetting>(_configuration.GetVendorProductSettingsSection(nameof(CrystalGpiSetting)));
+            services.Configure<PlaytechSetting>(_configuration.GetVendorProductSettingsSection(nameof(PlaytechSetting)));
+            services.Configure<BetRadarSetting>(_configuration.GetVendorProductSettingsSection(nameof(BetRadarSetting)));
+            services.Configure<DiamondEvoSetting>(_configuration.GetVendorProductSettingsSection(nameof(DiamondEvoSetting)));
+            services.Configure<PragmaticPlaySetting>(_configuration.GetVendorProductSettingsSection(nameof(PragmaticPlaySetting)));
 
             services.AddResponseCaching(options =>
             {

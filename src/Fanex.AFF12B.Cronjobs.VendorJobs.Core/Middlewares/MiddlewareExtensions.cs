@@ -17,8 +17,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
     {
         public static void InitVendorJobsApi(this IServiceCollection services, IConfiguration configuration)
         {
-            var section = configuration.GetSection(nameof(ApiOptions));
-            var apiSetting = section.Get<ApiOptions>();
+            var apiSetting = configuration.GetSection(nameof(ApiOptions)).Get<ApiOptions>();
 
             HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler()
             {
@@ -28,38 +27,24 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             };
 
+            services.RegisterVendorApi<IPlaytechApi>(configuration, defaultFuncHttpHandler, "Playtech", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<ICrystalGpiApi>(configuration, defaultFuncHttpHandler, "CrystalGpi", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<IBtiApi>(configuration, defaultFuncHttpHandler, "Bti", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<IBetsoftApi>(configuration, defaultFuncHttpHandler, "Betsoft", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<IBetRadarApi>(configuration, defaultFuncHttpHandler, "BetRadar", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<IDiamondEvoApi>(configuration, defaultFuncHttpHandler, "DiamondEvo", apiSetting.ProductApiTimeOut);
+            services.RegisterVendorApi<IPragmaticPlayApi>(configuration, defaultFuncHttpHandler, "PragmaticPlay", apiSetting.ProductApiTimeOut);
+        }
 
-            services.AddRefitClient<IPlaytechApi>()
+        private static void RegisterVendorApi<T>(this IServiceCollection services, IConfiguration configuration, Func<HttpClientHandler> defaultFuncHttpHandler, string productName, double timeOut = 150) where T : class
+        {
+            services.AddRefitClient<T>()
                 .ConfigureHttpClient(c =>
                 {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("PlaytechSetting:ApiUrl"));
-                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
+                    c.BaseAddress = new Uri(configuration.GetVendorProductApiUrlValue(productName));
+                    c.Timeout = TimeSpan.FromSeconds(timeOut);
                 })
-                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
-
-            services.AddRefitClient<ICrystalGpiApi>()
-                .ConfigureHttpClient(c =>
-                {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("CrystalGpiSetting:ApiUrl"));
-                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                })
-                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
-
-            services.AddRefitClient<IBtiApi>()
-                .ConfigureHttpClient(c =>
-                {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("BtiSetting:ApiUrl"));
-                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                })
-                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
-
-            services.AddRefitClient<IBetsoftApi>()
-                .ConfigureHttpClient(c =>
-                {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductSettingsValue<string>("BetsoftSetting:ApiUrl"));
-                    c.Timeout = TimeSpan.FromSeconds(apiSetting.ProductApiTimeOut);
-                })
-                .ConfigurePrimaryHttpMessageHandler((Func<HttpClientHandler>)defaultFuncHttpHandler);
+                .ConfigurePrimaryHttpMessageHandler(defaultFuncHttpHandler);
         }
 
         public static void DIVendorJobsRegister(this IServiceCollection services, IConfiguration configuration)
@@ -74,6 +59,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
             services.AddScoped<IBetsoftService, BetsoftService>();
             services.AddScoped<IPlaytechService, PlaytechService>();
             services.AddScoped<ICrystalGpiService, CrystalGpiService>();
+            services.AddScoped<IBetRadarService, BetRadarService>();
+            services.AddScoped<IDiamondEvoService, DiamondEvoService>();
+            services.AddScoped<IPragmaticPlayService, PragmaticPlayService>();
         }
     }
 }

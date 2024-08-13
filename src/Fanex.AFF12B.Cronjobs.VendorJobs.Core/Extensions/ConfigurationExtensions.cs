@@ -20,5 +20,10 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions
         {
             return configuration.GetAppSettingsSection($"VendorProductSettings:{productName}Setting:JobSetting").Get<JobSetting>();
         }
+
+        public static string GetVendorProductApiUrlValue(this IConfiguration configuration, string productName)
+        {
+            return configuration.GetAppSettingsValue<string>($"VendorProductSettings:{productName}Setting:ApiUrl");
+        }
     }
 }
