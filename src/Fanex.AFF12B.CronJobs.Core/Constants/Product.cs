@@ -26,7 +26,9 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
             { "24", "12Zircon - BG" },
             { "25", "12Garnet - AVP Mini" },
             { "26", "12Garnet - AVP Slot" },
-            { "27", "12Diamond" },
+            { "27", "12Diamond EVO" },
+            { "28", "BR Sports" },
+            { "29", "Pragmatic Play" },
         };
 
         public static Dictionary<string, string> ProductOnDb => new Dictionary<string, string>
