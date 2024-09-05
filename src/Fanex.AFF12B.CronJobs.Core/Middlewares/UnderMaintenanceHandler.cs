@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json;
 using ONEbook.UM.Services;
@@ -30,7 +31,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
 
         private static bool IsAjaxRequest(HttpRequest request)
             => request.Headers.TryGetValue(RequestedWithHeader, out StringValues headerValue)
-               && string.Equals(headerValue.FirstOrDefault(), XmlHttpRequest, StringComparison.OrdinalIgnoreCase);
+               && XmlHttpRequest.IsMatch(headerValue.FirstOrDefault());
 
         public async Task Invoke(HttpContext context)
         {

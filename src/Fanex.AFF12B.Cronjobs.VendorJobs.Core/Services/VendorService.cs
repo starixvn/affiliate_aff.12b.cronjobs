@@ -1,4 +1,5 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Constants;
+using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Constants;
@@ -28,6 +29,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         protected virtual string ErrorCodePropertyName => string.Empty;
         protected virtual string TicketsPropertyName => string.Empty;
         protected virtual string[] DataFieldNames => new string[] { };
+
+        protected virtual bool IsXml => false;
 
         public VendorService(
             ILogger logger,
@@ -141,9 +144,8 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             {
                 var xmlData = ConvertRawDataToXml(data);
                 var root = xmlData.Root;
-                var shouldImportToDb = root.Elements(TicketsPropertyName).Count() != 0;
 
-                if (shouldImportToDb)
+                if (ShouldImportToDb(root))
                 {
                     dataList.Add(xmlData.ToString());
                 }
@@ -170,8 +172,16 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         private XDocument ConvertRawDataToXml(string raw)
         {
-            var formatedJson = ReFormatJson(raw);
-            var xml = XmlHelper.ParseToXDocumentFromJson(formatedJson);
+            XDocument xml;
+            if (IsXml)
+            {
+                xml = XmlHelper.ParseToXDocument(raw);
+            }
+            else
+            {
+                var formatedJson = ReFormatJson(raw);
+                xml = XmlHelper.ParseToXDocumentFromJson(formatedJson);
+            }
 
             return xml is null
                 ? throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Can't convert json response to xml - {raw}")
@@ -222,12 +232,22 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var root = xml.Root;
             var code = root.Element(ErrorCodePropertyName) ?? throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response is not correct format {xml}");
 
-            if (code.Value != StatusCode.Success)
+            if (!IsValidXml(code))
             {
                 throw ErrorMessageHelper.FormatException($"{_productName} Product Vendor - Xml response code indicate request not success {xml}");
             }
 
             return xml;
+        }
+
+        protected virtual bool IsValidXml(XElement element)
+        {
+            return StatusCode.Success.IsMatch(element.Value);
+        }
+
+        protected virtual bool ShouldImportToDb(XElement root)
+        {
+            return root.Elements(TicketsPropertyName).Count() != 0;
         }
     }
 }

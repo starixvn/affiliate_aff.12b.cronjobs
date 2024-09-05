@@ -1,13 +1,18 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Helpers;
+﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.AFF12B.CronJobs.Core.Helpers;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.VendorJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
 using Fanex.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 {
@@ -18,12 +23,11 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
         private readonly IBetsoftApi _betsoftApi;
         private readonly BetsoftSetting _betsoftSetting;
         private const string PRODUCT_NAME = "Betsoft";
+        private const string RESPONSE_PROPERTY_NAME = "RESPONSE";
 
-        protected override string ErrorCodePropertyName => "status";
-        protected override string TicketsPropertyName => "details";
-        protected override string[] DataFieldNames => new string[] {
-                "betOrderNo", "betTime", "account", "validBetAmount", "payout", "currency",
-            };
+        protected override string ErrorCodePropertyName => RESPONSE_PROPERTY_NAME;
+        protected override string TicketsPropertyName => "ACCOUNT";
+        protected override bool IsXml => true;
 
         public BetsoftService(
             ILogger logger,
@@ -59,12 +63,25 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
             var startDate = param.From.ToString(_betsoftSetting.FormatDateTime);
             var endDate = param.To.ToString(_betsoftSetting.FormatDateTime);
 
+            var inputToHash = $"{startDate}{endDate}{bankId}{_betsoftSetting.Password}";
+
             return new BetsoftParam
             {
                 StartDate = startDate,
                 EndDate = endDate,
-                MerchantCode = bankId
+                BankId = bankId,
+                Hash = inputToHash.Md5()
             };
+        }
+
+        protected override bool ShouldImportToDb(XElement root)
+        {
+            return root.Elements(RESPONSE_PROPERTY_NAME).Elements(TicketsPropertyName).Count() != 0;
+        }
+
+        protected override bool IsValidXml(XElement element)
+        {
+            return StatusCode.Ok.IsMatch(element.Element("RESULT").Value);
         }
     }
 }

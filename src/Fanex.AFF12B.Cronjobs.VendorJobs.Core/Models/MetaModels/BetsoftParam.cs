@@ -1,18 +1,16 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using Refit;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Models.MetaModels
 {
-    [Serializable]
     public class BetsoftParam
     {
-        [JsonProperty("start_date")]
+        [AliasAs("startDate")]
         public string StartDate { get; set; }
-
-        [JsonProperty("end_date")]
+        [AliasAs("endDate")]
         public string EndDate { get; set; }
-
-        [JsonProperty("merchant_code")]
-        public string MerchantCode { get; set; }
+        [AliasAs("bankId")]
+        public string BankId { get; set; }
+        [AliasAs("hash")]
+        public string Hash { get; set; }
     }
 }

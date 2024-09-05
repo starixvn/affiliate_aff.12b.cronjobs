@@ -19,10 +19,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
                 Logger.Log.Info($"AFF 12B Vendor API Cronjobs are registered on - {Dns.GetHostName()}");
 
                 //Jobs
-                RegisterVendorTask<IBtiService>(configuration, "Bti");
                 RegisterVendorTask<IBetsoftService>(configuration, "Betsoft");
-                RegisterVendorTask<ICrystalGpiService>(configuration, "CrystalGpi");
-                RegisterVendorTask<IPlaytechService>(configuration, "Playtech");
             }
         }
 

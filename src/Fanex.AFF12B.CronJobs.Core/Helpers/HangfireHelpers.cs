@@ -15,7 +15,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
             var isRunFetchTask = configuration.GetAppSettingsValue<bool>("IsRunFetchTask");
             var serverAddress = configuration.GetAppSettingsValue<string>(key ?? "RunFetchTaskOnServer");
             var hostAddresss = Dns.GetHostAddresses(Dns.GetHostName());
-            var isValidServer = Array.Exists(hostAddresss, add => string.Equals(serverAddress, add.ToString(), StringComparison.OrdinalIgnoreCase));
+            var isValidServer = Array.Exists(hostAddresss, add => serverAddress.IsMatch(add.ToString()));
 
             return isRunFetchTask && isValidServer;
         }

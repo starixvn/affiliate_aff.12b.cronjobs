@@ -6,7 +6,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis
 {
     public interface IBetsoftApi
     {
-        [Post("/xinji/playersBetHistory.do")]
-        Task<string> GetRawDataAsync([Body(BodySerializationMethod.Serialized)] BetsoftParam param);
+        [Get("/ptpt/playersBetHistory.do")]
+        Task<string> GetRawDataAsync(BetsoftParam param);
     }
 }
