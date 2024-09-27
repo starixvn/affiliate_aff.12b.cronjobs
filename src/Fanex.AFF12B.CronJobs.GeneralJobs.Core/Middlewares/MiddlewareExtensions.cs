@@ -21,7 +21,7 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares
             var section = configuration.GetSection(nameof(ApiOptions));
             var apiSetting = section.Get<GeneralJobsOptions>();
 
-            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler()
+            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler
             {
                 Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
                   ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
