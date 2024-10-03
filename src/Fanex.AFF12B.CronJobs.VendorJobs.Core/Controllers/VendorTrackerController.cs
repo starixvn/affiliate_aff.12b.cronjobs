@@ -2,6 +2,7 @@
 using Fanex.AFF12B.CronJobs.Core.Constants;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Services;
 using Fanex.Logging;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Net;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Controllers
 {
+    [Authorize]
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
     [Route("api/vendor/[action]")]
