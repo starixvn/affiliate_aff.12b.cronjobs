@@ -1,11 +1,12 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Fanex.AFF12B.CronJobs.Core.Helpers
 {
     public static class DateTimeHelper
     {
+        private const int API_SERVER_TIMEOFFSET = 0;
+
         public static IEnumerable<Tuple<DateTime, DateTime>> GetProportionTimeRange(DateTime startTime, DateTime endTime, TimeSpan span)
         {
             if (span == TimeSpan.Zero)
@@ -28,6 +29,14 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
         public static DateTime GetSmallerTime(DateTime compareTime, DateTime endTime)
         {
             return DateTime.Compare(compareTime, endTime) > 0 ? endTime : compareTime;
+        }
+
+        public static DateTime GetAdjustmentApiServerDate(TimeSpan ajustmentTime)
+        {
+            var date = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(API_SERVER_TIMEOFFSET));
+            var adjustDate = date.Add(ajustmentTime);
+
+            return adjustDate.DateTime;
         }
     }
 }

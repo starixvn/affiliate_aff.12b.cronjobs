@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Generic;
-
-namespace Fanex.AFF12B.CronJobs.Core.Configurations
+﻿namespace Fanex.AFF12B.CronJobs.Core.Configurations
 {
     public interface IAppSettings
     {
@@ -11,8 +8,5 @@ namespace Fanex.AFF12B.CronJobs.Core.Configurations
 
         bool IsRunFetchTask { get; }
 
-        List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>> ProductJobs { get; }
-
-        List<ThirdPartyCronJobSetting<AdjustedDateTimeProductSetting>> ConvertedTimeZoneProductJobs { get; }
     }
 }

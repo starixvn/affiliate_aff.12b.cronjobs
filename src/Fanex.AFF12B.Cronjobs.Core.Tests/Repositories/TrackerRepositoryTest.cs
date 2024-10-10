@@ -1,6 +1,6 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Repositories;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
 using Fanex.Data;
 using NSubstitute;
 using System;
@@ -28,7 +28,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Repositories
             var repository = new TrackerRepository();
 
             //Action
-            await repository.AddTracker(new TrackerParam());
+            await repository.AddTrackerAsync(new TrackerParam());
 
             //Assert
             await mockObjectDB.Received().ExecuteNonQueryAsync(Arg.Any<TrackerParam>());
@@ -48,7 +48,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Repositories
             var repository = new TrackerRepository();
 
             //Action
-            var result = await repository.GetTracker(1);
+            var result = await repository.GetTrackerAsync(1);
 
             //Assert
             Assert.Equal(result, timeTracker);

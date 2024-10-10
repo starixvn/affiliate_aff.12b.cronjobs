@@ -41,11 +41,13 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.32" />
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="3.1.32" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.32" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Fanex.AFF12B.CronJobs.Core\Fanex.AFF12B.CronJobs.Core.csproj" />
+    <ProjectReference Include="..\Fanex.AFF12B.CronJobs.GeneralJobs.Core\Fanex.AFF12B.CronJobs.GeneralJobs.Core.csproj" />
+    <ProjectReference Include="..\Fanex.AFF12B.CronJobs.VendorJobs.Core\Fanex.AFF12B.CronJobs.VendorJobs.Core.csproj" />
   </ItemGroup>
 
 </Project>

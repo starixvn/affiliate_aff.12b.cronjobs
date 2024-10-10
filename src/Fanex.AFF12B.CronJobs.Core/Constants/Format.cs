@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 
 namespace Fanex.AFF12B.CronJobs.Core.Constants
 {

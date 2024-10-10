@@ -34,6 +34,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 
             // Assert
             await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
+            _logger.DidNotReceive().Error(Arg.Any<string>());
         }
 
         [Fact]
@@ -45,24 +46,22 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             var features = Substitute.For<IFeatureCollection>();
             _mockNext.Invoke(Substitute.For<HttpContext>()).Returns(Task.CompletedTask);
 
-            using (var stream = new MemoryStream())
-            {
-                context.Response.ReturnsForAnyArgs(reponse);
-                context.Features.ReturnsForAnyArgs(features);
-                reponse.HttpContext.ReturnsForAnyArgs(context);
-                reponse.Headers.ReturnsForAnyArgs(new HeaderDictionary());
-                reponse.Body = stream;
+            using var stream = new MemoryStream();
+            context.Response.ReturnsForAnyArgs(reponse);
+            context.Features.ReturnsForAnyArgs(features);
+            reponse.HttpContext.ReturnsForAnyArgs(context);
+            reponse.Headers.ReturnsForAnyArgs(new HeaderDictionary());
+            reponse.Body = stream;
 
-                features[typeof(IExceptionHandlerFeature)].ReturnsForAnyArgs(new ExceptionHandlerFeature { Error = new Exception("Test") });
-                var errorHandler = new ErrorHandler(_logger, _mockNext);
+            features[typeof(IExceptionHandlerFeature)].ReturnsForAnyArgs(new ExceptionHandlerFeature { Error = new Exception("Test") });
+            var errorHandler = new ErrorHandler(_logger, _mockNext);
 
-                //Action
-                var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));
+            //Action
+            var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));
 
-                //Assert
-                //await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
-                Assert.Equal((int)HttpStatusCode.InternalServerError, context.Response.StatusCode);
-            }
+            //Assert
+            //await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, context.Response.StatusCode);
         }
 
         [Fact]
@@ -73,25 +72,23 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
             var reponse = Substitute.For<HttpResponse>();
             var features = Substitute.For<IFeatureCollection>();
 
-            using (var stream = new MemoryStream())
-            {
-                context.Response.ReturnsForAnyArgs(reponse);
-                context.Features.ReturnsForAnyArgs(features);
-                reponse.HttpContext.ReturnsForAnyArgs(context);
-                reponse.Headers.ReturnsForAnyArgs(new HeaderDictionary());
-                reponse.Body = stream;
+            using var stream = new MemoryStream();
+            context.Response.ReturnsForAnyArgs(reponse);
+            context.Features.ReturnsForAnyArgs(features);
+            reponse.HttpContext.ReturnsForAnyArgs(context);
+            reponse.Headers.ReturnsForAnyArgs(new HeaderDictionary());
+            reponse.Body = stream;
 
-                features.Get<IHttpResponseFeature>().ReturnsForAnyArgs(new HttpResponseFeature());
-                _mockNext.Invoke(context).ReturnsForAnyArgs(x => throw new Exception("Test"));
-                var errorHandler = new ErrorHandler(_logger, _mockNext);
+            features.Get<IHttpResponseFeature>().ReturnsForAnyArgs(new HttpResponseFeature());
+            _mockNext.Invoke(context).ReturnsForAnyArgs(x => throw new Exception("Test"));
+            var errorHandler = new ErrorHandler(_logger, _mockNext);
 
-                //Action
-                var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));
+            //Action
+            var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(context));
 
-                //Assert
-                await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
-                Assert.Equal((int)HttpStatusCode.InternalServerError, context.Response.StatusCode);
-            }
+            //Assert
+            await _mockNext.Received().Invoke(Arg.Any<HttpContext>());
+            Assert.Equal((int)HttpStatusCode.InternalServerError, context.Response.StatusCode);
         }
     }
 }

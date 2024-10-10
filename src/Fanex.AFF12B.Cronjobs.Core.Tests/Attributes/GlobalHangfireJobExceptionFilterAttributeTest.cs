@@ -1,7 +1,7 @@
 ﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
 using Fanex.AFF12B.CronJobs.Core.Attributes;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.Logging;
 using Hangfire;
 using Hangfire.Common;

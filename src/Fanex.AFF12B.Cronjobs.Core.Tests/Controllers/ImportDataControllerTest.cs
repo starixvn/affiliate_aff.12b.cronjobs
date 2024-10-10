@@ -1,90 +1,173 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Configurations;
 using Fanex.AFF12B.CronJobs.Core.Controllers;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Services;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
-using System.Collections.Generic;
+using System;
 using System.Net;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace Fanex.AFF12B.Cronjobs.Core.Tests.Controllers
 {
-    public class PullDataControllerTest
+    public class ImportDataControllerTest
     {
         private readonly IAppSettings _appSettings;
-        private readonly IPullDataService _pullDataService;
+        private readonly IImportDataService _importDataService;
 
-        public PullDataControllerTest()
+        public ImportDataControllerTest()
         {
             _appSettings = Substitute.For<IAppSettings>();
-            _pullDataService = Substitute.For<IPullDataService>();
+            _importDataService = Substitute.For<IImportDataService>();
         }
 
         [Fact]
-        public async Task GetRawDataListAsync_WhenCallWith_InvalidModel_ReturnCorrect()
+        public async Task GetTimeTrackerAsync_WhenCallWith_InvalidModel_ReturnCorrect()
         {
             //Arrange
-            var controller = new PullDataController(_appSettings, _pullDataService);
+            var controller = new ImportDataController(_appSettings, _importDataService);
             controller.ModelState.AddModelError("Error1", "Invalid");
 
             //Action
-            var result = await controller.GetRawDataListAsync(new QueryParam()) as ObjectResult;
+            var result = await controller.GetTimeTrackerAsync(new BaseParam()) as ObjectResult;
 
             //Assert
             Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Fact]
-        public async Task GetRawDataListAsync_WhenCallWith_ValidModel_ReturnCorrect()
+        public async Task GetTimeTrackerAsync_WhenCallWith_ValidModel_ReturnCorrect()
         {
             //Arrange
-            var maxMinutesRange = 30;
-            var param = new QueryParam();
-            _appSettings.MaxMinutesRange.Returns(maxMinutesRange);
-            _pullDataService.GetRawDataListAsync(Arg.Any<QueryParam>()).Returns(new List<ThirdPartyProductRaw> { new ThirdPartyProductRaw() });
-            var controller = new PullDataController(_appSettings, _pullDataService);
+            _importDataService.GetTimeTrackerAsync(Arg.Any<int>(), Arg.Any<string>()).Returns(new DateTime(2023, 06, 01));
+            var controller = new ImportDataController(_appSettings, _importDataService);
 
             //Action
-            var result = await controller.GetRawDataListAsync(param) as JsonResult;
+            var result = await controller.GetTimeTrackerAsync(new BaseParam()) as ObjectResult;
 
             //Assert
-            Assert.NotEmpty(result.Value as List<ThirdPartyProductRaw>);
-            Assert.Equal(maxMinutesRange, param.MaxMinutesRange);
+            Assert.Contains("Time Tracker", result.Value as string);
+            Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
         }
 
         [Fact]
-        public async Task GetJsonDataListAsync_WhenCallWith_InvalidModel_ReturnCorrect()
+        public async Task UpdateTimeTrackerAsync_WhenCallWith_InvalidModel_ReturnCorrect()
         {
             //Arrange
-            var controller = new PullDataController(_appSettings, _pullDataService);
+            var controller = new ImportDataController(_appSettings, _importDataService);
             controller.ModelState.AddModelError("Error1", "Invalid");
 
             //Action
-            var result = await controller.GetJsonDataListAsync(new QueryParam()) as ObjectResult;
+            var result = await controller.UpdateTimeTrackerAsync(new TrackerParam()) as ObjectResult;
 
             //Assert
             Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
         }
 
         [Fact]
-        public async Task GetJsonDataListAsync_WhenCallWith_ValidModel_ReturnCorrect()
+        public async Task UpdateTimeTrackerAsync_WhenCallWith_ValidModel_ReturnCorrect()
         {
             //Arrange
-            var maxMinutesRange = 30;
-            var param = new QueryParam { MaxMinutesRange = 15 };
-            _appSettings.MaxMinutesRange.Returns(maxMinutesRange);
-            _pullDataService.GetJsonDataListAsync<Ticket>(Arg.Any<QueryParam>()).Returns(new List<ThirdPartyProductJson<Ticket>> { new ThirdPartyProductJson<Ticket>() });
-            var controller = new PullDataController(_appSettings, _pullDataService);
+            var controller = new ImportDataController(_appSettings, _importDataService);
 
             //Action
-            var result = await controller.GetJsonDataListAsync(param) as JsonResult;
+            var result = await controller.UpdateTimeTrackerAsync(new TrackerParam()) as ObjectResult;
 
             //Assert
-            Assert.NotEmpty(result.Value as List<ThirdPartyProductJson<Ticket>>);
-            Assert.NotEqual(maxMinutesRange, param.MaxMinutesRange);
+            Assert.Contains("updated time tracker", result.Value as string);
+            Assert.Equal((int)HttpStatusCode.OK, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task ImportDataToDbAsync_WhenCallWith_InvalidModel_ReturnCorrect()
+        {
+            //Arrange
+            var controller = new ImportDataController(_appSettings, _importDataService);
+            controller.ModelState.AddModelError("Error1", "Invalid");
+
+            //Action
+            var result = await controller.ImportDataToDbAsync(new ThirdPartyApiParam()) as ObjectResult;
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task ImportDataToDbAsync_WhenCallWith_ValidModel_ReturnCorrect()
+        {
+            //Arrange
+            var message = "Import successfully!";
+            var param = new ThirdPartyApiParam();
+            _importDataService.ImportDataToDbAsync<Ticket>(Arg.Any<ThirdPartyApiParam>(), false).Returns(message);
+            var controller = new ImportDataController(_appSettings, _importDataService);
+
+            //Action
+            var result = await controller.ImportDataToDbAsync(param) as JsonResult;
+
+            //Assert
+            Assert.Equal(message, result.Value as string);
+        }
+
+        [Fact]
+        public async Task ImportConvertedTransactionIdDataToDbAsync_WhenCallWith_InvalidModel_ReturnCorrect()
+        {
+            //Arrange
+            var controller = new ImportDataController(_appSettings, _importDataService);
+            controller.ModelState.AddModelError("Error1", "Invalid");
+
+            //Action
+            var result = await controller.ImportConvertedTransactionIdDataToDbAsync(new ThirdPartyApiParam()) as ObjectResult;
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task ImportConvertedTransactionIdDataToDbAsync_WhenCallWith_ValidModel_ReturnCorrect()
+        {
+            //Arrange
+            var message = "Import Converted TransactionId Data successfully!";
+            var param = new ThirdPartyApiParam();
+            _importDataService.ImportDataToDbAsync<ConvertedTransactionIdTicket>(Arg.Any<ThirdPartyApiParam>(), false).Returns(message);
+            var controller = new ImportDataController(_appSettings, _importDataService);
+
+            //Action
+            var result = await controller.ImportConvertedTransactionIdDataToDbAsync(param) as JsonResult;
+
+            //Assert
+            Assert.Equal(message, result.Value as string);
+        }
+
+        [Fact]
+        public async Task ImportAdjustedDateTimeTicketDataToDbAsync_WhenCallWith_InvalidModel_ReturnCorrect()
+        {
+            //Arrange
+            var controller = new ImportDataController(_appSettings, _importDataService);
+            controller.ModelState.AddModelError("Error1", "Invalid");
+
+            //Action
+            var result = await controller.ImportAdjustedDateTimeTicketDataToDbAsync(new ThirdPartyApiParam()) as ObjectResult;
+
+            //Assert
+            Assert.Equal((int)HttpStatusCode.BadRequest, result.StatusCode);
+        }
+
+        [Fact]
+        public async Task ImportAdjustedDateTimeTicketDataToDbAsync_WhenCallWith_ValidModel_ReturnCorrect()
+        {
+            //Arrange
+            var message = "Import Converted Adjusted DateTime Ticket Data successfully!";
+            var param = new ThirdPartyApiParam();
+            _importDataService.ImportDataToDbAsync<AdjustedDateTimeTicket>(Arg.Any<ThirdPartyApiParam>(), false).Returns(message);
+            var controller = new ImportDataController(_appSettings, _importDataService);
+
+            //Action
+            var result = await controller.ImportAdjustedDateTimeTicketDataToDbAsync(param) as JsonResult;
+
+            //Assert
+            Assert.Equal(message, result.Value as string);
         }
     }
 }

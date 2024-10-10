@@ -12,9 +12,9 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 {
     public class UnderMaintenanceHandlerTest
     {
-        private HttpContext _mockHttpContext { get; set; }
-        private RequestDelegate _mockNext { get; set; }
-        private IMaintenanceService _mockMaintenanceService { get; set; }
+        private readonly HttpContext _mockHttpContext;
+        private readonly RequestDelegate _mockNext;
+        private readonly IMaintenanceService _mockMaintenanceService;
 
         public UnderMaintenanceHandlerTest()
         {
@@ -59,20 +59,18 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 
             var reponse = Substitute.For<HttpResponse>();
 
-            using (var stream = new MemoryStream())
-            {
-                _mockHttpContext.Response.ReturnsForAnyArgs(reponse);
-                reponse.HttpContext.ReturnsForAnyArgs(_mockHttpContext);
-                reponse.Body = stream;
+            using var stream = new MemoryStream();
+            _mockHttpContext.Response.ReturnsForAnyArgs(reponse);
+            reponse.HttpContext.ReturnsForAnyArgs(_mockHttpContext);
+            reponse.Body = stream;
 
-                var errorHandler = new UnderMaintenanceHandler(_mockNext, _mockMaintenanceService);
+            var errorHandler = new UnderMaintenanceHandler(_mockNext, _mockMaintenanceService);
 
-                //Action
-                var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(_mockHttpContext));
+            //Action
+            var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(_mockHttpContext));
 
-                // Assert
-                await _mockNext.DidNotReceive().Invoke(Arg.Any<HttpContext>());
-            }
+            // Assert
+            await _mockNext.DidNotReceive().Invoke(Arg.Any<HttpContext>());
         }
 
         [Fact]
@@ -92,19 +90,17 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Middlewares
 
             var reponse = Substitute.For<HttpResponse>();
 
-            using (var stream = new MemoryStream())
-            {
-                _mockHttpContext.Response.ReturnsForAnyArgs(reponse);
-                reponse.Body = stream;
+            using var stream = new MemoryStream();
+            _mockHttpContext.Response.ReturnsForAnyArgs(reponse);
+            reponse.Body = stream;
 
-                var errorHandler = new UnderMaintenanceHandler(_mockNext, _mockMaintenanceService);
+            var errorHandler = new UnderMaintenanceHandler(_mockNext, _mockMaintenanceService);
 
-                //Action
-                var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(_mockHttpContext));
+            //Action
+            var ex = await Record.ExceptionAsync(() => errorHandler.Invoke(_mockHttpContext));
 
-                // Assert
-                await _mockNext.DidNotReceive().Invoke(Arg.Any<HttpContext>());
-            }
+            // Assert
+            await _mockNext.DidNotReceive().Invoke(Arg.Any<HttpContext>());
         }
     }
 }

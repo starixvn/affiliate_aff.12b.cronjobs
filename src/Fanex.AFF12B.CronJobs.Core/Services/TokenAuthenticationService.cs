@@ -16,10 +16,10 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
         private readonly IUserManagementService _userManagementService;
         private readonly TokenManagementOptions _tokenManagement;
         public TokenAuthenticationService(IUserManagementService service,
-            IOptions<TokenManagementOptions> tokenManagementAccessor)
+            IOptions<TokenManagementOptions> tokenManagement)
         {
             _userManagementService = service;
-            _tokenManagement = tokenManagementAccessor.Value;
+            _tokenManagement = tokenManagement.Value;
         }
 
         public Tuple<bool, Token> IsAuthenticated(TokenRequestParam param)
@@ -43,29 +43,33 @@ namespace Fanex.AFF12B.CronJobs.Core.Services
                 return Tuple.Create<bool, Token>(false, token);
             }
 
-            var claim = new[]
+            var claims = new[]
             {
-                new Claim(ClaimTypes.Name, siteName),
+                new Claim(ClaimTypes.Name, realUserName),
+                new Claim(CustomClaimType.Site, siteName),
                 new Claim(CustomClaimType.IsShowIPVN, param.IsShowIpvn.ToString(), ClaimValueTypes.Boolean)
              };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_tokenManagement.Secret));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var encryptCredenction = new EncryptingCredentials(key, JwtConstants.DirectKeyUseAlg,
+            var encryptCredentials = new EncryptingCredentials(key, JwtConstants.DirectKeyUseAlg,
                 SecurityAlgorithms.Aes256CbcHmacSha512);
+
+            var utcDateTimeNow = DateTimeOffset.Now.UtcDateTime;
             var handler = new JwtSecurityTokenHandler();
 
             var jwtToken = handler.CreateJwtSecurityToken(_tokenManagement.Issuer,
                   _tokenManagement.Audience,
-                  new ClaimsIdentity(claim),
-                  DateTime.Now,
-                  DateTime.Now.AddMinutes(_tokenManagement.AccessExpiration),
-                  null,
+                  new ClaimsIdentity(claims),
+                  utcDateTimeNow,
+                  utcDateTimeNow.AddMinutes(_tokenManagement.AccessExpiration),
+                  utcDateTimeNow,
                   credentials,
-                  encryptCredenction
+                  encryptCredentials
                   );
+
             token.AccessToken = handler.WriteToken(jwtToken);
             token.TokenType = handler.TokenType.Name;
-            return Tuple.Create<bool, Token>(true, token);
+            return Tuple.Create(true, token);
         }
     }
 }

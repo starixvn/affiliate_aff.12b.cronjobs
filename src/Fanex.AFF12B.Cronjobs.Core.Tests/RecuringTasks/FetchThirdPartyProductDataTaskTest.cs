@@ -1,11 +1,9 @@
-﻿using Fanex.AFF12B.Cronjobs.Core.Tests.Helpers;
-using Fanex.AFF12B.CronJobs.Core.Configurations;
-using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.RecuringTasks;
-using Fanex.AFF12B.CronJobs.Core.Services;
+﻿using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Configurations;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
-using Microsoft.Extensions.Configuration;
 using NSubstitute;
 using ONEbook.UM.Services;
 using System;
@@ -16,7 +14,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
 {
     public class FetchThirdPartyProductDataTaskTest
     {
-        private IConfiguration _configuration;
         private readonly ILogger _logger;
         private readonly IImportDataService _importDataService;
         private readonly IMaintenanceService _maintenanceService;
@@ -24,7 +21,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
         public FetchThirdPartyProductDataTaskTest()
         {
             _logger = Substitute.For<ILogger>();
-            _configuration = Substitute.For<IConfiguration>();
             _importDataService = Substitute.For<IImportDataService>();
             _maintenanceService = Substitute.For<IMaintenanceService>();
         }
@@ -47,7 +43,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
         public async Task FetchDataAsync_WhenCallWithNotUnderMaintenance_ShouldCallLogger()
         {
             //Arrange
-            _configuration = MockingHelper.SetUpConfiguration("AppSettings:ApiServerTimeOffset", "0");
             _importDataService.GetTimeTrackerAsync(Arg.Any<int>()).Returns(new DateTime(2023, 06, 06));
             _maintenanceService.IsUnderMaintenance().Returns(false);
             var task = CreateFetchThirdPartyProductDataTask();
@@ -61,6 +56,6 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.RecuringTasks
         }
 
         private FetchThirdPartyProductDataTask CreateFetchThirdPartyProductDataTask()
-            => new FetchThirdPartyProductDataTask(_logger, _configuration, _importDataService, _maintenanceService);
+            => new FetchThirdPartyProductDataTask(_logger, _importDataService, _maintenanceService);
     }
 }

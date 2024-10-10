@@ -1,5 +1,4 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.Data;
+﻿using Fanex.Data;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Refit;
@@ -13,7 +12,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
 {
     public static class ErrorMessageHelper
     {
-        public static Exception FormatException(string initialMessage, ThirdPartyApiParam param)
+        public static Exception FormatException(string initialMessage, object param = null)
         {
             var messageBuilder = new StringBuilder();
             messageBuilder.AppendLine(initialMessage);
@@ -91,7 +90,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
             }
         }
 
-        private static IDictionary<string, object> GetDbExceptionInfo(Exception exception)
+        private static Dictionary<string, object> GetDbExceptionInfo(Exception exception)
         {
             var dbInfo = new Dictionary<string, object>();
             BindSqlExceptionInfo(exception, dbInfo);
@@ -132,7 +131,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
                        .Aggregate((firstPair, secondPair) => $"{firstPair};{secondPair}")
                : string.Empty;
 
-        private static IDictionary<string, object> GetRequestInfo(HttpContext context)
+        private static Dictionary<string, object> GetRequestInfo(HttpContext context)
         {
             var request = context?.Request;
 

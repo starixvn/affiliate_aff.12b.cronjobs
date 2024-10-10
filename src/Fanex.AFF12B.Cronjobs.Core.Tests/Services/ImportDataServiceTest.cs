@@ -1,7 +1,7 @@
-﻿using Fanex.AFF12B.CronJobs.Core.Models.DTOs;
-using Fanex.AFF12B.CronJobs.Core.Models.MetaModels;
-using Fanex.AFF12B.CronJobs.Core.Repositories;
-using Fanex.AFF12B.CronJobs.Core.Services;
+﻿using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.DTOs;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.MetaModels;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
+using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
 using Fanex.Logging;
 using NSubstitute;
 using System;
@@ -31,7 +31,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
         {
             //Arrange
             var timeTacker = new DateTime(2023, 06, 10, 00, 00, 00, 00);
-            _trackerRepository.GetTracker(Arg.Any<int>(), Arg.Any<string>()).Returns(Task.FromResult<DateTime?>(timeTacker));
+            _trackerRepository.GetTrackerAsync(Arg.Any<int>(), Arg.Any<string>()).Returns(Task.FromResult<DateTime?>(timeTacker));
             var service = CreateImportDataService();
 
             //Action
@@ -45,7 +45,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
         public async Task GetTimeTrackerAsync_WhenCallWithNoHasTimeTracker_ReturnFirstDayOfMonth()
         {
             //Arrange
-            _trackerRepository.GetTracker(Arg.Any<int>(), Arg.Any<string>()).Returns(Task.FromResult<DateTime?>(null));
+            _trackerRepository.GetTrackerAsync(Arg.Any<int>(), Arg.Any<string>()).Returns(Task.FromResult<DateTime?>(null));
             var service = CreateImportDataService();
 
             //Action
@@ -65,7 +65,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             await service.UpdateTimeTrackerAsync(new TrackerParam());
 
             //Assert
-            await _trackerRepository.Received().AddTracker(Arg.Any<TrackerParam>());
+            await _trackerRepository.Received().AddTrackerAsync(Arg.Any<TrackerParam>());
             _logger.Received().Info(Arg.Any<string>());
         }
 
@@ -87,8 +87,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             await service.ImportDataToDbAsync<Ticket>(param, true);
 
             //Assert
-            await _queueRepository.Received().AddQueue(Arg.Any<QueueParam>());
-            await _trackerRepository.Received().AddTracker(Arg.Any<TrackerParam>());
+            await _queueRepository.Received().AddQueueAsync(Arg.Any<QueueParam>());
+            await _trackerRepository.Received().AddTrackerAsync(Arg.Any<TrackerParam>());
             _logger.Received(2).Info(Arg.Any<string>());
             await _logger.DidNotReceive().ErrorAsync(Arg.Any<string>());
         }
@@ -111,8 +111,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             await service.ImportDataToDbAsync<Ticket>(param, false);
 
             //Assert
-            await _queueRepository.Received().AddQueue(Arg.Any<QueueParam>());
-            await _trackerRepository.DidNotReceive().AddTracker(Arg.Any<TrackerParam>());
+            await _queueRepository.Received().AddQueueAsync(Arg.Any<QueueParam>());
+            await _trackerRepository.DidNotReceive().AddTrackerAsync(Arg.Any<TrackerParam>());
             _logger.Received(3).Info(Arg.Any<string>());
             await _logger.DidNotReceive().ErrorAsync(Arg.Any<string>());
         }
@@ -134,8 +134,8 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Services
             await service.ImportDataToDbAsync<Ticket>(param, false);
 
             //Assert
-            await _queueRepository.DidNotReceive().AddQueue(Arg.Any<QueueParam>());
-            await _trackerRepository.DidNotReceive().AddTracker(Arg.Any<TrackerParam>());
+            await _queueRepository.DidNotReceive().AddQueueAsync(Arg.Any<QueueParam>());
+            await _trackerRepository.DidNotReceive().AddTrackerAsync(Arg.Any<TrackerParam>());
             _logger.Received().Info(Arg.Any<string>());
             await _logger.Received().ErrorAsync(Arg.Any<string>());
         }

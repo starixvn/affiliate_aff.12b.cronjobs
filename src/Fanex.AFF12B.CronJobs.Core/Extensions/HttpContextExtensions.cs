@@ -39,7 +39,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
                 {
                     var handler = new JwtSecurityTokenHandler();
                     var claims = handler.ValidateToken(accessToken, tokenValidationParameters, out _);
-                    if (!claims.Identity.IsAuthenticated)
+                    if (claims is null || !claims.Identity.IsAuthenticated)
                     {
                         return false;
                     }
@@ -50,7 +50,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Extensions
                             accessToken,
                             new CookieOptions
                             {
-                                Expires = DateTime.Now.AddMinutes(CookieExpirationMinutes),
+                                Expires = DateTimeOffset.Now.AddMinutes(CookieExpirationMinutes),
                                 HttpOnly = true,
                                 Secure = true,
                                 SameSite = SameSiteMode.Strict

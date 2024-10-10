@@ -13,7 +13,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Extensions
 {
     public class HttpContextExtensionsTest
     {
-        private static readonly SecurityKey Security_Key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("cf6cd78a9e3d01d6ff7f33c51bff6525d1c5917e50b9a175d1604242b2495b79"));
+        private static readonly SecurityKey Security_Key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("cf6cd78a9e3d01a175d1604242b2d6ff7f33c51bff6525d1c5917e50b9495b79"));
         private static readonly TokenValidationParameters Token_Validation_Param = GetTokenValidationParameters();
 
         private static TokenValidationParameters GetTokenValidationParameters() => new TokenValidationParameters
@@ -27,8 +27,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Extensions
             ValidateAudience = true,
             RoleClaimType = ClaimsIdentity.DefaultNameClaimType,
             RequireExpirationTime = true,
-            ValidateLifetime = true,
-            NameClaimType = ClaimTypes.Email
+            ValidateLifetime = true
         };
 
         [Fact]
@@ -80,7 +79,7 @@ namespace Fanex.AFF12B.Cronjobs.Core.Tests.Extensions
         public void Authorize_WhenCallWithQueryContainsKeyAndValidAccessToken_ReturnTrue()
         {
             //Arrange
-            var token = new StringValues("eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwidHlwIjoiSldUIn0..jvzLI5Jq9Fz9OItsZ_aOJA.O02iE8tWVSvIg67YzWeH2HCghsatfL856dpAvtLNzOLy78YPvVGuRcP6f_487QAHrJaem_1GQrA1IwNqj0GGsarBm5sb5CmKQuK3jiDnaz2fWyDVNKCFFcWjSleKPVJIr3FPZImOrFdiM-GmNpcZnhdDkM21GbemC2Fi1Wr0-v0j5SJi0mzr3QI2ZYrZmQVoucBoccrVc4Il3KRtpwxruGld-pNN-Ot3OuQLRlACUVMk8QtRDofurUz5M4lnOoGgfBh3GUpk_nR2SU4gSNbtRm36_C6rFt47URVOQWhmogYN5RPIaANfD4O4QJ9inTqO.hk-krhoHm_Ek5A8n-xmsLUpvKhU4luQo80vj6-WMTf4");
+            var token = new StringValues("eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwidHlwIjoiSldUIiwiY3R5IjoiSldUIn0..D6PODZn4W0jm2YlvUIZCLA.BJBSYm6gdXrKr-8K72MKaHjF3tSv9_YTd5oh3JWu9z6TKtzfkOS5E27zZeWRVNjaf6IS1XcWwItY4XtVN4GWt18l0NWD-dFWFMrMHFqkTWwg48ZuN1f3HxictIIhfF746cTBxKYouRR8W3Rcmj59-6ERMxNmJCli89y5H1jqUKISfWLXMUKcDCfynlY3ytO37-G1oVcB7TObinw0Qcm44CbyYut2YKqCof3xGlmCrUHO74Q4Z2pMiclXfeGJtg5TMEjMP3sg0Asg7deSivgr0GOFOlaKHTESmQBiC_-5QQk5SvEOo_jswRl24jgXv9jtH6GtCBCkthuvkS1MzsUeuBjYL77yJSfzKic2qrXVJRGnys44EhWgzEdh4h_4Ge-LAa3ktYmGTEJ6Zu7tIP7EDC80OmqqHZGKlhtnyJVld30f0z7kwxVxWQ6Oouojomoh.KIx5NWPTs1CTteZiXewzW-5-N7r0S8zRn8sckSGsP58");
             var validateTokenParam = GetTokenValidationParameters();
             validateTokenParam.ValidateLifetime = false;
             validateTokenParam.RequireExpirationTime = false;

@@ -4,7 +4,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
 {
     public static class Product
     {
-        private static IDictionary<string, string> ProductNames => new Dictionary<string, string>
+        private static Dictionary<string, string> ProductByGeneralJobs => new Dictionary<string, string>
         {
             //{ tpType + subItem, productName }
             { "1", "12Emerald - Playtech" },
@@ -29,17 +29,36 @@ namespace Fanex.AFF12B.CronJobs.Core.Constants
             { "27", "12Diamond" },
         };
 
+        public static Dictionary<string, string> ProductOnDb => new Dictionary<string, string>
+        {
+            { "3", "12Emerald - Playtech" },
+            { "11", "12Amber - Betsoft" },
+            { "12", "12Crystal - GPI" },
+            { "25", "BTi" },
+        };
+
         public static string GetProductNameByTpTypeAndSubItem(byte tpType, string subItem)
         {
             var productName = "Unknown";
             var key = tpType + subItem;
 
-            if (ProductNames.ContainsKey(key))
+            if (ProductByGeneralJobs.ContainsKey(key))
             {
-                ProductNames.TryGetValue(key, out productName);
+                ProductByGeneralJobs.TryGetValue(key, out productName);
             }
 
-            return $"{productName} Job(TpType: '{tpType}', SubItem: '{subItem}')";
+            return $"{productName} Job (TpType: '{tpType}', SubItem: '{subItem}')";
+        }
+
+        public static string GetProductNameById(string productId)
+        {
+            var productName = "Unknown";
+            if (ProductOnDb.ContainsKey(productId))
+            {
+                ProductOnDb.TryGetValue(productId, out productName);
+            }
+
+            return $"{productName} Job Vendor (ProductId: '{productId}')";
         }
     }
 }
