@@ -12,11 +12,11 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Controllers
     [ApiController]
     [ServiceFilter(typeof(IPFilterAttribute))]
     [Route("api/[controller]/[action]")]
-    public abstract class VendorController : ControllerBase
+    public class VendorController : ControllerBase
     {
         private readonly IVendorService _vendorService;
 
-        public VendorController(IVendorService vendorService)
+        protected VendorController(IVendorService vendorService)
         {
             _vendorService = vendorService ?? throw new ArgumentNullException(nameof(vendorService));
         }

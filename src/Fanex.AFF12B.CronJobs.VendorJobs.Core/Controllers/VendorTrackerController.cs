@@ -47,7 +47,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Controllers
             {
                 await _vendorTrackerService.UpdateTrackerAsync(Convert.ToInt32(productId), callTime);
 
-                var message = $"{Dns.GetHostName()} - Updated {Product.GetProductNameById(productId.ToString())}'s Vendor Tracker Time to {callTime.FormatDateTime()}";
+                var message = $"{Dns.GetHostName()} - Updated {Product.GetProductNameById(productId)}'s Vendor Tracker Time to {callTime.FormatDateTime()}";
                 _logger.Info(message);
 
                 return Ok($"{Product.GetProductNameById(productId)} Vendor - updated time tracker successfully!");

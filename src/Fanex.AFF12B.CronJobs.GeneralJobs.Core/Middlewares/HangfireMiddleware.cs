@@ -6,7 +6,6 @@ using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Net;
 

@@ -1,6 +1,7 @@
 ﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Configurations;
 using Microsoft.Extensions.Configuration;
+using System;
 
 namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions
 {
@@ -21,9 +22,9 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions
             return configuration.GetAppSettingsSection($"VendorProductSettings:{productName}Setting:JobSetting").Get<JobSetting>();
         }
 
-        public static string GetVendorProductApiUrlValue(this IConfiguration configuration, string productName)
+        public static Uri GetVendorProductApiUrl(this IConfiguration configuration, string productName)
         {
-            return configuration.GetAppSettingsValue<string>($"VendorProductSettings:{productName}Setting:ApiUrl");
+            return new Uri(configuration.GetAppSettingsValue<string>($"VendorProductSettings:{productName}Setting:ApiUrl"));
         }
     }
 }

@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;

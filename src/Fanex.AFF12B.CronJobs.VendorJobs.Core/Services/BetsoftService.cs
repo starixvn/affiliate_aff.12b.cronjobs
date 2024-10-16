@@ -75,7 +75,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         protected override bool ShouldImportToDb(XElement root)
         {
-            return root.Elements(RESPONSE_PROPERTY_NAME).Elements(TicketsPropertyName).Count() != 0;
+            return root.Elements(RESPONSE_PROPERTY_NAME).Elements(TicketsPropertyName).Any();
         }
 
         protected override bool IsValidXml(XElement element)

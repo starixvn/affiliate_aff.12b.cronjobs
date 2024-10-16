@@ -14,8 +14,4 @@
     <ProjectReference Include="..\Fanex.AFF12B.CronJobs.Core\Fanex.AFF12B.CronJobs.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\DTOs\" />
-  </ItemGroup>
-
 </Project>

@@ -32,7 +32,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         protected virtual bool IsXml => false;
 
-        public VendorService(
+        protected VendorService(
             ILogger logger,
             IVendorTrackerService trackerService,
             IImportVendorDataRepository importDataRepository,
@@ -121,7 +121,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
             foreach (var xmlData in xmlDatas)
             {
-                await _importDataRepository.ImportDataAsync(_vendorSetting.ProductId, xmlData.ToString());
+                await _importDataRepository.ImportDataAsync(_vendorSetting.ProductId, xmlData);
             }
 
             if (isFromRunningJob)
@@ -247,7 +247,7 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Services
 
         protected virtual bool ShouldImportToDb(XElement root)
         {
-            return root.Elements(TicketsPropertyName).Count() != 0;
+            return root.Elements(TicketsPropertyName).Any();
         }
     }
 }

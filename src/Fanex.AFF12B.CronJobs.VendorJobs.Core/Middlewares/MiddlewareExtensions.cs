@@ -3,7 +3,6 @@ using Fanex.AFF12B.CronJobs.VendorJobs.Core.Apis;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Extensions;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.VendorJobs.Core.Services;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -30,12 +29,17 @@ namespace Fanex.AFF12B.CronJobs.VendorJobs.Core.Middlewares
             services.RegisterVendorApi<IBetsoftApi>(configuration, defaultFuncHttpHandler, "Betsoft", apiSetting.ProductApiTimeOut);
         }
 
-        private static void RegisterVendorApi<T>(this IServiceCollection services, IConfiguration configuration, Func<HttpClientHandler> defaultFuncHttpHandler, string productName, double timeOut = 150) where T : class
+        private static void RegisterVendorApi<T>(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            Func<HttpClientHandler> defaultFuncHttpHandler,
+            string productName,
+            double timeOut = 150) where T : class
         {
             services.AddRefitClient<T>()
                 .ConfigureHttpClient(c =>
                 {
-                    c.BaseAddress = new Uri(configuration.GetVendorProductApiUrlValue(productName));
+                    c.BaseAddress = configuration.GetVendorProductApiUrl(productName);
                     c.Timeout = TimeSpan.FromSeconds(timeOut);
                 })
                 .ConfigurePrimaryHttpMessageHandler(defaultFuncHttpHandler);

@@ -26,11 +26,6 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks
             _maintenanceService = maintenanceService;
         }
 
-        public async Task FetchDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
-        {
-            await FetchDataAsync<Ticket>(cronJobSetting);
-        }
-
         public async Task FetchConvertedTransactionIdDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
         {
             await FetchDataAsync<ConvertedTransactionIdTicket>(cronJobSetting);
@@ -39,6 +34,11 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks
         public async Task FetchAdjustedDateTimeDataAsync(string jobName, AdjustedDateTimeProductSetting cronJobSetting)
         {
             await FetchDataAsync<AdjustedDateTimeTicket>(cronJobSetting);
+        }
+
+        public async Task FetchDataAsync(string jobName, ThirdPartyProductSetting cronJobSetting)
+        {
+            await FetchDataAsync<Ticket>(cronJobSetting);
         }
 
         public async Task FetchDataAsync<T>(ThirdPartyProductSetting cronJobSetting) where T : Ticket
