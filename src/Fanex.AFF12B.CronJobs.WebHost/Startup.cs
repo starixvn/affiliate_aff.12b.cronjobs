@@ -71,7 +71,7 @@ namespace Fanex.AFF12B.CronJobs.WebHost
                 {
                     { jwtSecurityScheme, Array.Empty<string>() }
                 });
-                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Aff.AFF12B.Cronjobs", Version = "v1" });
+                    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Aff.AFF12B.CronJobs", Version = "v1" });
                 });
             }
 

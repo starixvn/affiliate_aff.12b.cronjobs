@@ -46,7 +46,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
             // Add the processing server as IHostedService
             services.AddHangfireServer(option =>
             {
-                option.ServerName = $"AFF 12B Cronjobs - {Dns.GetHostName()}";
+                option.ServerName = $"AFF 12B CronJobs - {Dns.GetHostName()}";
             });
         }
 

@@ -6,7 +6,6 @@ using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Net;
 
@@ -19,7 +18,7 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares
             var isRunFetchTask = HangfireHelpers.IsRunFetchTask(configuration);
             if (isRunFetchTask)
             {
-                Logger.Log.Info($"AFF 12B General API Cronjobs are registered on {Dns.GetHostName()}");
+                Logger.Log.Info($"AFF 12B General API CronJobs are registered on {Dns.GetHostName()}");
 
                 //Normal Jobs
                 var productJobs = new List<ThirdPartyCronJobSetting<ThirdPartyProductSetting>>();

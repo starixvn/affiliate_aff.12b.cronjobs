@@ -4,7 +4,6 @@ using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Models.Options;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.RecuringTasks;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Repositories;
 using Fanex.AFF12B.CronJobs.GeneralJobs.Core.Services;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Refit;
@@ -21,7 +20,7 @@ namespace Fanex.AFF12B.CronJobs.GeneralJobs.Core.Middlewares
             var section = configuration.GetSection(nameof(ApiOptions));
             var apiSetting = section.Get<GeneralJobsOptions>();
 
-            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler()
+            HttpClientHandler defaultFuncHttpHandler() => new HttpClientHandler
             {
                 Proxy = apiSetting != null && apiSetting.IsUseKbtProxy
                   ? new WebProxy(new Uri(apiSetting.KbtProxyUrl))
