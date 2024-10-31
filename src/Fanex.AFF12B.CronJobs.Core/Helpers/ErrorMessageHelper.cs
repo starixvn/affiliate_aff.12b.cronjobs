@@ -1,4 +1,5 @@
-﻿using Fanex.Data;
+﻿using Fanex.AFF12B.CronJobs.Core.Extensions;
+using Fanex.Data;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Refit;
@@ -142,7 +143,8 @@ namespace Fanex.AFF12B.CronJobs.Core.Helpers
                         [nameof(request.Host)] = request.Host,
                         [nameof(request.Path)] = request.Path,
                         [nameof(request.Body)] = request.Body,
-                        ["Remote IP"] = context.Connection.RemoteIpAddress
+                        ["Remote IP"] = context.Connection.RemoteIpAddress,
+                        ["Client IP"] = context.Request.GetClientIP(),
                     };
         }
     }

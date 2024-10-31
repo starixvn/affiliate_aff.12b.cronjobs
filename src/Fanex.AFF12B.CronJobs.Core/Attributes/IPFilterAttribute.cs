@@ -31,7 +31,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Attributes
                 return;
             }
 
-            var ipAddress = context.HttpContext.Connection.RemoteIpAddress;
+            var ipAddress = context.HttpContext.Request.GetClientIP();
             var whiteListIPList = _applicationOptions.WhiteList;
 
             var isInWhiteListIPList = !whiteListIPList.Any() || whiteListIPList.Any(_ => IsInRangeIP(_, ipAddress));
@@ -46,7 +46,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Attributes
             }
         }
 
-        private bool IsInRangeIP(string ipRangeString, IPAddress ipAddress)
+        private bool IsInRangeIP(string ipRangeString, string ipAddress)
         {
             if (!IPAddressRange.TryParse(ipRangeString, out IPAddressRange ipRange))
             {
@@ -55,7 +55,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Attributes
                 return false;
             }
 
-            return ipRange.Contains(ipAddress);
+            return ipRange.Contains(IPAddress.Parse(ipAddress));
         }
     }
 }
