@@ -189,7 +189,7 @@ namespace Fanex.AFF12B.CronJobs.Core.Middlewares
                 => cache.Set(BuildKey(key), value, ByPassUMCacheTime);
 
             private string BuildKey(string key)
-                => $"{key}:{httpContextAccessor.HttpContext?.Connection.RemoteIpAddress.ToString()}";
+                => $"{key}:{httpContextAccessor.HttpContext?.Request.GetClientIP()}";
         }
     }
 }
